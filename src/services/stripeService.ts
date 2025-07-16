@@ -18,59 +18,50 @@ export const getStripe = (): Stripe | null => stripe;
 // Subscription plans
 export const SUBSCRIPTION_PLANS = {
   FREE: {
-    id: 'free',
     name: 'Free',
     price: 0,
-    priceId: '',
     features: [
       'Up to 10 gifts',
-      'Basic recommendations',
-      'Simple tracking',
-      'Mobile app access'
+      'Basic tracking',
+      'Standard support'
     ],
     limits: {
       gifts: 10,
-      recipients: 5,
-      recommendations: 5
+      people: 5,
+      occasions: 3
     }
   },
   PREMIUM: {
-    id: 'premium',
     name: 'Premium',
     price: 9.99,
-    priceId: 'price_premium_monthly',
     features: [
       'Unlimited gifts',
-      'AI-powered recommendations',
+      'Smart recommendations',
       'Advanced analytics',
       'Social features',
       'Integrations',
       'Priority support'
     ],
     limits: {
-      gifts: -1, // unlimited
-      recipients: -1,
-      recommendations: -1
+      gifts: -1,
+      people: -1,
+      occasions: -1
     }
   },
   FAMILY: {
-    id: 'family',
     name: 'Family Plan',
     price: 19.99,
-    priceId: 'price_family_monthly',
     features: [
       'Everything in Premium',
       'Up to 6 family members',
-      'Shared wishlists',
-      'Family coordination',
-      'Group analytics',
-      'Family events'
+      'Family features',
+      'Custom branding',
+      'Advanced data export'
     ],
     limits: {
       gifts: -1,
-      recipients: -1,
-      recommendations: -1,
-      familyMembers: 6
+      people: -1,
+      occasions: -1
     }
   }
 };

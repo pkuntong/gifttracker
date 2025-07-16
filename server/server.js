@@ -1239,7 +1239,7 @@ app.post('/api/gift-recommendations/personalized', authenticateToken, (req, res)
         tags: ['travel', 'adventure', 'experience'],
         imageUrl: 'https://example.com/travel.jpg',
         purchaseUrl: 'https://example.com/purchase',
-        source: 'ai'
+        source: 'smart'
       }
     ];
 

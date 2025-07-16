@@ -8,52 +8,27 @@ import {
   DollarSign, 
   TrendingUp, 
   TrendingDown,
-  PieChart,
   BarChart3,
   Calendar,
-  Users,
-  Gift,
   Target,
-  AlertTriangle,
+  AlertCircle,
   CheckCircle,
   Clock,
-  Zap,
-  Lightbulb,
-  Calculator,
-  RefreshCw,
-  Download,
-  Upload,
-  Settings,
-  Eye,
-  EyeOff,
-  Plus,
-  Minus,
-  ArrowUpRight,
-  ArrowDownRight,
-  Star,
-  Sparkles,
-  Brain,
-  ChartLine,
-  PiggyBank,
   CreditCard,
   Wallet,
-  Coins,
-  Receipt,
-  FileText,
-  PieChart as PieChartIcon,
-  BarChart as BarChartIcon,
-  LineChart,
-  Activity,
-  Target as TargetIcon,
-  AlertCircle,
+  PiggyBank,
+  ArrowUpRight,
+  ArrowDownRight,
   Info,
-  HelpCircle,
-  ChevronRight,
-  ChevronDown,
-  Filter,
-  Search,
-  SortAsc,
-  SortDesc
+  Brain,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  Lightbulb,
+  PieChart,
+  Receipt,
+  Gift,
+  Coins
 } from 'lucide-react';
 import { ApiService } from '@/services/api';
 
@@ -345,18 +320,12 @@ const AdvancedBudgetManagement: React.FC = () => {
 
   const getInsightIcon = (type: string) => {
     switch (type) {
-      case 'savings':
-        return PiggyBank;
-      case 'spending':
-        return TrendingUp;
-      case 'trend':
-        return ChartLine;
-      case 'prediction':
-        return Brain;
-      case 'optimization':
-        return Sparkles;
-      default:
-        return Info;
+      case 'savings': return TrendingDown;
+      case 'spending': return TrendingUp;
+      case 'trend': return BarChart3;
+      case 'prediction': return Calendar;
+      case 'optimization': return Target;
+      default: return Target;
     }
   };
 
@@ -467,7 +436,7 @@ const AdvancedBudgetManagement: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
+              <Target className="h-5 w-5" />
               {t('budgetManagement.aiInsights')}
             </CardTitle>
           </CardHeader>

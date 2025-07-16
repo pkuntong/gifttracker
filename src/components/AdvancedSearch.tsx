@@ -7,20 +7,17 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Search, 
   Filter, 
-  Sparkles, 
-  Heart, 
-  Star,
-  TrendingUp,
-  Clock,
-  MapPin,
-  DollarSign,
-  Users,
-  Calendar,
-  Gift,
   X,
   Save,
-  History,
-  Lightbulb
+  Clock,
+  Target,
+  TrendingUp,
+  Zap,
+  Star,
+  ShoppingCart,
+  Heart,
+  Eye,
+  RefreshCw
 } from 'lucide-react';
 import { ApiService } from '@/services/api';
 import { Label } from '@/components/ui/label';
@@ -151,8 +148,8 @@ const AdvancedSearch: React.FC = () => {
     { label: 'Over $200', range: [200, 1000] }
   ];
 
-  // AI-powered search suggestions
-  const generateAiSuggestions = (searchQuery: string) => {
+  // Smart search suggestions
+  const generateSmartSuggestions = (searchQuery: string) => {
     const suggestions = [
       `${searchQuery} for men`,
       `${searchQuery} personalized`,
@@ -199,7 +196,7 @@ const AdvancedSearch: React.FC = () => {
       }
       
       // Generate AI suggestions
-      setAiSuggestions(generateAiSuggestions(searchQuery));
+      setAiSuggestions(generateSmartSuggestions(searchQuery));
       
     } catch (error) {
       console.error('Search failed:', error);
@@ -242,14 +239,14 @@ const AdvancedSearch: React.FC = () => {
 
   // Get match type badge
   const getMatchTypeBadge = (matchType: string) => {
-    const variants = {
-      exact: { variant: 'default' as const, icon: Star },
-      semantic: { variant: 'secondary' as const, icon: Sparkles },
-      ai: { variant: 'outline' as const, icon: Lightbulb },
-      partial: { variant: 'destructive' as const, icon: Search }
+    const matchTypes = {
+      exact: { variant: 'default' as const, icon: Target },
+      semantic: { variant: 'secondary' as const, icon: Target },
+      partial: { variant: 'outline' as const, icon: TrendingUp },
+      ai: { variant: 'destructive' as const, icon: Zap },
     };
     
-    const { variant, icon: Icon } = variants[matchType as keyof typeof variants] || variants.partial;
+    const { variant, icon: Icon } = matchTypes[matchType as keyof typeof matchTypes] || matchTypes.partial;
     
     return (
       <Badge variant={variant} className="text-xs">
@@ -300,7 +297,7 @@ const AdvancedSearch: React.FC = () => {
             {aiSuggestions.length > 0 && (
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
-                  <Lightbulb className="h-4 w-4" />
+                  <RefreshCw className="h-4 w-4" />
                   {t('search.aiSuggestions')}
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -422,7 +419,7 @@ const AdvancedSearch: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <History className="h-5 w-5" />
+              <Clock className="h-5 w-5" />
               {t('search.recentSearches')}
             </CardTitle>
           </CardHeader>
@@ -500,7 +497,7 @@ const AdvancedSearch: React.FC = () => {
                   <div className="space-y-3">
                     {/* Image placeholder */}
                     <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
-                      <Gift className="h-8 w-8 text-muted-foreground" />
+                      <ShoppingCart className="h-8 w-8 text-muted-foreground" />
                     </div>
                     
                     {/* Content */}

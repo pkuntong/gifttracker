@@ -254,11 +254,8 @@ const BudgetManagementWidget: React.FC = () => {
             {topInsight && (
               <div className="border-t pt-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <Brain className="h-3 w-3 text-purple-600" />
-                  <span className="text-xs font-medium">AI Insight</span>
-                  <Badge className={getPriorityColor(topInsight.priority)}>
-                    {topInsight.priority}
-                  </Badge>
+                  <Target className="w-5 h-5" />
+                  <span className="text-sm font-medium">Smart Budget Insights</span>
                 </div>
                 <div className="space-y-2">
                   <div className="text-xs font-medium">{topInsight.title}</div>

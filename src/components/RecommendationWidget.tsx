@@ -10,7 +10,8 @@ import {
   ArrowRight,
   Heart,
   ShoppingCart,
-  Eye
+  Eye,
+  RefreshCw
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -71,11 +72,11 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
 
   const getSourceIcon = (source: string) => {
     switch (source) {
-      case 'ai': return <Sparkles className="w-4 h-4" />;
+      case 'ai': return <Target className="w-4 h-4" />;
       case 'popular': return <TrendingUp className="w-4 h-4" />;
       case 'trending': return <Zap className="w-4 h-4" />;
       case 'personalized': return <Target className="w-4 h-4" />;
-      default: return <Sparkles className="w-4 h-4" />;
+      default: return <Target className="w-4 h-4" />;
     }
   };
 
@@ -83,10 +84,10 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
-            AI Recommendations
-          </CardTitle>
+          <div className="flex items-center gap-2 mb-2">
+            <Target className="w-5 h-5" />
+            <span className="text-sm font-medium">Smart Recommendations</span>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
@@ -102,7 +103,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
+            <Target className="w-5 h-5" />
             <CardTitle>AI Recommendations</CardTitle>
           </div>
           <Button variant="outline" size="sm" asChild>
@@ -118,16 +119,14 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
       </CardHeader>
       <CardContent>
         {recommendations.length === 0 ? (
-          <div className="text-center py-6">
-            <Sparkles className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+          <div className="text-center py-8">
+            <Target className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
             <p className="text-sm text-muted-foreground mb-4">
-              No recommendations yet. Add people and preferences to get started.
+              No recommendations available
             </p>
-            <Button size="sm" asChild>
-              <Link to="/recommendations">
-                <Sparkles className="w-4 h-4 mr-2" />
-                Generate Recommendations
-              </Link>
+            <Button size="sm" variant="outline">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
             </Button>
           </div>
         ) : (
@@ -181,7 +180,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
             <div className="pt-2">
               <Button variant="outline" size="sm" className="w-full" asChild>
                 <Link to="/recommendations">
-                  <Sparkles className="w-4 h-4 mr-2" />
+                  <Target className="w-4 h-4 mr-2" />
                   Get More Recommendations
                 </Link>
               </Button>

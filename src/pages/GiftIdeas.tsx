@@ -28,7 +28,8 @@ import {
   Trash2,
   Lightbulb,
   TrendingUp,
-  Users
+  Users,
+  Target
 } from 'lucide-react';
 import { ApiService } from '@/services/api';
 import { GiftIdea, GiftRecommendation, GiftPreferences, Person, Occasion } from '@/types';
@@ -337,8 +338,8 @@ const GiftIdeasPage: React.FC = () => {
               />
             </div>
             <Button onClick={handleGetRecommendations} className="mt-6">
-              <Sparkles className="mr-2 h-4 w-4" />
-              Get Recommendations
+              <Target className="mr-2 h-4 w-4" />
+              Smart Ideas
             </Button>
           </div>
         </CardContent>
@@ -434,7 +435,7 @@ const GiftIdeasPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="flex items-center gap-2">
-                        <Sparkles className="h-5 w-5" />
+                        <Target className="h-5 w-5" />
                         {rec.title}
                       </CardTitle>
                       <CardDescription>{rec.description}</CardDescription>

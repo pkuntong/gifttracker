@@ -154,7 +154,7 @@ const GiftRecommendations: React.FC = () => {
 
   const getSourceIcon = (source: string) => {
     switch (source) {
-      case 'ai': return <Sparkles className="w-4 h-4" />;
+      case 'ai': return <Target className="w-4 h-4" />;
       case 'popular': return <TrendingUp className="w-4 h-4" />;
       case 'trending': return <Zap className="w-4 h-4" />;
       case 'personalized': return <Target className="w-4 h-4" />;
@@ -224,7 +224,7 @@ const GiftRecommendations: React.FC = () => {
           <Sparkles className="w-8 h-8 text-primary" />
           <div>
             <h1 className="text-3xl font-bold">Gift Recommendations</h1>
-            <p className="text-muted-foreground">AI-powered personalized gift suggestions</p>
+            <p className="text-muted-foreground">Smart personalized gift suggestions</p>
           </div>
         </div>
         <Button onClick={generateRecommendations} disabled={loading}>
@@ -436,17 +436,15 @@ const GiftRecommendations: React.FC = () => {
       {/* No Recommendations State */}
       {recommendations.length === 0 && !loading && (
         <Card className="text-center py-12">
-          <CardContent>
-            <Sparkles className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Recommendations Yet</h3>
-            <p className="text-muted-foreground mb-4">
-              Generate personalized gift recommendations based on your filters
-            </p>
-            <Button onClick={generateRecommendations}>
-              <Sparkles className="w-4 h-4 mr-2" />
-              Generate Recommendations
-            </Button>
-          </CardContent>
+          <Target className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No Recommendations Found</h3>
+          <p className="text-muted-foreground mb-4">
+            Try adjusting your filters or generating new recommendations
+          </p>
+          <Button onClick={generateRecommendations} disabled={loading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Generate Recommendations
+          </Button>
         </Card>
       )}
 

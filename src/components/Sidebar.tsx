@@ -3,28 +3,24 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { 
-  Gift, 
-  Users, 
-  Calendar, 
-  DollarSign, 
+  Home,
+  Gift,
+  Users,
+  Calendar,
   Settings,
-  Bell,
-  LogOut,
   BarChart3,
-  Lightbulb,
   Search,
-  Database,
+  Bell,
+  CreditCard,
+  FileText,
   Heart,
-  Sparkles,
-  Truck,
-  Menu,
-  X,
+  ShoppingCart,
+  Target,
+  Zap,
+  TrendingUp,
   ChevronLeft,
   ChevronRight,
-  Share2,
-  TrendingUp,
-  ExternalLink,
-  CreditCard
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -47,26 +43,16 @@ const Sidebar = () => {
   };
 
   const navItems = [
-    { path: '/dashboard', label: t('navigation.dashboard'), icon: Gift },
-    { path: '/people', label: t('navigation.people'), icon: Users },
+    { path: '/dashboard', label: t('navigation.dashboard'), icon: Home },
     { path: '/gifts', label: t('navigation.gifts'), icon: Gift },
-    { path: '/recommendations', label: t('navigation.recommendations'), icon: Sparkles },
-    { path: '/tracking', label: t('navigation.tracking'), icon: Truck },
-    { path: '/social', label: t('navigation.social'), icon: Share2 },
-    { path: '/advanced-analytics', label: t('navigation.advancedAnalytics'), icon: TrendingUp },
+    { path: '/people', label: t('navigation.people'), icon: Users },
     { path: '/occasions', label: t('navigation.occasions'), icon: Calendar },
-    { path: '/budgets', label: t('navigation.budgets'), icon: DollarSign },
-    { path: '/families', label: t('navigation.families'), icon: Users },
-    { path: '/notifications', label: t('navigation.notifications'), icon: Bell },
+    { path: '/recommendations', label: t('navigation.recommendations'), icon: Target },
     { path: '/analytics', label: t('navigation.analytics'), icon: BarChart3 },
-    { path: '/gift-ideas', label: t('navigation.giftIdeas'), icon: Lightbulb },
-    { path: '/wishlists', label: t('navigation.wishlists'), icon: Heart },
-    { path: '/reminders', label: t('navigation.reminders'), icon: Bell },
     { path: '/search', label: t('navigation.search'), icon: Search },
-    { path: '/data', label: t('navigation.data'), icon: Database },
-    { path: '/settings', label: t('navigation.settings'), icon: Settings },
-    { path: '/integrations', label: t('navigation.integrations'), icon: ExternalLink },
+    { path: '/notifications', label: t('navigation.notifications'), icon: Bell },
     { path: '/billing', label: t('navigation.billing'), icon: CreditCard },
+    { path: '/settings', label: t('navigation.settings'), icon: Settings },
   ];
 
   return (

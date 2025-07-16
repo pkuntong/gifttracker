@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Crown, Lock, Zap, Users, Shield } from 'lucide-react';
+import { Crown, Lock, Zap, Users, Shield, Gift, Target, BarChart3, ExternalLink, Heart, MessageCircle, Search, Download, Palette } from 'lucide-react';
 import { SUBSCRIPTION_PLANS } from '@/services/stripeService';
 
 interface PremiumFeatureGuardProps {
@@ -67,96 +67,77 @@ const PremiumFeatureGuard: React.FC<PremiumFeatureGuardProps> = ({
     return null;
   }
 
-  const getFeatureInfo = (feature: string) => {
-    switch (feature) {
-      case 'unlimited_gifts':
-        return {
-          title: 'Unlimited Gifts',
-          description: 'Track unlimited gifts and recipients',
-          icon: <Crown className="h-6 w-6 text-yellow-500" />,
-          plan: 'PREMIUM'
-        };
-      case 'ai_recommendations':
-        return {
-          title: 'AI-Powered Recommendations',
-          description: 'Get intelligent gift suggestions based on preferences',
-          icon: <Zap className="h-6 w-6 text-blue-500" />,
-          plan: 'PREMIUM'
-        };
-      case 'advanced_analytics':
-        return {
-          title: 'Advanced Analytics',
-          description: 'Detailed insights and predictive analytics',
-          icon: <Zap className="h-6 w-6 text-purple-500" />,
-          plan: 'PREMIUM'
-        };
-      case 'social_features':
-        return {
-          title: 'Social Features',
-          description: 'Share wishlists and coordinate with family',
-          icon: <Users className="h-6 w-6 text-green-500" />,
-          plan: 'PREMIUM'
-        };
-      case 'integrations':
-        return {
-          title: 'External Integrations',
-          description: 'Connect with Amazon, Google Calendar, and more',
-          icon: <Zap className="h-6 w-6 text-orange-500" />,
-          plan: 'PREMIUM'
-        };
-      case 'family_features':
-        return {
-          title: 'Family Plan Features',
-          description: 'Up to 6 family members with shared features',
-          icon: <Users className="h-6 w-6 text-blue-500" />,
-          plan: 'FAMILY'
-        };
-      case 'priority_support':
-        return {
-          title: 'Priority Support',
-          description: 'Get faster support responses',
-          icon: <Shield className="h-6 w-6 text-green-500" />,
-          plan: 'PREMIUM'
-        };
-      case 'advanced_search':
-        return {
-          title: 'Advanced Search',
-          description: 'AI-powered search with intelligent filters',
-          icon: <Zap className="h-6 w-6 text-indigo-500" />,
-          plan: 'PREMIUM'
-        };
-      case 'data_export':
-        return {
-          title: 'Data Export',
-          description: 'Export your data in multiple formats',
-          icon: <Zap className="h-6 w-6 text-teal-500" />,
-          plan: 'PREMIUM'
-        };
-      case 'custom_branding':
-        return {
-          title: 'Custom Branding',
-          description: 'Personalize your gift tracking experience',
-          icon: <Crown className="h-6 w-6 text-purple-500" />,
-          plan: 'FAMILY'
-        };
-      default:
-        return {
-          title: 'Premium Feature',
-          description: 'This feature requires a premium subscription',
-          icon: <Lock className="h-6 w-6 text-gray-500" />,
-          plan: 'PREMIUM'
-        };
+  const featureDetails = {
+    unlimited_gifts: {
+      title: 'Unlimited Gifts',
+      description: 'Track unlimited gifts across all your occasions',
+      icon: Gift,
+      plan: 'PREMIUM'
+    },
+    ai_recommendations: {
+      title: 'Smart Recommendations',
+      description: 'Get personalized gift suggestions based on preferences',
+      icon: Target,
+      plan: 'PREMIUM'
+    },
+    advanced_analytics: {
+      title: 'Advanced Analytics',
+      description: 'Detailed insights and spending analytics',
+      icon: BarChart3,
+      plan: 'PREMIUM'
+    },
+    social_features: {
+      title: 'Social Features',
+      description: 'Share wishlists and coordinate with family',
+      icon: Users,
+      plan: 'PREMIUM'
+    },
+    integrations: {
+      title: 'Integrations',
+      description: 'Connect with popular e-commerce platforms',
+      icon: ExternalLink,
+      plan: 'PREMIUM'
+    },
+    family_features: {
+      title: 'Family Features',
+      description: 'Advanced family management and sharing',
+      icon: Heart,
+      plan: 'FAMILY'
+    },
+    priority_support: {
+      title: 'Priority Support',
+      description: 'Get help when you need it most',
+      icon: MessageCircle,
+      plan: 'PREMIUM'
+    },
+    advanced_search: {
+      title: 'Advanced Search',
+      description: 'Smart search with intelligent filters',
+      icon: Search,
+      plan: 'PREMIUM'
+    },
+    data_export: {
+      title: 'Data Export',
+      description: 'Export your data in multiple formats',
+      icon: Download,
+      plan: 'PREMIUM'
+    },
+    custom_branding: {
+      title: 'Custom Branding',
+      description: 'Personalize your experience',
+      icon: Palette,
+      plan: 'FAMILY'
     }
   };
 
-  const featureInfo = getFeatureInfo(feature);
+  const featureInfo = featureDetails[feature as keyof typeof featureDetails];
   const requiredPlan = SUBSCRIPTION_PLANS[featureInfo.plan as keyof typeof SUBSCRIPTION_PLANS];
 
   return (
     <Card className="border-dashed border-2 border-gray-300 bg-gray-50">
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
-          {featureInfo.icon}
+          <featureInfo.icon className="h-8 w-8 text-primary" />
         </div>
         <CardTitle className="text-xl">{featureInfo.title}</CardTitle>
         <CardDescription className="text-base">

@@ -459,80 +459,16 @@
     }
   },
   "search": {
-    "title": "Advanced Search & Discovery",
-    "description": "AI-powered search across gifts, people, and occasions with intelligent suggestions",
-    "placeholder": "Search for gifts, people, occasions...",
+    "title": "Search",
+    "description": "Smart search across gifts, people, and occasions with intelligent suggestions",
+    "placeholder": "Search gifts, people, occasions...",
     "filters": "Filters",
-    "aiSuggestions": "AI Suggestions",
-    "priceRange": "Price Range",
-    "categories": "Categories",
-    "sources": "Sources",
-    "minRating": "Minimum Rating",
+    "results": "Results",
+    "noResults": "No results found",
+    "suggestions": "Suggestions",
     "recentSearches": "Recent Searches",
     "savedSearches": "Saved Searches",
-    "saveSearch": "Save Search",
-    "results": "Search Results",
-    "noResults": "No results found",
-    "noResultsDescription": "Try adjusting your search terms or filters to find what you're looking for",
-    "search": "Search",
-    "searching": "Searching...",
-    "searchPlaceholder": "Search gifts, people, occasions...",
-    "advancedFilters": "Advanced Filters",
-    "advancedFiltersDescription": "Refine your search with specific criteria",
-    "category": "Category",
-    "status": "Status",
-    "dateRange": "Date Range",
-    "sortBy": "Sort By",
-    "sortOrder": "Sort Order",
-    "relevance": "Relevance",
-    "name": "Name",
-    "date": "Date",
-    "price": "Price",
-    "ascending": "Ascending",
-    "descending": "Descending",
-    "clearFilters": "Clear Filters",
-    "applyFilters": "Apply Filters",
-    "saved": "Saved",
-    "savedSearchesDescription": "Your saved search queries",
-    "enterSearchName": "Enter search name",
-    "searchSaved": "Search saved successfully",
-    "searchLoaded": "Search loaded successfully",
-    "searchDeleted": "Search deleted successfully",
-    "noSavedSearches": "No saved searches",
-    "suggestions": "Suggestions",
-    "resultsFound": "{{count}} results found",
-    "activeFilters": "Active filters",
-    "export": "Export",
-    "resultsExported": "Results exported successfully",
-    "listView": "List View",
-    "gridView": "Grid View",
-    "broadenSearch": "Broaden Search",
-    "allCategories": "All Categories",
-    "allStatuses": "All Statuses",
-    "startDate": "Start Date",
-    "endDate": "End Date",
-    "types": {
-      "gift": "Gift",
-      "person": "Person",
-      "occasion": "Occasion",
-      "budget": "Budget",
-      "family": "Family",
-      "gift-idea": "Gift Idea"
-    },
-    "statuses": {
-      "active": "Active",
-      "completed": "Completed",
-      "pending": "Pending",
-      "cancelled": "Cancelled"
-    },
-    "categories": {
-      "gifts": "Gifts",
-      "people": "People",
-      "occasions": "Occasions",
-      "budgets": "Budgets",
-      "families": "Families",
-      "gift-ideas": "Gift Ideas"
-    }
+    "aiSuggestions": "Smart Suggestions"
   },
   "dataManagement": {
     "title": "Data Management",
@@ -624,116 +560,17 @@
   },
   "budgetManagement": {
     "title": "Budget Management",
-    "description": "Advanced budget tracking with AI-powered financial insights and multi-currency support",
-    "totalBudget": "Total Budget",
-    "totalSpent": "Total Spent",
-    "remaining": "Remaining",
-    "activeBudgets": "Active Budgets",
-    "budgets": "Budgets",
-    "progress": "Progress",
-    "expenseCategories": "Expense Categories",
-    "recentExpenses": "Recent Expenses",
-    "currencySettings": "Currency Settings",
-    "primaryCurrency": "Primary Currency",
-    "exchangeRates": "Exchange Rates",
-    "aiInsights": "AI Insights",
-    "hideInsights": "Hide Insights",
-    "showInsights": "Show Insights",
-    "noBudgets": "No Budgets",
-    "noBudgetsDescription": "Create your first budget to start tracking your gift spending",
-    "budgetTypes": {
-      "monthly": "Monthly",
-      "quarterly": "Quarterly",
-      "yearly": "Yearly",
-      "custom": "Custom"
-    },
-    "budgetStatus": {
-      "on_track": "On Track",
-      "over_budget": "Over Budget",
-      "under_budget": "Under Budget",
-      "completed": "Completed"
-    },
-    "budgetPriority": {
-      "low": "Low",
-      "medium": "Medium",
-      "high": "High",
-      "critical": "Critical"
-    },
-    "insightTypes": {
-      "savings": "Savings",
-      "spending": "Spending",
-      "trend": "Trend",
-      "prediction": "Prediction",
-      "optimization": "Optimization"
-    },
-    "insightCategories": {
-      "timing": "Timing",
-      "analysis": "Analysis",
-      "forecasting": "Forecasting",
-      "optimization": "Optimization"
-    },
-    "expenseStatus": {
-      "pending": "Pending",
-      "completed": "Completed",
-      "cancelled": "Cancelled"
-    },
-    "paymentMethods": {
-      "creditCard": "Credit Card",
-      "debitCard": "Debit Card",
-      "cash": "Cash",
-      "bankTransfer": "Bank Transfer",
-      "digitalWallet": "Digital Wallet"
-    },
-    "currencies": {
-      "USD": "US Dollar",
-      "EUR": "Euro",
-      "GBP": "British Pound",
-      "JPY": "Japanese Yen",
-      "CAD": "Canadian Dollar"
-    },
-    "budgetCategories": {
-      "holiday": "Holiday",
-      "personal": "Personal",
-      "specialOccasion": "Special Occasion",
-      "family": "Family",
-      "work": "Work"
-    },
-    "expenseCategories": {
-      "electronics": "Electronics",
-      "books": "Books",
-      "jewelry": "Jewelry",
-      "clothing": "Clothing",
-      "toys": "Toys",
-      "home": "Home & Garden",
-      "sports": "Sports & Outdoors",
-      "beauty": "Beauty & Health",
-      "food": "Food & Beverages",
-      "experiences": "Experiences"
-    },
-    "financialActions": {
-      "planEarlier": "Plan purchases 2 weeks earlier",
-      "adjustBudget": "Adjust budget or reduce spending",
-      "reviewCategories": "Review budget categories",
-      "considerAlternatives": "Consider alternative gift categories",
-      "setReminders": "Set spending reminders",
-      "trackReceipts": "Track receipts and expenses"
-    },
-    "predictions": {
-      "title": "Budget Predictions",
-      "description": "AI-powered budget forecasting based on your spending patterns",
-      "likelyExceed": "You'll likely exceed your budget by",
-      "potentialSavings": "Potential savings of",
-      "spendingTrend": "Your spending trend shows",
-      "recommendation": "Recommendation"
-    },
-    "optimization": {
-      "title": "Budget Optimization",
-      "description": "Smart suggestions to optimize your gift spending",
-      "categoryAnalysis": "Category Analysis",
-      "timingOptimization": "Timing Optimization",
-      "costReduction": "Cost Reduction",
-      "valueMaximization": "Value Maximization"
-    }
+    "description": "Advanced budget tracking with smart financial insights and multi-currency support",
+    "overview": "Overview",
+    "spending": "Spending",
+    "categories": "Categories",
+    "trends": "Trends",
+    "insights": "Insights",
+    "forecasting": "Forecasting",
+    "aiInsights": "Smart Insights",
+    "budgetOptimization": "Budget Optimization",
+    "spendingAnalysis": "Spending Analysis",
+    "forecastDescription": "Smart budget forecasting based on your spending patterns"
   },
   "settings": {
     "title": "Settings",

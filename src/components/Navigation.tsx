@@ -3,9 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { 
-  Gift, 
-  Users, 
-  Calendar, 
+  Home,
+  Gift,
+  Users,
+  Calendar,
   DollarSign, 
   Settings,
   Bell,
@@ -16,7 +17,8 @@ import {
   Database,
   Heart,
   Sparkles,
-  Truck
+  Truck,
+  Target
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -37,12 +39,12 @@ const Navigation = () => {
   };
 
   const navItems = [
-    { path: '/dashboard', label: t('navigation.dashboard'), icon: Gift },
-    { path: '/people', label: t('navigation.people'), icon: Users },
+    { path: '/dashboard', label: t('navigation.dashboard'), icon: Home },
     { path: '/gifts', label: t('navigation.gifts'), icon: Gift },
-    { path: '/recommendations', label: t('navigation.recommendations'), icon: Sparkles },
-    { path: '/tracking', label: t('navigation.tracking'), icon: Truck },
+    { path: '/people', label: t('navigation.people'), icon: Users },
     { path: '/occasions', label: t('navigation.occasions'), icon: Calendar },
+    { path: '/recommendations', label: t('navigation.recommendations'), icon: Target },
+    { path: '/tracking', label: t('navigation.tracking'), icon: Truck },
     { path: '/budgets', label: t('navigation.budgets'), icon: DollarSign },
     { path: '/families', label: t('navigation.families'), icon: Users },
     { path: '/notifications', label: t('navigation.notifications'), icon: Bell },

@@ -34,14 +34,14 @@ const Index = () => {
       <section className="container mx-auto px-4 py-16">
         <div className="text-center max-w-4xl mx-auto">
           <Badge variant="secondary" className="mb-4">
-            🎁 AI-Powered Gift Management
+            🎁 Smart Gift Management
           </Badge>
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             Never Forget a Gift Again
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             The ultimate gift tracking and management platform. Organize gifts, track budgets, 
-            and get AI-powered recommendations for the perfect present every time.
+            and get smart recommendations for the perfect present every time.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" asChild>
@@ -88,7 +88,7 @@ const Index = () => {
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                 <TrendingUp className="h-6 w-6 text-green-600" />
               </div>
-              <CardTitle>AI Recommendations</CardTitle>
+              <CardTitle>Smart Recommendations</CardTitle>
               <CardDescription>
                 Get personalized gift suggestions based on recipient preferences and past choices.
               </CardDescription>
@@ -174,7 +174,7 @@ const Index = () => {
               <span className="text-xl font-bold text-gray-900">Gift Tracker</span>
             </div>
             <p className="text-gray-600">
-              Made with ❤️ for better gift management
+              Professional gift management for everyone
             </p>
           </div>
         </div>

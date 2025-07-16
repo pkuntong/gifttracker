@@ -6,13 +6,18 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { 
   Search, 
-  Sparkles, 
-  TrendingUp,
-  Clock,
-  Heart,
-  Lightbulb,
   Filter,
-  ArrowRight
+  X,
+  Target,
+  TrendingUp,
+  Zap,
+  Star,
+  ShoppingCart,
+  Heart,
+  Eye,
+  ArrowRight,
+  Clock,
+  Lightbulb
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -78,8 +83,8 @@ const SearchWidget: React.FC = () => {
         {/* AI Features */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Sparkles className="h-4 w-4" />
-            <span>{t('search.aiSuggestions')}</span>
+            <Target className="h-4 w-4" />
+            <span className="text-sm font-medium">Smart Search</span>
           </div>
           
           <div className="flex flex-wrap gap-2">

@@ -15,7 +15,8 @@ import {
   Bell,
   BarChart3,
   Lightbulb,
-  Sparkles
+  Sparkles,
+  Target
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ApiService } from '@/services/api';
