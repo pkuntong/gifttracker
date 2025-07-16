@@ -65,7 +65,8 @@
     "search": "Search",
     "data": "Data",
     "settings": "Settings",
-    "integrations": "Integrations"
+    "integrations": "Integrations",
+    "billing": "Billing"
   },
   "auth": {
     "welcome": "Welcome to Gift Tracker",

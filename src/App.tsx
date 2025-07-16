@@ -35,6 +35,7 @@ import DataImportExport from '@/pages/DataImportExport';
 import Wishlists from '@/pages/Wishlists';
 import Reminders from '@/pages/Reminders';
 import Integrations from '@/pages/Integrations';
+import Billing from '@/pages/Billing';
 import NotFound from '@/pages/NotFound';
 
 // Create a client
@@ -207,6 +208,13 @@ const AppContent: React.FC = () => {
           <ProtectedRoute>
             <Layout>
               <Integrations />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/billing" element={
+          <ProtectedRoute>
+            <Layout>
+              <Billing />
             </Layout>
           </ProtectedRoute>
         } />

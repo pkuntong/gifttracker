@@ -23,7 +23,8 @@ import {
   ChevronRight,
   Share2,
   TrendingUp,
-  ExternalLink
+  ExternalLink,
+  CreditCard
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -65,6 +66,7 @@ const Sidebar = () => {
     { path: '/data', label: t('navigation.data'), icon: Database },
     { path: '/settings', label: t('navigation.settings'), icon: Settings },
     { path: '/integrations', label: t('navigation.integrations'), icon: ExternalLink },
+    { path: '/billing', label: t('navigation.billing'), icon: CreditCard },
   ];
 
   return (
