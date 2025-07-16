@@ -72,7 +72,8 @@ const AppContent: React.FC = () => {
 
   return (
     <Router>
-      <Routes>
+      <ErrorBoundary>
+        <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -230,22 +231,21 @@ const AppContent: React.FC = () => {
       
       {/* Mobile Gesture Guide */}
       <MobileGestureGuide />
-    </Router>
+        </ErrorBoundary>
+      </Router>
   );
 };
 
 const App: React.FC = () => {
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <AuthProvider>
-            <AppContent />
-            <Toaster />
-          </AuthProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <AppContent />
+          <Toaster />
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 
