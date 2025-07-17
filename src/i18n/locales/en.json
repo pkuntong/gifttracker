@@ -594,6 +594,19 @@
     "dataExported": "Data exported successfully",
     "dataImported": "Data imported successfully",
     "accountDeleted": "Account deleted successfully",
+    "currentLanguage": "Current Language",
+    "accountSettings": "Account Settings",
+    "accountDescription": "Update your personal information and account details",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "emailAddress": "Email Address",
+    "emailAddressPlaceholder": "Enter your email address",
+    "currentPasswordholder": "Enter your current password",
+    "preferencesDescription": "Customize your app experience and preferences",
+    "deleteAccountDescription": "This action cannot be undone. All your data will be permanently deleted.",
+    "languageChangeDescription": "Language changed successfully",
+    "profileUpdated": "Profile updated successfully",
+    "preferencesUpdated": "Preferences updated successfully",
     "languages": {
       "en": "English",
       "es": "Español",
@@ -636,13 +649,18 @@
     "backupFailed": "Backup creation failed. Please try again.",
     "restoreFailed": "Backup restoration failed. Please try again.",
     "deleteBackupFailed": "Failed to delete backup. Please try again.",
-    "downloadBackupFailed": "Failed to download backup. Please try again."
+    "downloadBackupFailed": "Failed to download backup. Please try again.",
+    "profileUpdate": "Failed to update profile. Please try again.",
+    "preferencesUpdate": "Failed to update preferences. Please try again."
   },
   "success": {
     "saved": "Changes saved successfully",
     "deleted": "Item deleted successfully",
     "created": "Item created successfully",
-    "updated": "Item updated successfully"
+    "updated": "Item updated successfully",
+    "profileUpdated": "Profile updated successfully",
+    "preferencesUpdated": "Preferences updated successfully",
+    "languageChanged": "Language changed successfully"
   },
   "import": {
     "success": "Import Successful",
