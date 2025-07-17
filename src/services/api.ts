@@ -2,7 +2,7 @@ import { User, Person, Gift, Occasion, Family, Budget, Notification, Analytics, 
 import { mockApiService } from './mockApiService';
 
 // API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://your-backend-url.com/api' : 'http://localhost:3001/api');
 
 class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -31,7 +31,8 @@ const getAuthHeaders = () => {
 
 // Check if we're in development mode and should use mock API
 const isDevelopment = import.meta.env.DEV;
-const shouldUseMockApi = isDevelopment && !import.meta.env.VITE_API_URL;
+const isProduction = import.meta.env.PROD;
+const shouldUseMockApi = isDevelopment || !import.meta.env.VITE_API_URL || API_BASE_URL.includes('localhost');
 
 // API Service Class
 export class ApiService {
