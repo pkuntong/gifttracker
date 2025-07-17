@@ -12,8 +12,8 @@ import OfflineIndicator from '@/components/OfflineIndicator';
 import MobileGestureGuide from '@/components/MobileGestureGuide';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { useMobile } from '@/hooks/use-mobile';
-import { StagewiseToolbar } from '@stagewise/toolbar-react';
-import ReactPlugin from '@stagewise-plugins/react';
+// import { StagewiseToolbar } from '@stagewise/toolbar-react';
+// import ReactPlugin from '@stagewise-plugins/react';
 
 // Pages
 import Login from '@/pages/Login';
@@ -248,13 +248,13 @@ const App: React.FC = () => {
           <Toaster />
           
           {/* Stagewise Toolbar - Only in development */}
-          {import.meta.env.DEV && (
+          {/* {import.meta.env.DEV && (
             <StagewiseToolbar
               config={{
                 plugins: [ReactPlugin]
               }}
             />
-          )}
+          )} */}
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
