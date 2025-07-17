@@ -45,7 +45,8 @@
     "welcome": "Welcome",
     "load": "Load",
     "refresh": "Refresh",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "active": "Active"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -68,6 +69,13 @@
     "settings": "Settings",
     "integrations": "Integrations",
     "billing": "Billing"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "gifts": "Gifts",
+    "people": "People",
+    "occasions": "Occasions",
+    "analytics": "Analytics"
   },
   "auth": {
     "welcome": "Welcome to Gift Tracker",
@@ -632,6 +640,7 @@
     "active": "Active",
     "accountStatus": "Your account is active and in good standing",
     "saving": "Saving...",
+    "confirmPassword": "Confirm Password",
     "languages": {
       "en": "English",
       "es": "Español",
