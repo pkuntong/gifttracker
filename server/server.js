@@ -3,6 +3,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_your_secret_key_here');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -2688,6 +2689,117 @@ app.delete('/api/reminders/bulk', authenticateToken, (req, res) => {
   } catch (error) {
     console.error('Delete bulk reminders error:', error);
     res.status(500).json({ message: 'Failed to delete bulk reminders' });
+  }
+});
+
+// Stripe Payment Endpoints
+app.post('/api/payments/create-payment-intent', authenticateToken, async (req, res) => {
+  try {
+    const { amount, currency = 'usd' } = req.body;
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency,
+      metadata: {
+        userId: req.user.userId
+      }
+    });
+
+    res.json({
+      clientSecret: paymentIntent.client_secret
+    });
+  } catch (error) {
+    console.error('Create payment intent error:', error);
+    res.status(500).json({ message: 'Failed to create payment intent' });
+  }
+});
+
+app.post('/api/payments/create-subscription', authenticateToken, async (req, res) => {
+  try {
+    const { priceId, paymentMethodId } = req.body;
+
+    // Create customer if doesn't exist
+    let customer = await stripe.customers.list({
+      email: users.find(u => u.id === req.user.userId)?.email,
+      limit: 1
+    });
+
+    if (customer.data.length === 0) {
+      customer = await stripe.customers.create({
+        email: users.find(u => u.id === req.user.userId)?.email,
+        payment_method: paymentMethodId,
+        invoice_settings: {
+          default_payment_method: paymentMethodId,
+        },
+      });
+    } else {
+      customer = customer.data[0];
+    }
+
+    // Create subscription
+    const subscription = await stripe.subscriptions.create({
+      customer: customer.id,
+      items: [{ price: priceId }],
+      payment_behavior: 'default_incomplete',
+      payment_settings: { save_default_payment_method: 'on_subscription' },
+      expand: ['latest_invoice.payment_intent'],
+    });
+
+    res.json({
+      subscriptionId: subscription.id,
+      clientSecret: subscription.latest_invoice.payment_intent.client_secret
+    });
+  } catch (error) {
+    console.error('Create subscription error:', error);
+    res.status(500).json({ message: 'Failed to create subscription' });
+  }
+});
+
+app.post('/api/payments/cancel-subscription', authenticateToken, async (req, res) => {
+  try {
+    const { subscriptionId } = req.body;
+
+    const subscription = await stripe.subscriptions.update(subscriptionId, {
+      cancel_at_period_end: true,
+    });
+
+    res.json({
+      success: true,
+      canceledAt: new Date()
+    });
+  } catch (error) {
+    console.error('Cancel subscription error:', error);
+    res.status(500).json({ message: 'Failed to cancel subscription' });
+  }
+});
+
+app.get('/api/payments/invoices', authenticateToken, async (req, res) => {
+  try {
+    const customer = await stripe.customers.list({
+      email: users.find(u => u.id === req.user.userId)?.email,
+      limit: 1
+    });
+
+    if (customer.data.length === 0) {
+      return res.json([]);
+    }
+
+    const invoices = await stripe.invoices.list({
+      customer: customer.data[0].id,
+      limit: 10
+    });
+
+    res.json(invoices.data.map(invoice => ({
+      id: invoice.id,
+      amount: invoice.amount_paid,
+      currency: invoice.currency,
+      status: invoice.status,
+      date: new Date(invoice.created * 1000),
+      description: invoice.description
+    })));
+  } catch (error) {
+    console.error('Get invoices error:', error);
+    res.status(500).json({ message: 'Failed to get invoices' });
   }
 });
 

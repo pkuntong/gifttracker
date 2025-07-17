@@ -14,7 +14,8 @@ import {
   type Subscription 
 } from '@/services/stripeService';
 
-const stripePromise = loadStripe('pk_test_your_publishable_key_here');
+// Get Stripe publishable key from environment variables
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_publishable_key_here');
 
 interface StripePaymentProps {
   onSuccess?: (subscription: Subscription) => void;

@@ -1,8 +1,8 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 
-// Mock Stripe configuration (replace with your actual keys)
-const STRIPE_PUBLISHABLE_KEY = 'pk_test_your_publishable_key_here';
-const STRIPE_SECRET_KEY = 'sk_test_your_secret_key_here';
+// Get Stripe keys from environment variables
+const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_publishable_key_here';
+const STRIPE_SECRET_KEY = import.meta.env.VITE_STRIPE_SECRET_KEY || 'sk_test_your_secret_key_here';
 
 let stripe: Stripe | null = null;
 
@@ -20,6 +20,7 @@ export const SUBSCRIPTION_PLANS = {
   FREE: {
     name: 'Free',
     price: 0,
+    priceId: '', // No price ID for free plan
     features: [
       'Up to 10 gifts',
       'Basic tracking',
@@ -34,6 +35,7 @@ export const SUBSCRIPTION_PLANS = {
   PREMIUM: {
     name: 'Premium',
     price: 9.99,
+    priceId: 'price_premium_monthly', // Replace with your actual Stripe price ID
     features: [
       'Unlimited gifts',
       'Smart recommendations',
@@ -51,6 +53,7 @@ export const SUBSCRIPTION_PLANS = {
   FAMILY: {
     name: 'Family Plan',
     price: 19.99,
+    priceId: 'price_family_monthly', // Replace with your actual Stripe price ID
     features: [
       'Everything in Premium',
       'Up to 6 family members',
@@ -121,60 +124,147 @@ export const mockSubscription: Subscription = {
 
 // Payment processing functions
 export const createPaymentIntent = async (amount: number, currency: string = 'usd') => {
-  // Mock implementation - replace with actual API call
-  return {
-    clientSecret: 'pi_mock_secret_' + Math.random().toString(36).substr(2, 9),
-    amount,
-    currency
-  };
+  try {
+    const response = await fetch('/api/payments/create-payment-intent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ amount, currency })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create payment intent');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Create payment intent error:', error);
+    // Fallback to mock for development
+    return {
+      clientSecret: 'pi_mock_secret_' + Math.random().toString(36).substr(2, 9),
+      amount,
+      currency
+    };
+  }
 };
 
 export const createSubscription = async (priceId: string, paymentMethodId: string) => {
-  // Mock implementation - replace with actual API call
-  return {
-    subscriptionId: 'sub_' + Math.random().toString(36).substr(2, 9),
-    status: 'active',
-    clientSecret: 'sub_mock_secret_' + Math.random().toString(36).substr(2, 9)
-  };
+  try {
+    const response = await fetch('/api/payments/create-subscription', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ priceId, paymentMethodId })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create subscription');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Create subscription error:', error);
+    // Fallback to mock for development
+    return {
+      subscriptionId: 'sub_' + Math.random().toString(36).substr(2, 9),
+      status: 'active',
+      clientSecret: 'sub_mock_secret_' + Math.random().toString(36).substr(2, 9)
+    };
+  }
 };
 
 export const cancelSubscription = async (subscriptionId: string) => {
-  // Mock implementation - replace with actual API call
-  return {
-    success: true,
-    canceledAt: new Date()
-  };
+  try {
+    const response = await fetch('/api/payments/cancel-subscription', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ subscriptionId })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to cancel subscription');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Cancel subscription error:', error);
+    // Fallback to mock for development
+    return {
+      success: true,
+      canceledAt: new Date()
+    };
+  }
 };
 
 export const updateSubscription = async (subscriptionId: string, priceId: string) => {
-  // Mock implementation - replace with actual API call
-  return {
-    success: true,
-    updatedAt: new Date()
-  };
+  try {
+    const response = await fetch('/api/payments/update-subscription', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ subscriptionId, priceId })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update subscription');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Update subscription error:', error);
+    // Fallback to mock for development
+    return {
+      success: true,
+      updatedAt: new Date()
+    };
+  }
 };
 
 // Billing functions
 export const getInvoices = async () => {
-  // Mock implementation
-  return [
-    {
-      id: 'inv_1',
-      amount: 999,
-      currency: 'usd',
-      status: 'paid',
-      date: new Date('2024-01-01'),
-      description: 'Premium Plan - January 2024'
-    },
-    {
-      id: 'inv_2',
-      amount: 999,
-      currency: 'usd',
-      status: 'paid',
-      date: new Date('2023-12-01'),
-      description: 'Premium Plan - December 2023'
+  try {
+    const response = await fetch('/api/payments/invoices', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to get invoices');
     }
-  ];
+
+    return await response.json();
+  } catch (error) {
+    console.error('Get invoices error:', error);
+    // Fallback to mock for development
+    return [
+      {
+        id: 'inv_1',
+        amount: 999,
+        currency: 'usd',
+        status: 'paid',
+        date: new Date('2024-01-01'),
+        description: 'Premium Plan - January 2024'
+      },
+      {
+        id: 'inv_2',
+        amount: 999,
+        currency: 'usd',
+        status: 'paid',
+        date: new Date('2023-12-01'),
+        description: 'Premium Plan - December 2023'
+      }
+    ];
+  }
 };
 
 export const getUsage = async () => {

@@ -34,7 +34,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Person } from '@/types';
 import { ApiService } from '@/services/api';
-import Navigation from '@/components/Navigation';
 import GiftPreferencesForm from '@/components/GiftPreferencesForm';
 
 const People = () => {
@@ -160,111 +159,20 @@ const People = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       
       {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Users className="w-8 h-8 text-primary" />
-              <h1 className="text-2xl font-bold">People</h1>
-            </div>
-            
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Person
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingPerson ? 'Edit Person' : 'Add New Person'}
-                  </DialogTitle>
-                  <DialogDescription>
-                    Add a family member, friend, or anyone you want to give gifts to.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit}>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="name">Name *</Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="Enter full name"
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="Enter email address"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="relationship">Relationship *</Label>
-                      <Select
-                        value={formData.relationship}
-                        onValueChange={(value) => setFormData({ ...formData, relationship: value })}
-                        required
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select relationship" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {relationships.map((rel) => (
-                            <SelectItem key={rel} value={rel}>
-                              {rel}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="birthday">Birthday</Label>
-                      <Input
-                        id="birthday"
-                        type="date"
-                        value={formData.birthday}
-                        onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="notes">Notes</Label>
-                      <Input
-                        id="notes"
-                        value={formData.notes}
-                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                        placeholder="Any additional notes"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => {
-                      setIsAddDialogOpen(false);
-                      setEditingPerson(null);
-                      resetForm();
-                    }}>
-                      Cancel
-                    </Button>
-                    <Button type="submit">
-                      {editingPerson ? 'Update' : 'Add'} Person
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
+      <div className="p-6 border-b">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">People</h1>
+            <p className="text-muted-foreground">Manage your gift recipients</p>
           </div>
+          <Button onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Person
+          </Button>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">

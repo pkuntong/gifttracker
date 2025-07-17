@@ -62,7 +62,7 @@ const Sidebar = () => {
     )}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
-        <Link to="/dashboard" className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3">
           <Gift className="w-8 h-8 text-primary flex-shrink-0" />
           {!isCollapsed && (
             <h1 className="text-xl font-bold">GiftTracker</h1>

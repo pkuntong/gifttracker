@@ -42,8 +42,6 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ApiService } from '@/services/api';
-import Navigation from '@/components/Navigation';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 const currencies = [
   { value: 'USD', label: 'US Dollar ($)' },
@@ -276,7 +274,6 @@ const Settings = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <main className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
@@ -291,7 +288,17 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+      
+      {/* Header */}
+      <div className="p-6 border-b">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Settings</h1>
+            <p className="text-muted-foreground">Manage your account and preferences</p>
+          </div>
+        </div>
+      </div>
+
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-6">
           <div className="flex items-center gap-3 mb-6">
@@ -346,7 +353,7 @@ const Settings = () => {
                       {languages.find(lang => lang.code === i18n.language)?.name || 'English'}
                     </p>
                   </div>
-                  <LanguageSwitcher />
+                  {/* <LanguageSwitcher /> */}
                 </div>
               </div>
             </CardContent>

@@ -12,10 +12,13 @@ import OfflineIndicator from '@/components/OfflineIndicator';
 import MobileGestureGuide from '@/components/MobileGestureGuide';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { useMobile } from '@/hooks/use-mobile';
+import { StagewiseToolbar } from '@stagewise/toolbar-react';
+import ReactPlugin from '@stagewise-plugins/react';
 
 // Pages
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
+import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
 import Gifts from '@/pages/Gifts';
 import People from '@/pages/People';
@@ -76,7 +79,7 @@ const AppContent: React.FC = () => {
         <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Index />} />
         
         {/* Protected Routes with Layout */}
         <Route path="/dashboard" element={
@@ -243,6 +246,15 @@ const App: React.FC = () => {
         <AuthProvider>
           <AppContent />
           <Toaster />
+          
+          {/* Stagewise Toolbar - Only in development */}
+          {import.meta.env.DEV && (
+            <StagewiseToolbar
+              config={{
+                plugins: [ReactPlugin]
+              }}
+            />
+          )}
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
