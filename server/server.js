@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
@@ -13,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 // JWT Secret (in production, use environment variable)
-const JWT_SECRET = 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 // In-memory storage (in production, use a database)
 const users = [];
