@@ -90,6 +90,31 @@ export interface Subscription {
   cancelAtPeriodEnd: boolean;
 }
 
+// Invoice interface
+export interface Invoice {
+  id: string;
+  amount: number;
+  currency: string;
+  status: 'paid' | 'unpaid' | 'pending';
+  date: Date;
+  description: string;
+}
+
+// Usage data interface
+export interface UsageData {
+  gifts: number;
+  recipients: number;
+  recommendations: number;
+  storage: number;
+  limits: {
+    gifts: number;
+    people: number;
+    occasions: number;
+    recipients: number;
+    recommendations: number;
+  };
+}
+
 // Mock payment methods
 export const mockPaymentMethods: PaymentMethod[] = [
   {

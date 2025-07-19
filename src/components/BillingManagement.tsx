@@ -26,15 +26,17 @@ import {
   getUsage,
   cancelSubscription,
   type Subscription,
-  type PaymentMethod
+  type PaymentMethod,
+  type Invoice,
+  type UsageData
 } from '@/services/stripeService';
 
 const BillingManagement: React.FC = () => {
   const { toast } = useToast();
   const [subscription, setSubscription] = useState<Subscription>(mockSubscription);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(mockPaymentMethods);
-  const [invoices, setInvoices] = useState<any[]>([]);
-  const [usage, setUsage] = useState<any>(null);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [usage, setUsage] = useState<UsageData | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

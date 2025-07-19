@@ -155,7 +155,7 @@ export interface Report {
   type: 'gift_summary' | 'budget_report' | 'occasion_report' | 'spending_analysis' | 'family_report';
   title: string;
   description: string;
-  data: any;
+  data: Record<string, unknown>;
   filters: {
     dateRange?: { start: string; end: string };
     people?: string[];
@@ -253,7 +253,7 @@ export interface SearchResult {
   description: string;
   tags: string[];
   relevance: number;
-  data: any;
+  data: Record<string, unknown>;
 }
 
 export interface SavedSearch {

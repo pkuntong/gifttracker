@@ -172,7 +172,7 @@ const AdvancedSearch: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Filter results based on query and filters
-      let filteredResults = mockResults.filter(item => {
+      const filteredResults = mockResults.filter(item => {
         const matchesQuery = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
