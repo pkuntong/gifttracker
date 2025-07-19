@@ -132,7 +132,7 @@ const Settings = () => {
     setLoading(true);
     
     try {
-      const updates: any = {};
+      const updates: Record<string, unknown> = {};
       
       if (accountForm.name !== user?.name) {
         updates.name = accountForm.name;

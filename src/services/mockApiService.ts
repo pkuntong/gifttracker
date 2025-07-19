@@ -421,17 +421,17 @@ class MockApiService {
   }
 
   // Mock other API methods that might be called
-  async getGiftRecommendations(filters: any): Promise<any[]> {
+  async getGiftRecommendations(filters: Record<string, unknown>): Promise<Array<Record<string, unknown>>> {
     await this.delay();
     return [];
   }
 
-  async getNotifications(): Promise<any[]> {
+  async getNotifications(): Promise<Array<Record<string, unknown>>> {
     await this.delay();
     return [];
   }
 
-  async getAnalytics(): Promise<any> {
+  async getAnalytics(): Promise<Record<string, unknown>> {
     await this.delay();
     return {
       giftStats: {
@@ -463,7 +463,7 @@ class MockApiService {
   }
 
   // Tracking Management
-  async getTrackingItems(): Promise<any[]> {
+  async getTrackingItems(): Promise<Array<Record<string, unknown>>> {
     await this.delay();
     return [
       {
@@ -531,7 +531,7 @@ class MockApiService {
     ];
   }
 
-  async createTrackingItem(tracking: any): Promise<any> {
+  async createTrackingItem(tracking: Record<string, unknown>): Promise<Record<string, unknown>> {
     await this.delay();
     const newTracking = {
       ...tracking,
@@ -542,7 +542,7 @@ class MockApiService {
     return newTracking;
   }
 
-  async updateTrackingItem(id: string, updates: any): Promise<any> {
+  async updateTrackingItem(id: string, updates: Record<string, unknown>): Promise<Record<string, unknown>> {
     await this.delay();
     return { id, ...updates, updatedAt: new Date().toISOString() };
   }

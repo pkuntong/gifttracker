@@ -300,9 +300,10 @@ const Reminders: React.FC = () => {
     switch (sortBy) {
       case 'scheduled':
         return new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime();
-      case 'priority':
+      case 'priority': {
         const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
         return priorityOrder[b.priority] - priorityOrder[a.priority];
+      }
       case 'created':
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       default:
@@ -409,7 +410,7 @@ const Reminders: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>{t('reminders.type')}</Label>
-                    <Select value={newReminder.type} onValueChange={(value: any) => setNewReminder(prev => ({ ...prev, type: value }))}>
+                    <Select value={newReminder.type} onValueChange={(value: "custom" | "occasion" | "gift_deadline" | "budget_alert" | "shipping_deadline") => setNewReminder(prev => ({ ...prev, type: value }))}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -424,7 +425,7 @@ const Reminders: React.FC = () => {
                   </div>
                   <div>
                     <Label>{t('reminders.priority')}</Label>
-                    <Select value={newReminder.priority} onValueChange={(value: any) => setNewReminder(prev => ({ ...prev, priority: value }))}>
+                    <Select value={newReminder.priority} onValueChange={(value: "low" | "medium" | "high" | "urgent") => setNewReminder(prev => ({ ...prev, priority: value }))}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>

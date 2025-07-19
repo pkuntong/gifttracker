@@ -187,12 +187,12 @@ class RecommendationService {
     return scoredRecommendations.slice(0, 12);
   }
 
-  private calculateRecommendationScore(item: any, filters: RecommendationFilters): number {
+  private calculateRecommendationScore(item: Record<string, unknown>, filters: RecommendationFilters): number {
     let score = 50; // Base score
 
     // Price range scoring
     const priceRange = filters.priceRange.max - filters.priceRange.min;
-    const pricePosition = (item.price - filters.priceRange.min) / priceRange;
+    const pricePosition = ((item.price as number) - filters.priceRange.min) / priceRange;
     if (pricePosition >= 0.3 && pricePosition <= 0.7) {
       score += 20; // Sweet spot in price range
     } else if (pricePosition >= 0.2 && pricePosition <= 0.8) {
@@ -200,7 +200,7 @@ class RecommendationService {
     }
 
     // Category preference scoring
-    if (filters.category && item.category.toLowerCase() === filters.category.toLowerCase()) {
+    if (filters.category && (item.category as string).toLowerCase() === filters.category.toLowerCase()) {
       score += 15;
     }
 
@@ -212,7 +212,7 @@ class RecommendationService {
     // Interest matching (if we had interest data)
     if (filters.interests.length > 0) {
       const matchingInterests = filters.interests.filter(interest =>
-        item.tags.some((tag: string) => 
+        (item.tags as string[]).some((tag: string) => 
           tag.toLowerCase().includes(interest.toLowerCase())
         )
       );
@@ -223,10 +223,10 @@ class RecommendationService {
     if (filters.occasionType) {
       const occasionPrefs = this.occasionRecommendations[filters.occasionType as keyof typeof this.occasionRecommendations];
       if (occasionPrefs) {
-        if (occasionPrefs.categories.includes(item.category)) {
+        if (occasionPrefs.categories.includes(item.category as string)) {
           score += 15;
         }
-        if (occasionPrefs.tags.some(tag => item.tags.includes(tag))) {
+        if (occasionPrefs.tags.some(tag => (item.tags as string[]).includes(tag))) {
           score += 10;
         }
       }
@@ -238,16 +238,16 @@ class RecommendationService {
     return Math.min(100, Math.max(0, Math.round(score)));
   }
 
-  private generateRecommendationReason(item: any, filters: RecommendationFilters): string {
+  private generateRecommendationReason(item: Record<string, unknown>, filters: RecommendationFilters): string {
     const reasons = [];
 
-    if (filters.category && item.category.toLowerCase() === filters.category.toLowerCase()) {
+    if (filters.category && (item.category as string).toLowerCase() === filters.category.toLowerCase()) {
       reasons.push(`Matches your selected category`);
     }
 
     if (filters.interests.length > 0) {
       const matchingInterests = filters.interests.filter(interest =>
-        item.tags.some((tag: string) => 
+        (item.tags as string[]).some((tag: string) => 
           tag.toLowerCase().includes(interest.toLowerCase())
         )
       );
@@ -258,12 +258,12 @@ class RecommendationService {
 
     if (filters.occasionType) {
       const occasionPrefs = this.occasionRecommendations[filters.occasionType as keyof typeof this.occasionRecommendations];
-      if (occasionPrefs && occasionPrefs.categories.includes(item.category)) {
+      if (occasionPrefs && occasionPrefs.categories.includes(item.category as string)) {
         reasons.push(`Perfect for ${filters.occasionType} celebrations`);
       }
     }
 
-    if (item.price >= filters.priceRange.min * 0.8 && item.price <= filters.priceRange.max * 1.2) {
+    if ((item.price as number) >= filters.priceRange.min * 0.8 && (item.price as number) <= filters.priceRange.max * 1.2) {
       reasons.push(`Fits your budget range`);
     }
 
