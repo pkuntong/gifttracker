@@ -23,7 +23,7 @@ interface Integration {
   id: string;
   name: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   status: 'connected' | 'disconnected' | 'error';
   category: 'shopping' | 'calendar' | 'communication' | 'payment';
   features: string[];

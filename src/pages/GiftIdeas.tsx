@@ -173,7 +173,7 @@ const GiftIdeasPage: React.FC = () => {
   const handleGetRecommendations = async () => {
     try {
       setLoading(true);
-      const filters: any = {};
+      const filters: Record<string, unknown> = {};
       if (selectedPerson && selectedPerson !== 'all') filters.personId = selectedPerson;
       if (selectedOccasion && selectedOccasion !== 'all') filters.occasionId = selectedOccasion;
       if (category && category !== 'all') filters.category = category;

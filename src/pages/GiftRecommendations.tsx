@@ -142,7 +142,7 @@ const GiftRecommendations: React.FC = () => {
     }
   };
 
-  const handleFilterChange = (key: keyof RecommendationFilters, value: any) => {
+  const handleFilterChange = (key: keyof RecommendationFilters, value: unknown) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 

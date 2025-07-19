@@ -123,7 +123,7 @@ const GiftPreferencesForm: React.FC<GiftPreferencesFormProps> = ({
         await ApiService.createGiftPreferences({
           ...preferences,
           personId
-        } as any);
+        } as Omit<GiftPreferences, 'id' | 'userId' | 'createdAt' | 'updatedAt'>);
       }
       
       toast({

@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 interface MobileState {
   isMobile: boolean;
   isTablet: boolean;
@@ -37,7 +42,7 @@ export const useMobile = (): MobileState => {
       // Check if running as PWA
       const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
                    window.matchMedia('(display-mode: minimal-ui)').matches ||
-                   (window.navigator as any).standalone === true;
+                   (window.navigator as { standalone?: boolean }).standalone === true;
       
       // Check if app is installed
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
@@ -102,10 +107,10 @@ export const useMobile = (): MobileState => {
 // Hook for PWA-specific features
 export const usePWA = () => {
   const [isInstallable, setIsInstallable] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
+    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       e.preventDefault();
       setDeferredPrompt(e);
       setIsInstallable(true);
@@ -147,7 +152,7 @@ export const usePWA = () => {
 // Hook for offline functionality
 export const useOffline = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [offlineData, setOfflineData] = useState<any[]>([]);
+  const [offlineData, setOfflineData] = useState<Array<Record<string, unknown> & { id: number }>>([]);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -162,7 +167,7 @@ export const useOffline = () => {
     };
   }, []);
 
-  const addOfflineData = (data: any) => {
+  const addOfflineData = (data: Record<string, unknown>) => {
     setOfflineData(prev => [...prev, { ...data, id: Date.now() }]);
   };
 

@@ -40,7 +40,7 @@ const Dashboard: React.FC = () => {
     totalBudget: 0,
     spentBudget: 0,
     upcomingGifts: 0,
-    recentActivity: [] as any[],
+    recentActivity: [] as Array<{ title: string; time: string }>,
   });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();

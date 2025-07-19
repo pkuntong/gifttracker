@@ -243,7 +243,7 @@ export class ApiService {
     return handleResponse(response);
   }
 
-  static async updateNotificationPreferences(preferences: any): Promise<void> {
+  static async updateNotificationPreferences(preferences: NotificationPreferences): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/notifications/preferences`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -539,7 +539,7 @@ export class ApiService {
   }
 
   // Tracking Management
-  static async getTrackingItems(): Promise<any[]> {
+  static async getTrackingItems(): Promise<Array<Record<string, unknown>>> {
     if (shouldUseMockApi) {
       return mockApiService.getTrackingItems();
     }
@@ -550,7 +550,7 @@ export class ApiService {
     return handleResponse(response);
   }
 
-  static async createTrackingItem(tracking: any): Promise<any> {
+  static async createTrackingItem(tracking: Record<string, unknown>): Promise<Record<string, unknown>> {
     if (shouldUseMockApi) {
       return mockApiService.createTrackingItem(tracking);
     }
@@ -563,7 +563,7 @@ export class ApiService {
     return handleResponse(response);
   }
 
-  static async updateTrackingItem(id: string, updates: any): Promise<any> {
+  static async updateTrackingItem(id: string, updates: Record<string, unknown>): Promise<Record<string, unknown>> {
     if (shouldUseMockApi) {
       return mockApiService.updateTrackingItem(id, updates);
     }

@@ -44,7 +44,7 @@ interface Notification {
   createdAt: Date;
   scheduledFor?: Date;
   actionUrl?: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 interface NotificationSettings {

@@ -8,13 +8,13 @@ import { Crown, CreditCard, FileText, Users, Shield, Zap, Check } from 'lucide-r
 import BillingManagement from '@/components/BillingManagement';
 import StripePayment from '@/components/StripePayment';
 import PremiumFeatureGuard from '@/components/PremiumFeatureGuard';
-import { SUBSCRIPTION_PLANS, mockSubscription } from '@/services/stripeService';
+import { SUBSCRIPTION_PLANS, mockSubscription, type Subscription } from '@/services/stripeService';
 
 const Billing: React.FC = () => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [subscription, setSubscription] = useState(mockSubscription);
 
-  const handleSubscriptionSuccess = (newSubscription: any) => {
+  const handleSubscriptionSuccess = (newSubscription: Subscription) => {
     setSubscription(newSubscription);
     setShowPaymentDialog(false);
   };

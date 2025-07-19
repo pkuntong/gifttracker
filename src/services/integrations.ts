@@ -9,12 +9,12 @@ export interface IntegrationConfig {
   refreshToken?: string;
   expiresAt?: number;
   webhookUrl?: string;
-  settings: Record<string, any>;
+  settings: Record<string, unknown>;
 }
 
 export interface SyncResult {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   timestamp: number;
   itemsSynced?: number;
@@ -74,10 +74,10 @@ class IntegrationsService {
       this.updateSyncStatus('amazon', 'syncing');
 
       // Simulate API call to fetch wishlist
-      const wishlistItems = await this.simulateApiCall('amazon', 'wishlist');
+      const wishlistItems = await this.simulateApiCall('amazon', 'wishlist') as Array<Record<string, unknown>>;
       
       // Process and store wishlist items
-      const processedItems = wishlistItems.map((item: any) => ({
+      const processedItems = wishlistItems.map((item: Record<string, unknown>) => ({
         id: item.id,
         name: item.title,
         price: item.price,
@@ -150,17 +150,17 @@ class IntegrationsService {
       this.updateSyncStatus('google-calendar', 'syncing');
 
       // Simulate API call to fetch calendar events
-      const events = await this.simulateApiCall('google-calendar', 'events');
+      const events = await this.simulateApiCall('google-calendar', 'events') as Array<Record<string, unknown>>;
       
       // Process and store events
-      const processedEvents = events.map((event: any) => ({
-        id: event.id,
-        title: event.summary,
-        description: event.description,
-        startDate: event.start.dateTime,
-        endDate: event.end.dateTime,
+      const processedEvents = events.map((event: Record<string, unknown>) => ({
+        id: event.id as string,
+        title: event.summary as string,
+        description: event.description as string,
+        startDate: (event.start as { dateTime: string }).dateTime,
+        endDate: (event.end as { dateTime: string }).dateTime,
         source: 'google-calendar',
-        type: this.categorizeEvent(event.summary)
+        type: this.categorizeEvent(event.summary as string)
       }));
 
       await this.saveSyncedData('google-calendar', 'events', processedEvents);
@@ -225,16 +225,16 @@ class IntegrationsService {
       this.updateSyncStatus('paypal', 'syncing');
 
       // Simulate API call to fetch transactions
-      const transactions = await this.simulateApiCall('paypal', 'transactions');
+      const transactions = await this.simulateApiCall('paypal', 'transactions') as Array<Record<string, unknown>>;
       
       // Process and store transactions
-      const processedTransactions = transactions.map((txn: any) => ({
+      const processedTransactions = transactions.map((txn: Record<string, unknown>) => ({
         id: txn.id,
         amount: txn.amount,
         currency: txn.currency,
         description: txn.description,
         date: txn.date,
-        category: this.categorizeTransaction(txn.description),
+        category: this.categorizeTransaction(txn.description as string),
         source: 'paypal'
       }));
 
@@ -299,9 +299,9 @@ class IntegrationsService {
       this.updateSyncStatus('etsy', 'syncing');
 
       // Simulate API call to search Etsy
-      const searchResults = await this.simulateApiCall('etsy', 'search', { query });
+      const searchResults = await this.simulateApiCall('etsy', 'search', { query }) as Array<Record<string, unknown>>;
       
-      const processedResults = searchResults.map((item: any) => ({
+      const processedResults = searchResults.map((item: Record<string, unknown>) => ({
         id: item.id,
         name: item.title,
         price: item.price,
@@ -466,7 +466,7 @@ class IntegrationsService {
     }
   }
 
-  private async simulateApiCall(integration: string, action: string, params?: any): Promise<any> {
+  private async simulateApiCall(integration: string, action: string, params?: Record<string, unknown>): Promise<unknown> {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
 
@@ -510,7 +510,7 @@ class IntegrationsService {
     return { success: true };
   }
 
-  private async saveSyncedData(integration: string, type: string, data: any[]): Promise<void> {
+  private async saveSyncedData(integration: string, type: string, data: Array<Record<string, unknown>>): Promise<void> {
     // Save to localStorage for demo purposes
     const key = `${integration}_${type}`;
     localStorage.setItem(key, JSON.stringify(data));

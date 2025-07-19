@@ -336,7 +336,7 @@ export const trackUsage = async (feature: string, amount: number = 1) => {
 };
 
 // Webhook handling (for server-side)
-export const handleWebhook = async (event: any) => {
+export const handleWebhook = async (event: Record<string, unknown>) => {
   // Mock implementation - replace with actual webhook handling
   switch (event.type) {
     case 'invoice.payment_succeeded':
