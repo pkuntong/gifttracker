@@ -293,6 +293,94 @@ const People = () => {
           )}
         </div>
       </main>
+
+      {/* Add/Edit Person Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingPerson ? 'Edit Person' : 'Add New Person'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingPerson ? 'Update person details below.' : 'Add a new person to your gift list.'}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Enter full name"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="email@example.com"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="relationship">Relationship *</Label>
+                <Select value={formData.relationship} onValueChange={(value) => setFormData({ ...formData, relationship: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select relationship" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {relationships.map((rel) => (
+                      <SelectItem key={rel} value={rel}>
+                        {rel}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="birthday">Birthday</Label>
+                <Input
+                  id="birthday"
+                  type="date"
+                  value={formData.birthday}
+                  onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Input
+                id="notes"
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                placeholder="Additional notes about this person..."
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => {
+                setIsAddDialogOpen(false);
+                setEditingPerson(null);
+                resetForm();
+              }}>
+                Cancel
+              </Button>
+              <Button type="submit">
+                {editingPerson ? 'Update Person' : 'Add Person'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -405,6 +405,130 @@ const Gifts = () => {
           )}
         </div>
       </main>
+
+      {/* Add/Edit Gift Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingGift ? 'Edit Gift' : 'Add New Gift'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingGift ? 'Update gift details below.' : 'Add a new gift to your list.'}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Gift Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Enter gift name"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="price">Price *</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="currency">Currency</Label>
+                <Select value={formData.currency} onValueChange={(value) => setFormData({ ...formData, currency: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {currencies.map((currency) => (
+                      <SelectItem key={currency} value={currency}>
+                        {currency}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(value: 'planned' | 'purchased' | 'wrapped' | 'given') => setFormData({ ...formData, status: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statuses.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="recipientId">Recipient *</Label>
+              <Select value={formData.recipientId} onValueChange={(value) => setFormData({ ...formData, recipientId: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select recipient" />
+                </SelectTrigger>
+                <SelectContent>
+                  {people.map((person) => (
+                    <SelectItem key={person.id} value={person.id}>
+                      {person.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Describe the gift..."
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                placeholder="Additional notes..."
+                rows={2}
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => {
+                setIsAddDialogOpen(false);
+                setEditingGift(null);
+                resetForm();
+              }}>
+                Cancel
+              </Button>
+              <Button type="submit">
+                {editingGift ? 'Update Gift' : 'Add Gift'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
