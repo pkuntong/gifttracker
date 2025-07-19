@@ -1,4 +1,4 @@
-import { User, Person, Gift, Occasion, Family, Budget, GiftPreferences } from '@/types';
+import { User, Person, Gift, Occasion, Family, Budget, GiftPreferences, Report } from '@/types';
 
 // Mock data for development
 const mockPeople: Person[] = [
@@ -418,6 +418,22 @@ class MockApiService {
     const index = mockPreferences.findIndex(p => p.personId === personId);
     if (index === -1) throw new Error('Preferences not found');
     mockPreferences.splice(index, 1);
+  }
+
+  // Report Management
+  async createReport(report: Omit<Report, 'id' | 'userId' | 'createdAt'>): Promise<Report> {
+    await this.delay();
+    const newReport: Report = {
+      ...report,
+      id: Date.now().toString(),
+      userId: '1',
+      createdAt: new Date().toISOString(),
+      lastGenerated: undefined,
+      nextScheduled: undefined,
+      data: {},
+      filters: (report as any).filters || {}
+    };
+    return newReport;
   }
 
   // Mock other API methods that might be called

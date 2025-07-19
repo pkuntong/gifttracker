@@ -83,6 +83,10 @@ export class ApiService {
   }
 
   static async createPerson(person: Omit<Person, 'id' | 'createdAt' | 'updatedAt'>): Promise<Person> {
+    if (shouldUseMockApi) {
+      return mockApiService.createPerson(person);
+    }
+    
     const response = await fetch(`${API_BASE_URL}/people`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -92,6 +96,10 @@ export class ApiService {
   }
 
   static async updatePerson(id: string, updates: Partial<Person>): Promise<Person> {
+    if (shouldUseMockApi) {
+      return mockApiService.updatePerson(id, updates);
+    }
+    
     const response = await fetch(`${API_BASE_URL}/people/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -101,6 +109,10 @@ export class ApiService {
   }
 
   static async deletePerson(id: string): Promise<void> {
+    if (shouldUseMockApi) {
+      return mockApiService.deletePerson(id);
+    }
+    
     const response = await fetch(`${API_BASE_URL}/people/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
@@ -121,6 +133,10 @@ export class ApiService {
   }
 
   static async createGift(gift: Omit<Gift, 'id' | 'createdAt' | 'updatedAt'>): Promise<Gift> {
+    if (shouldUseMockApi) {
+      return mockApiService.createGift(gift);
+    }
+    
     const response = await fetch(`${API_BASE_URL}/gifts`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -130,6 +146,10 @@ export class ApiService {
   }
 
   static async updateGift(id: string, updates: Partial<Gift>): Promise<Gift> {
+    if (shouldUseMockApi) {
+      return mockApiService.updateGift(id, updates);
+    }
+    
     const response = await fetch(`${API_BASE_URL}/gifts/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -139,6 +159,10 @@ export class ApiService {
   }
 
   static async deleteGift(id: string): Promise<void> {
+    if (shouldUseMockApi) {
+      return mockApiService.deleteGift(id);
+    }
+    
     const response = await fetch(`${API_BASE_URL}/gifts/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
@@ -377,6 +401,10 @@ export class ApiService {
   }
 
   static async createReport(report: Omit<Report, 'id' | 'userId' | 'createdAt'>): Promise<Report> {
+    if (shouldUseMockApi) {
+      return mockApiService.createReport(report);
+    }
+    
     const response = await fetch(`${API_BASE_URL}/reports`, {
       method: 'POST',
       headers: getAuthHeaders(),
