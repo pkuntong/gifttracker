@@ -32,7 +32,7 @@ serve(async (req) => {
           message: 'Gift Tracker API is running on Supabase Edge Functions',
           timestamp: new Date().toISOString(),
           environment: 'production',
-          version: '1.0.0',
+          version: '2.0.0',
           server: 'Supabase Edge Functions',
           path: path,
           deployed: true
@@ -54,7 +54,7 @@ serve(async (req) => {
           method: req.method,
           url: req.url,
           timestamp: new Date().toISOString(),
-          version: '1.0.0',
+          version: '2.0.0',
           server: 'Supabase Edge Functions',
           path: path,
           deployed: true
@@ -66,6 +66,145 @@ serve(async (req) => {
           },
         }
       )
+    }
+
+    // Authentication endpoints
+    if (path === '/api/auth/login') {
+      if (req.method === 'POST') {
+        const body = await req.json()
+        const { email, password } = body
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        })
+
+        if (error) {
+          return new Response(
+            JSON.stringify({
+              error: 'Authentication failed',
+              message: error.message,
+              timestamp: new Date().toISOString(),
+              server: 'Supabase Edge Functions'
+            }),
+            {
+              status: 401,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        }
+
+        return new Response(
+          JSON.stringify({
+            user: data.user,
+            session: data.session,
+            message: 'Login successful',
+            timestamp: new Date().toISOString(),
+            server: 'Supabase Edge Functions',
+            deployed: true
+          }),
+          {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+    }
+
+    if (path === '/api/auth/register') {
+      if (req.method === 'POST') {
+        const body = await req.json()
+        const { email, password, name } = body
+
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name: name
+            }
+          }
+        })
+
+        if (error) {
+          return new Response(
+            JSON.stringify({
+              error: 'Registration failed',
+              message: error.message,
+              timestamp: new Date().toISOString(),
+              server: 'Supabase Edge Functions'
+            }),
+            {
+              status: 400,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        }
+
+        return new Response(
+          JSON.stringify({
+            user: data.user,
+            session: data.session,
+            message: 'Registration successful',
+            timestamp: new Date().toISOString(),
+            server: 'Supabase Edge Functions',
+            deployed: true
+          }),
+          {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+    }
+
+    if (path === '/api/auth/logout') {
+      if (req.method === 'POST') {
+        const { error } = await supabase.auth.signOut()
+
+        if (error) {
+          return new Response(
+            JSON.stringify({
+              error: 'Logout failed',
+              message: error.message,
+              timestamp: new Date().toISOString(),
+              server: 'Supabase Edge Functions'
+            }),
+            {
+              status: 500,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        }
+
+        return new Response(
+          JSON.stringify({
+            message: 'Logout successful',
+            timestamp: new Date().toISOString(),
+            server: 'Supabase Edge Functions',
+            deployed: true
+          }),
+          {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
     }
 
     // People endpoints
@@ -546,6 +685,352 @@ serve(async (req) => {
       }
     }
 
+    // Search endpoint
+    if (path === '/api/search') {
+      if (req.method === 'POST') {
+        const body = await req.json()
+        const { query, type } = body
+
+        let results: any[] = []
+
+        if (type === 'people' || !type) {
+          const { data: people } = await supabase
+            .from('people')
+            .select('*')
+            .or(`name.ilike.%${query}%,email.ilike.%${query}%`)
+          
+          if (people) results.push(...people)
+        }
+
+        if (type === 'gifts' || !type) {
+          const { data: gifts } = await supabase
+            .from('gifts')
+            .select('*')
+            .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
+          
+          if (gifts) results.push(...gifts)
+        }
+
+        return new Response(
+          JSON.stringify({
+            results,
+            query,
+            type,
+            message: 'Search completed successfully',
+            timestamp: new Date().toISOString(),
+            server: 'Supabase Edge Functions',
+            deployed: true
+          }),
+          {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+    }
+
+    // Gift Recommendations endpoint
+    if (path === '/api/recommendations') {
+      if (req.method === 'POST') {
+        const body = await req.json()
+        const { personId, occasion, budget, interests } = body
+
+        // Mock recommendation logic - in a real app, this would use AI or ML
+        const recommendations = [
+          {
+            id: 'rec1',
+            name: 'Personalized Photo Book',
+            description: 'A beautiful photo book with memories',
+            price: 50,
+            category: 'Personal',
+            reason: 'Great for preserving memories',
+            rating: 4.5
+          },
+          {
+            id: 'rec2',
+            name: 'Wireless Headphones',
+            description: 'High-quality wireless headphones',
+            price: 150,
+            category: 'Technology',
+            reason: 'Popular tech gift',
+            rating: 4.3
+          },
+          {
+            id: 'rec3',
+            name: 'Gourmet Food Basket',
+            description: 'Premium selection of gourmet foods',
+            price: 75,
+            category: 'Food & Drink',
+            reason: 'Delicious and thoughtful',
+            rating: 4.2
+          },
+          {
+            id: 'rec4',
+            name: 'Spa Gift Certificate',
+            description: 'Relaxing spa experience',
+            price: 100,
+            category: 'Wellness',
+            reason: 'Perfect for relaxation',
+            rating: 4.4
+          },
+          {
+            id: 'rec5',
+            name: 'Custom Jewelry',
+            description: 'Personalized jewelry piece',
+            price: 200,
+            category: 'Fashion',
+            reason: 'Unique and meaningful',
+            rating: 4.6
+          }
+        ]
+
+        // Filter by budget if provided
+        let filteredRecommendations = recommendations
+        if (budget) {
+          filteredRecommendations = recommendations.filter(rec => rec.price <= budget)
+        }
+
+        // Sort by rating
+        filteredRecommendations.sort((a, b) => b.rating - a.rating)
+
+        return new Response(
+          JSON.stringify({
+            recommendations: filteredRecommendations,
+            personId,
+            occasion,
+            budget,
+            interests,
+            message: 'Gift recommendations generated successfully',
+            timestamp: new Date().toISOString(),
+            server: 'Supabase Edge Functions',
+            deployed: true
+          }),
+          {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+    }
+
+    // Reminders endpoint
+    if (path === '/api/reminders') {
+      if (req.method === 'GET') {
+        // Get upcoming occasions and gifts
+        const { data: occasions } = await supabase
+          .from('occasions')
+          .select('*')
+          .gte('date', new Date().toISOString().split('T')[0])
+          .order('date', { ascending: true })
+          .limit(10)
+
+        const { data: gifts } = await supabase
+          .from('gifts')
+          .select('*')
+          .eq('status', 'planned')
+          .order('created_at', { ascending: false })
+          .limit(10)
+
+        const reminders = [
+          ...(occasions || []).map(occasion => ({
+            type: 'occasion',
+            title: `Upcoming: ${occasion.name}`,
+            date: occasion.date,
+            description: occasion.description,
+            id: occasion.id
+          })),
+          ...(gifts || []).map(gift => ({
+            type: 'gift',
+            title: `Gift needed: ${gift.name}`,
+            date: null,
+            description: gift.description,
+            id: gift.id
+          }))
+        ]
+
+        return new Response(
+          JSON.stringify({
+            reminders,
+            message: 'Reminders retrieved successfully',
+            timestamp: new Date().toISOString(),
+            server: 'Supabase Edge Functions',
+            deployed: true
+          }),
+          {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+    }
+
+    // Data Export endpoint
+    if (path === '/api/export') {
+      if (req.method === 'GET') {
+        const params = new URLSearchParams(url.search)
+        const format = params.get('format') || 'json'
+
+        // Get all data
+        const [peopleResult, giftsResult, occasionsResult, budgetsResult] = await Promise.all([
+          supabase.from('people').select('*'),
+          supabase.from('gifts').select('*'),
+          supabase.from('occasions').select('*'),
+          supabase.from('budgets').select('*')
+        ])
+
+        const exportData = {
+          people: peopleResult.data || [],
+          gifts: giftsResult.data || [],
+          occasions: occasionsResult.data || [],
+          budgets: budgetsResult.data || [],
+          exportDate: new Date().toISOString(),
+          version: '2.0.0'
+        }
+
+        if (format === 'csv') {
+          // Convert to CSV format
+          const csvData = convertToCSV(exportData)
+          return new Response(
+            csvData,
+            {
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'text/csv',
+                'Content-Disposition': 'attachment; filename="gift-tracker-export.csv"'
+              },
+            }
+          )
+        }
+
+        return new Response(
+          JSON.stringify(exportData),
+          {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+    }
+
+    // Data Import endpoint
+    if (path === '/api/import') {
+      if (req.method === 'POST') {
+        const body = await req.json()
+        const { data, overwrite = false } = body
+
+        const results = {
+          imported: { people: 0, gifts: 0, occasions: 0, budgets: 0 },
+          errors: [],
+          message: 'Import completed'
+        }
+
+        try {
+          // Import people
+          if (data.people && data.people.length > 0) {
+            const { error } = await supabase
+              .from('people')
+              .upsert(data.people, { onConflict: 'id' })
+            
+            if (error) {
+              results.errors.push(`People import error: ${error.message}`)
+            } else {
+              results.imported.people = data.people.length
+            }
+          }
+
+          // Import gifts
+          if (data.gifts && data.gifts.length > 0) {
+            const { error } = await supabase
+              .from('gifts')
+              .upsert(data.gifts, { onConflict: 'id' })
+            
+            if (error) {
+              results.errors.push(`Gifts import error: ${error.message}`)
+            } else {
+              results.imported.gifts = data.gifts.length
+            }
+          }
+
+          // Import occasions
+          if (data.occasions && data.occasions.length > 0) {
+            const { error } = await supabase
+              .from('occasions')
+              .upsert(data.occasions, { onConflict: 'id' })
+            
+            if (error) {
+              results.errors.push(`Occasions import error: ${error.message}`)
+            } else {
+              results.imported.occasions = data.occasions.length
+            }
+          }
+
+          // Import budgets
+          if (data.budgets && data.budgets.length > 0) {
+            const { error } = await supabase
+              .from('budgets')
+              .upsert(data.budgets, { onConflict: 'id' })
+            
+            if (error) {
+              results.errors.push(`Budgets import error: ${error.message}`)
+            } else {
+              results.imported.budgets = data.budgets.length
+            }
+          }
+
+        } catch (error) {
+          results.errors.push(`General import error: ${error.message}`)
+        }
+
+        return new Response(
+          JSON.stringify({
+            ...results,
+            timestamp: new Date().toISOString(),
+            server: 'Supabase Edge Functions',
+            deployed: true
+          }),
+          {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+    }
+
+    // Helper function to convert data to CSV
+    function convertToCSV(data: any) {
+      const csvRows = []
+      
+      // Add headers
+      csvRows.push('Type,ID,Name,Description,Price,Date,Status')
+      
+      // Add people
+      data.people.forEach((person: any) => {
+        csvRows.push(`Person,${person.id},"${person.name}","${person.relationship || ''}","","${person.birthday || ''}","active"`)
+      })
+      
+      // Add gifts
+      data.gifts.forEach((gift: any) => {
+        csvRows.push(`Gift,${gift.id},"${gift.name}","${gift.description || ''}","${gift.price || ''}","","${gift.status || 'planned'}"`)
+      })
+      
+      // Add occasions
+      data.occasions.forEach((occasion: any) => {
+        csvRows.push(`Occasion,${occasion.id},"${occasion.name}","${occasion.description || ''}","","${occasion.date}","upcoming"`)
+      })
+      
+      return csvRows.join('\n')
+    }
+
     // Default response for unknown endpoints
     return new Response(
       JSON.stringify({
@@ -553,15 +1038,23 @@ serve(async (req) => {
         message: 'Endpoint not found',
         availableEndpoints: [
           '/api/health', 
-          '/api/test', 
+          '/api/test',
+          '/api/auth/login',
+          '/api/auth/register',
+          '/api/auth/logout',
           '/api/people', 
           '/api/gifts', 
           '/api/occasions', 
           '/api/budgets', 
           '/api/families',
-          '/api/analytics'
+          '/api/analytics',
+          '/api/search',
+          '/api/recommendations',
+          '/api/reminders',
+          '/api/export',
+          '/api/import'
         ],
-        version: '1.0.0',
+        version: '2.0.0',
         server: 'Supabase Edge Functions',
         path: path,
         deployed: true
