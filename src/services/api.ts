@@ -2,7 +2,7 @@ import { User, Person, Gift, Occasion, Family, Budget, Notification, Analytics, 
 import { mockApiService } from './mockApiService';
 
 // API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://your-backend-url.com/api' : 'http://localhost:3001/api');
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://jnhucgyztokoffzwiegj.supabase.co/functions/v1/api' : 'http://localhost:3001/api');
 
 class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -23,9 +23,11 @@ const handleResponse = async (response: Response) => {
 // Helper function to get auth headers
 const getAuthHeaders = () => {
   const token = localStorage.getItem('authToken');
+  const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpuaHVjZ3l6dG9rb2ZmendpZWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5NzI0MTcsImV4cCI6MjA2ODU0ODQxN30.2M01OqtHmBv4CBqAw3pjTK7oysxnB_xJEXG3m2ENOn8';
   return {
     'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
+    'Authorization': `Bearer ${supabaseAnonKey}`,
+    ...(token && { 'X-User-Token': token }),
   };
 };
 
