@@ -4,6 +4,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const { Pool } = require('pg');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_your_secret_key_here');
 
 const app = express();
@@ -13,20 +14,23 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// JWT Secret (in production, use environment variable)
+// JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-// In-memory storage (in production, use a database)
-const users = [];
-const people = [];
-const gifts = [];
-const occasions = [];
-const families = [];
-const budgets = [];
-const notifications = [];
-const reports = [];
-const giftIdeas = [];
-const giftPreferences = [];
+// Supabase Database Connection
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+// Test database connection
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('❌ Database connection failed:', err);
+  } else {
+    console.log('✅ Database connected successfully');
+  }
+});
 
 // Authentication middleware
 const authenticateToken = (req, res, next) => {
@@ -47,19 +51,34 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Helper function to get user data
-const getUserData = (userId) => {
-  return {
-    id: userId,
-    email: users.find(u => u.id === userId)?.email || '',
-    name: users.find(u => u.id === userId)?.name || '',
-    createdAt: users.find(u => u.id === userId)?.createdAt || new Date().toISOString(),
-    preferences: users.find(u => u.id === userId)?.preferences || {
-      currency: 'USD',
-      timezone: 'UTC',
-      notifications: true,
-      theme: 'light'
+const getUserData = async (userId) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, email, name, created_at, preferences FROM users WHERE id = $1',
+      [userId]
+    );
+    
+    if (result.rows.length === 0) {
+      return null;
     }
-  };
+
+    const user = result.rows[0];
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      createdAt: user.created_at,
+      preferences: user.preferences || {
+        currency: 'USD',
+        timezone: 'UTC',
+        notifications: true,
+        theme: 'light'
+      }
+    };
+  } catch (error) {
+    console.error('Error getting user data:', error);
+    return null;
+  }
 };
 
 // Routes
@@ -75,7 +94,12 @@ app.post('/api/auth/register', async (req, res) => {
     const { name, email, password } = req.body;
 
     // Check if user already exists
-    if (users.find(u => u.email === email)) {
+    const existingUser = await pool.query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (existingUser.rows.length > 0) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
@@ -84,21 +108,17 @@ app.post('/api/auth/register', async (req, res) => {
 
     // Create user
     const userId = uuidv4();
-    const user = {
-      id: userId,
-      name,
-      email,
-      password: hashedPassword,
-      createdAt: new Date().toISOString()
-    };
-
-    users.push(user);
+    const result = await pool.query(
+      'INSERT INTO users (id, email, name, password_hash, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING id',
+      [userId, email, name, hashedPassword]
+    );
 
     // Generate token
     const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '24h' });
 
+    const userData = await getUserData(userId);
     res.status(201).json({
-      user: getUserData(userId),
+      user: userData,
       token
     });
   } catch (error) {
@@ -112,13 +132,19 @@ app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
 
     // Find user
-    const user = users.find(u => u.email === email);
-    if (!user) {
+    const result = await pool.query(
+      'SELECT id, email, name, password_hash FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (result.rows.length === 0) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    const user = result.rows[0];
+
     // Check password
-    const validPassword = await bcrypt.compare(password, user.password);
+    const validPassword = await bcrypt.compare(password, user.password_hash);
     if (!validPassword) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -126,8 +152,9 @@ app.post('/api/auth/login', async (req, res) => {
     // Generate token
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '24h' });
 
+    const userData = await getUserData(user.id);
     res.json({
-      user: getUserData(user.id),
+      user: userData,
       token
     });
   } catch (error) {
@@ -136,9 +163,12 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-app.get('/api/auth/me', authenticateToken, (req, res) => {
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
   try {
-    const userData = getUserData(req.user.userId);
+    const userData = await getUserData(req.user.userId);
+    if (!userData) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     res.json(userData);
   } catch (error) {
     console.error('Get user error:', error);
@@ -147,34 +177,29 @@ app.get('/api/auth/me', authenticateToken, (req, res) => {
 });
 
 // People routes
-app.get('/api/people', authenticateToken, (req, res) => {
+app.get('/api/people', authenticateToken, async (req, res) => {
   try {
-    const userPeople = people.filter(p => p.userId === req.user.userId);
-    res.json(userPeople);
+    const result = await pool.query(
+      'SELECT * FROM people WHERE user_id = $1 ORDER BY created_at DESC',
+      [req.user.userId]
+    );
+    res.json(result.rows);
   } catch (error) {
     console.error('Get people error:', error);
     res.status(500).json({ message: 'Failed to get people' });
   }
 });
 
-app.post('/api/people', authenticateToken, (req, res) => {
+app.post('/api/people', authenticateToken, async (req, res) => {
   try {
     const { name, email, relationship, birthday, notes } = req.body;
     
-    const person = {
-      id: uuidv4(),
-      userId: req.user.userId,
-      name,
-      email,
-      relationship,
-      birthday,
-      notes,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    const result = await pool.query(
+      'INSERT INTO people (id, user_id, name, email, relationship, birthday, notes, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW()) RETURNING *',
+      [uuidv4(), req.user.userId, name, email, relationship, birthday, notes]
+    );
 
-    people.push(person);
-    res.status(201).json(person);
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Create person error:', error);
     res.status(500).json({ message: 'Failed to create person' });
@@ -2808,4 +2833,12 @@ app.get('/api/payments/invoices', authenticateToken, async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Gift Tracker API server running on http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🗄️ Database: Supabase PostgreSQL`);
+});
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('Shutting down server...');
+  pool.end();
+  process.exit(0);
 }); 
