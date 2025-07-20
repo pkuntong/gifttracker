@@ -24,10 +24,11 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       status: 'OK',
-      message: 'Gift Tracker API is running',
+      message: 'Gift Tracker API is running - UPDATED VERSION',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
-      port: PORT
+      port: PORT,
+      version: '1.0.1'
     }));
     return;
   }
@@ -36,10 +37,11 @@ const server = http.createServer((req, res) => {
   if (path === '/api/test') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
-      message: 'Server is working!',
+      message: 'Server is working! - UPDATED VERSION',
       method: req.method,
       url: req.url,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      version: '1.0.1'
     }));
     return;
   }
@@ -49,7 +51,8 @@ const server = http.createServer((req, res) => {
   res.end(JSON.stringify({
     error: 'Not Found',
     message: 'Endpoint not found',
-    availableEndpoints: ['/api/health', '/api/test']
+    availableEndpoints: ['/api/health', '/api/test'],
+    version: '1.0.1'
   }));
 });
 
@@ -57,7 +60,7 @@ server.listen(PORT, () => {
   console.log(`🚀 Gift Tracker API server running on http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔧 Using Node.js built-in modules only`);
+  console.log(`🔧 Using Node.js built-in modules only - UPDATED VERSION`);
 });
 
 // Graceful shutdown
