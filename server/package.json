@@ -4,8 +4,8 @@
   "description": "Gift Tracker API Backend",
   "main": "server.js",
   "scripts": {
-    "start": "node server-express.js",
-    "dev": "nodemon server-express.js",
+    "start": "node server-basic.js",
+    "dev": "nodemon server-basic.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "echo 'Dependencies installed successfully'"
   },
