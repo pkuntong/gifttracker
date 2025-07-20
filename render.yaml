@@ -3,7 +3,7 @@ services:
     name: gift-tracker-api
     env: node
     plan: free
-    buildCommand: cd server && npm ci --only=production
+    buildCommand: cd server && chmod +x build.sh && ./build.sh
     startCommand: cd server && npm start
     envVars:
       - key: NODE_ENV

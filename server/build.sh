@@ -8,35 +8,62 @@ if [ ! -f "package.json" ]; then
     exit 1
 fi
 
-# Clean install dependencies
-echo "📦 Installing dependencies..."
-npm ci --only=production
+# Force npm usage and clean install
+echo "📦 Installing dependencies with npm..."
+npm install --production
 
-# Check if dotenv is installed
+# Verify dotenv is installed
+echo "🔍 Checking if dotenv is installed..."
 if ! npm list dotenv > /dev/null 2>&1; then
-    echo "⚠️  dotenv not found, installing..."
+    echo "⚠️  dotenv not found, installing explicitly..."
     npm install dotenv
 fi
 
 # Check if all required dependencies are installed
 echo "🔍 Checking dependencies..."
-REQUIRED_DEPS=("express" "cors" "bcryptjs" "jsonwebtoken" "pg" "uuid" "stripe")
+REQUIRED_DEPS=("express" "cors" "bcryptjs" "jsonwebtoken" "pg" "uuid" "stripe" "dotenv")
 for dep in "${REQUIRED_DEPS[@]}"; do
     if ! npm list "$dep" > /dev/null 2>&1; then
         echo "❌ Missing dependency: $dep"
-        exit 1
+        echo "Installing $dep..."
+        npm install "$dep"
+    else
+        echo "✅ $dep is installed"
     fi
 done
 
 echo "✅ All dependencies installed successfully!"
 
-# Test the server
-echo "🧪 Testing server..."
+# Test the server can start
+echo "🧪 Testing server startup..."
 node -e "
-const dotenv = require('dotenv');
-dotenv.config();
-console.log('✅ dotenv loaded successfully');
-console.log('✅ Environment variables:', Object.keys(process.env).filter(key => key.includes('DATABASE_URL') || key.includes('JWT_SECRET') || key.includes('NODE_ENV')));
+try {
+  require('dotenv').config();
+  console.log('✅ dotenv loaded successfully');
+  
+  const express = require('express');
+  console.log('✅ express loaded successfully');
+  
+  const cors = require('cors');
+  console.log('✅ cors loaded successfully');
+  
+  const bcrypt = require('bcryptjs');
+  console.log('✅ bcryptjs loaded successfully');
+  
+  const jwt = require('jsonwebtoken');
+  console.log('✅ jsonwebtoken loaded successfully');
+  
+  const { Pool } = require('pg');
+  console.log('✅ pg loaded successfully');
+  
+  const { v4: uuidv4 } = require('uuid');
+  console.log('✅ uuid loaded successfully');
+  
+  console.log('✅ All modules loaded successfully!');
+} catch (error) {
+  console.error('❌ Error loading modules:', error.message);
+  process.exit(1);
+}
 "
 
 echo "🎉 Build completed successfully!" 
