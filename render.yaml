@@ -3,8 +3,11 @@ services:
     name: gift-tracker-api
     env: node
     plan: free
-    buildCommand: npm run render-build
-    startCommand: npm run render-start
+    buildCommand: |
+      cd server
+      npm install --production
+      npm list express
+    startCommand: cd server && npm start
     envVars:
       - key: NODE_ENV
         value: production

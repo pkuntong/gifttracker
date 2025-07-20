@@ -1,0 +1,11 @@
+[install]
+# Disable Bun and force npm
+use_npm = true
+
+[install.cache]
+# Disable Bun cache
+dir = ""
+
+[install.scopes]
+# Force npm for all scopes
+"*" = "npm" 

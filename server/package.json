@@ -4,20 +4,12 @@
   "description": "Gift Tracker API Backend",
   "main": "server.js",
   "scripts": {
-    "start": "node server-simple.js",
-    "dev": "nodemon server-simple.js",
+    "start": "node server-minimal.js",
+    "dev": "nodemon server-minimal.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "echo 'Dependencies installed successfully'"
   },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.2",
-    "pg": "^8.11.3",
-    "stripe": "^14.5.0",
-    "uuid": "^9.0.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
@@ -25,6 +17,8 @@
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
   },
+  "packageManager": "npm@8.0.0",
+  "preferGlobal": false,
   "keywords": [
     "gift-tracker",
     "api",
