@@ -1,146 +1,145 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ApiService, ApiError } from '@/services/api';
-import { User } from '@/types';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { apiService } from '@/services/api'
+
+interface User {
+  id: string
+  email: string
+  name?: string
+  created_at: string
+  updated_at: string
+}
 
 interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
-  isAuthenticated: boolean;
+  user: User | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  login: (email: string, password: string) => Promise<void>
+  register: (email: string, password: string, name: string) => Promise<void>
+  logout: () => Promise<void>
+  error: string | null
+  clearError: () => void
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider')
   }
-  return context;
-};
-
-interface AuthProviderProps {
-  children: ReactNode;
+  return context
 }
 
-// Mock user for development
-const mockUser: User = {
-  id: '1',
-  name: 'Demo User',
-  email: 'demo@example.com',
-  createdAt: new Date().toISOString(),
-  preferences: {
-    currency: 'USD',
-    timezone: 'UTC',
-    notifications: true,
-    theme: 'system'
-  }
-};
+interface AuthProviderProps {
+  children: ReactNode
+}
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const isAuthenticated = !!user
+
+  const clearError = () => setError(null)
+
+  const login = async (email: string, password: string) => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const response = await apiService.login(email, password)
+      
+      if (response.user) {
+        setUser(response.user)
+        localStorage.setItem('authToken', response.session?.access_token || '')
+        localStorage.setItem('user', JSON.stringify(response.user))
+      } else {
+        throw new Error('Login failed - no user data received')
+      }
+    } catch (err: any) {
+      setError(err.message || 'Login failed')
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const register = async (email: string, password: string, name: string) => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const response = await apiService.register(email, password, name)
+      
+      if (response.user) {
+        setUser(response.user)
+        localStorage.setItem('authToken', response.session?.access_token || '')
+        localStorage.setItem('user', JSON.stringify(response.user))
+      } else {
+        throw new Error('Registration failed - no user data received')
+      }
+    } catch (err: any) {
+      setError(err.message || 'Registration failed')
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const logout = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      await apiService.logout()
+    } catch (err: any) {
+      console.error('Logout error:', err)
+    } finally {
+      setUser(null)
+      localStorage.removeItem('authToken')
+      localStorage.removeItem('user')
+      setIsLoading(false)
+    }
+  }
 
   // Check for existing session on app load
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          // In development mode, use mock user if API fails
-          try {
-            const user = await ApiService.getCurrentUser();
-            setUser(user);
-          } catch (error) {
-            console.log('API not available, using mock user for development');
-            // Use mock user for development
-            setUser(mockUser);
-            localStorage.setItem('authToken', 'mock-token');
-            localStorage.setItem('userData', JSON.stringify(mockUser));
-          }
-        } else {
-          // For development, auto-login with mock user
-          console.log('No token found, using mock user for development');
-          setUser(mockUser);
-          localStorage.setItem('authToken', 'mock-token');
-          localStorage.setItem('userData', JSON.stringify(mockUser));
+        const storedUser = localStorage.getItem('user')
+        const token = localStorage.getItem('authToken')
+        
+        if (storedUser && token) {
+          const userData = JSON.parse(storedUser)
+          setUser(userData)
         }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        // Clear invalid token
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
+      } catch (err) {
+        console.error('Auth check error:', err)
+        localStorage.removeItem('authToken')
+        localStorage.removeItem('user')
       } finally {
-        setLoading(false);
+        setIsLoading(false)
       }
-    };
-
-    checkAuth();
-  }, []);
-
-  const login = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      const { user, token } = await ApiService.login(email, password);
-      
-      // Store auth data
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('userData', JSON.stringify(user));
-      
-      setUser(user);
-    } catch (error) {
-      // For development, use mock login if API fails
-      console.log('API not available, using mock login for development');
-      setUser(mockUser);
-      localStorage.setItem('authToken', 'mock-token');
-      localStorage.setItem('userData', JSON.stringify(mockUser));
-    } finally {
-      setLoading(false);
     }
-  };
 
-  const register = async (name: string, email: string, password: string) => {
-    setLoading(true);
-    try {
-      const { user, token } = await ApiService.register(name, email, password);
-      
-      // Store auth data
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('userData', JSON.stringify(user));
-      
-      setUser(user);
-    } catch (error) {
-      // For development, use mock registration if API fails
-      console.log('API not available, using mock registration for development');
-      const newUser = { ...mockUser, name, email };
-      setUser(newUser);
-      localStorage.setItem('authToken', 'mock-token');
-      localStorage.setItem('userData', JSON.stringify(newUser));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    setUser(null);
-  };
+    checkAuth()
+  }, [])
 
   const value: AuthContextType = {
     user,
-    loading,
+    isAuthenticated,
+    isLoading,
     login,
     register,
     logout,
-    isAuthenticated: !!user,
-  };
+    error,
+    clearError
+  }
 
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
-  );
-}; 
+  )
+} 

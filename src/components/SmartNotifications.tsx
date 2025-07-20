@@ -1,610 +1,324 @@
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { 
-  Bell, 
-  BellOff, 
-  Clock, 
-  Calendar,
-  AlertTriangle,
-  CheckCircle,
-  X,
-  Settings,
-  Smartphone,
-  Mail,
-  MessageSquare,
-  Zap,
-  Star,
-  Heart,
-  Gift,
-  Users,
-  TrendingUp,
-  Filter,
-  Plus,
-  Edit,
-  Trash2,
-  Archive,
-  Pin
-} from 'lucide-react';
-import { ApiService } from '@/services/api';
+import React, { useState, useEffect } from 'react'
+import { Bell, Calendar, Gift, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { apiService } from '@/services/api'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: 'reminder' | 'alert' | 'update' | 'suggestion' | 'achievement';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  category: 'gift' | 'person' | 'occasion' | 'budget' | 'system';
-  isRead: boolean;
-  isPinned: boolean;
-  isArchived: boolean;
-  createdAt: Date;
-  scheduledFor?: Date;
-  actionUrl?: string;
-  metadata?: Record<string, unknown>;
+interface Reminder {
+  id: string
+  type: 'occasion' | 'gift'
+  title: string
+  date?: string
+  description?: string
 }
 
-interface NotificationSettings {
-  email: boolean;
-  push: boolean;
-  sms: boolean;
-  inApp: boolean;
-  quietHours: {
-    enabled: boolean;
-    start: string;
-    end: string;
-  };
-  categories: {
-    gift: boolean;
-    person: boolean;
-    occasion: boolean;
-    budget: boolean;
-    system: boolean;
-  };
-  priorities: {
-    low: boolean;
-    medium: boolean;
-    high: boolean;
-    urgent: boolean;
-  };
-}
+export const SmartNotifications: React.FC = () => {
+  const [reminders, setReminders] = useState<Reminder[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState('all')
 
-const SmartNotifications: React.FC = () => {
-  const { t } = useTranslation();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [settings, setSettings] = useState<NotificationSettings>({
-    email: true,
-    push: true,
-    sms: false,
-    inApp: true,
-    quietHours: {
-      enabled: false,
-      start: '22:00',
-      end: '08:00'
-    },
-    categories: {
-      gift: true,
-      person: true,
-      occasion: true,
-      budget: true,
-      system: true
-    },
-    priorities: {
-      low: true,
-      medium: true,
-      high: true,
-      urgent: true
-    }
-  });
-  const [showSettings, setShowSettings] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'unread' | 'pinned' | 'urgent'>('all');
-  const [loading, setLoading] = useState(false);
-
-  // Mock notifications data
-  const mockNotifications: Notification[] = [
-    {
-      id: '1',
-      title: 'Birthday Reminder',
-      message: 'Sarah\'s birthday is in 3 days. Don\'t forget to get a gift!',
-      type: 'reminder',
-      priority: 'high',
-      category: 'person',
-      isRead: false,
-      isPinned: true,
-      isArchived: false,
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-      scheduledFor: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
-      actionUrl: '/people/sarah'
-    },
-    {
-      id: '2',
-      title: 'Budget Alert',
-      message: 'You\'ve spent 80% of your Christmas budget. Consider reviewing your spending.',
-      type: 'alert',
-      priority: 'medium',
-      category: 'budget',
-      isRead: false,
-      isPinned: false,
-      isArchived: false,
-      createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-      actionUrl: '/budgets'
-    },
-    {
-      id: '3',
-      title: 'Gift Recommendation',
-      message: 'Based on John\'s interests, we found 5 new gift ideas for his upcoming birthday.',
-      type: 'suggestion',
-      priority: 'low',
-      category: 'gift',
-      isRead: true,
-      isPinned: false,
-      isArchived: false,
-      createdAt: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-      actionUrl: '/recommendations'
-    },
-    {
-      id: '4',
-      title: 'Package Delivered',
-      message: 'Your gift for Mom has been delivered successfully.',
-      type: 'update',
-      priority: 'medium',
-      category: 'gift',
-      isRead: true,
-      isPinned: false,
-      isArchived: false,
-      createdAt: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
-      actionUrl: '/tracking'
-    },
-    {
-      id: '5',
-      title: 'Achievement Unlocked',
-      message: 'Congratulations! You\'ve completed 10 gifts this month.',
-      type: 'achievement',
-      priority: 'low',
-      category: 'system',
-      isRead: false,
-      isPinned: false,
-      isArchived: false,
-      createdAt: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-      metadata: { achievement: 'gift_master', count: 10 }
-    }
-  ];
-
+  // Load reminders on component mount
   useEffect(() => {
-    loadNotifications();
-  }, []);
+    loadReminders()
+  }, [])
 
-  const loadNotifications = async () => {
-    setLoading(true);
+  const loadReminders = async () => {
+    setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setNotifications(mockNotifications);
+      const response = await apiService.getReminders()
+      setReminders(response.reminders || [])
     } catch (error) {
-      console.error('Failed to load notifications:', error);
+      console.error('Error loading reminders:', error)
     } finally {
-      setLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
-  };
+  const handleDismiss = (reminderId: string) => {
+    setReminders(prev => prev.filter(r => r.id !== reminderId))
+  }
 
-  const togglePin = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, isPinned: !notification.isPinned }
-          : notification
-      )
-    );
-  };
+  const handleComplete = (reminderId: string) => {
+    // Mark as completed (in a real app, this would update the backend)
+    setReminders(prev => prev.filter(r => r.id !== reminderId))
+  }
 
-  const archiveNotification = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, isArchived: true }
-          : notification
-      )
-    );
-  };
-
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, isRead: true }))
-    );
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return 'bg-red-100 text-red-800 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getTypeIcon = (type: string) => {
+  const getReminderIcon = (type: string) => {
     switch (type) {
-      case 'reminder': return Clock;
-      case 'alert': return AlertTriangle;
-      case 'update': return CheckCircle;
-      case 'suggestion': return Star;
-      case 'achievement': return Zap;
-      default: return Bell;
+      case 'occasion':
+        return <Calendar className="h-4 w-4 text-blue-600" />
+      case 'gift':
+        return <Gift className="h-4 w-4 text-purple-600" />
+      default:
+        return <Bell className="h-4 w-4 text-gray-600" />
     }
-  };
+  }
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'gift': return Gift;
-      case 'person': return Users;
-      case 'occasion': return Calendar;
-      case 'budget': return TrendingUp;
-      case 'system': return Settings;
-      default: return Bell;
+  const getReminderBadge = (type: string) => {
+    const colors = {
+      occasion: 'bg-blue-100 text-blue-800',
+      gift: 'bg-purple-100 text-purple-800'
     }
-  };
+    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800'
+  }
 
-  const filteredNotifications = notifications.filter(notification => {
-    if (filter === 'unread') return !notification.isRead;
-    if (filter === 'pinned') return notification.isPinned;
-    if (filter === 'urgent') return notification.priority === 'urgent';
-    return true;
-  });
+  const getDaysUntil = (dateString: string) => {
+    const date = new Date(dateString)
+    const today = new Date()
+    const diffTime = date.getTime() - today.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays
+  }
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
-  const pinnedCount = notifications.filter(n => n.isPinned).length;
-  const urgentCount = notifications.filter(n => n.priority === 'urgent').length;
+  const getUrgencyColor = (days: number) => {
+    if (days <= 0) return 'text-red-600'
+    if (days <= 3) return 'text-orange-600'
+    if (days <= 7) return 'text-yellow-600'
+    return 'text-green-600'
+  }
+
+  const filteredReminders = reminders.filter(reminder => {
+    if (activeTab === 'all') return true
+    return reminder.type === activeTab
+  })
+
+  const upcomingOccasions = reminders.filter(r => r.type === 'occasion')
+  const giftReminders = reminders.filter(r => r.type === 'gift')
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('notifications.title')}</h1>
-          <p className="text-muted-foreground">{t('notifications.description')}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowSettings(!showSettings)}
-          >
-            <Settings className="h-4 w-4 mr-2" />
-            {t('notifications.settings')}
-          </Button>
-          <Button onClick={markAllAsRead} disabled={unreadCount === 0}>
-            <CheckCircle className="h-4 w-4 mr-2" />
-            {t('notifications.markAllRead')}
-          </Button>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-blue-600" />
-              <div>
-                <div className="text-2xl font-bold">{notifications.length}</div>
-                <div className="text-sm text-muted-foreground">Total</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
-              <div>
-                <div className="text-2xl font-bold">{unreadCount}</div>
-                <div className="text-sm text-muted-foreground">Unread</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Pin className="h-5 w-5 text-yellow-600" />
-              <div>
-                <div className="text-2xl font-bold">{pinnedCount}</div>
-                <div className="text-sm text-muted-foreground">Pinned</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-orange-600" />
-              <div>
-                <div className="text-2xl font-bold">{urgentCount}</div>
-                <div className="text-sm text-muted-foreground">Urgent</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Settings Panel */}
-      {showSettings && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              {t('notifications.settings')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Notification Channels */}
-            <div className="space-y-4">
-              <h3 className="font-semibold">{t('notifications.channels')}</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={settings.email}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, email: checked }))
-                    }
-                  />
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    <span className="text-sm">Email</span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={settings.push}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, push: checked }))
-                    }
-                  />
-                  <div className="flex items-center gap-2">
-                    <Bell className="h-4 w-4" />
-                    <span className="text-sm">Push</span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={settings.sms}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, sms: checked }))
-                    }
-                  />
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    <span className="text-sm">SMS</span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={settings.inApp}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, inApp: checked }))
-                    }
-                  />
-                  <div className="flex items-center gap-2">
-                    <Smartphone className="h-4 w-4" />
-                    <span className="text-sm">In-App</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quiet Hours */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={settings.quietHours.enabled}
-                  onCheckedChange={(checked) => 
-                    setSettings(prev => ({ 
-                      ...prev, 
-                      quietHours: { ...prev.quietHours, enabled: checked }
-                    }))
-                  }
-                />
-                <span className="font-semibold">{t('notifications.quietHours')}</span>
-              </div>
-              {settings.quietHours.enabled && (
-                <div className="flex gap-4">
-                  <div>
-                    <label className="text-sm text-muted-foreground">Start</label>
-                    <input
-                      type="time"
-                      value={settings.quietHours.start}
-                      onChange={(e) => 
-                        setSettings(prev => ({ 
-                          ...prev, 
-                          quietHours: { ...prev.quietHours, start: e.target.value }
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-muted-foreground">End</label>
-                    <input
-                      type="time"
-                      value={settings.quietHours.end}
-                      onChange={(e) => 
-                        setSettings(prev => ({ 
-                          ...prev, 
-                          quietHours: { ...prev.quietHours, end: e.target.value }
-                        }))
-                      }
-                      className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Filters */}
       <div className="flex items-center gap-2">
-        <Button
-          variant={filter === 'all' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setFilter('all')}
-        >
-          All ({notifications.length})
-        </Button>
-        <Button
-          variant={filter === 'unread' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setFilter('unread')}
-        >
-          Unread ({unreadCount})
-        </Button>
-        <Button
-          variant={filter === 'pinned' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setFilter('pinned')}
-        >
-          Pinned ({pinnedCount})
-        </Button>
-        <Button
-          variant={filter === 'urgent' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setFilter('urgent')}
-        >
-          Urgent ({urgentCount})
-        </Button>
+        <Bell className="h-6 w-6 text-blue-600" />
+        <h2 className="text-2xl font-bold">Smart Notifications</h2>
       </div>
 
-      {/* Notifications List */}
-      <div className="space-y-4">
-        {loading ? (
-          <div className="flex items-center justify-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : filteredNotifications.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <BellOff className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">{t('notifications.noNotifications')}</h3>
-              <p className="text-muted-foreground">{t('notifications.noNotificationsDescription')}</p>
-            </CardContent>
-          </Card>
-        ) : (
-          filteredNotifications.map((notification) => {
-            const TypeIcon = getTypeIcon(notification.type);
-            const CategoryIcon = getCategoryIcon(notification.category);
-            
-            return (
-              <Card 
-                key={notification.id} 
-                className={`transition-all hover:shadow-md ${
-                  !notification.isRead ? 'border-l-4 border-l-primary' : ''
-                }`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0">
-                      <div className={`p-2 rounded-full ${
-                        notification.isRead ? 'bg-muted' : 'bg-primary/10'
-                      }`}>
-                        <TypeIcon className="h-4 w-4" />
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className={`font-semibold ${
-                              !notification.isRead ? 'text-foreground' : 'text-muted-foreground'
-                            }`}>
-                              {notification.title}
-                            </h3>
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${getPriorityColor(notification.priority)}`}
-                            >
-                              {notification.priority}
-                            </Badge>
-                            {notification.isPinned && (
-                              <Pin className="h-3 w-3 text-yellow-600" />
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {notification.message}
-                          </p>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <CategoryIcon className="h-3 w-3" />
-                              {notification.category}
-                            </div>
-                            <span>{notification.createdAt.toLocaleString()}</span>
-                            {notification.scheduledFor && (
-                              <span>Scheduled: {notification.scheduledFor.toLocaleDateString()}</span>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-1">
-                          {!notification.isRead && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => markAsRead(notification.id)}
-                            >
-                              <CheckCircle className="h-3 w-3" />
-                            </Button>
-                          )}
-                                                     <Button
-                             variant="ghost"
-                             size="sm"
-                             onClick={() => togglePin(notification.id)}
-                           >
-                             <Pin className={`h-3 w-3 ${notification.isPinned ? 'text-yellow-600' : 'text-muted-foreground'}`} />
-                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => archiveNotification(notification.id)}
-                          >
-                            <Archive className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteNotification(notification.id)}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })
-        )}
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-full">
+                <Calendar className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Upcoming Occasions</p>
+                <p className="text-2xl font-bold">{upcomingOccasions.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 rounded-full">
+                <Gift className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Gift Reminders</p>
+                <p className="text-2xl font-bold">{giftReminders.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 rounded-full">
+                <AlertCircle className="h-5 w-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Urgent</p>
+                <p className="text-2xl font-bold">
+                  {reminders.filter(r => r.date && getDaysUntil(r.date) <= 3).length}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Reminders List */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Reminders</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="all">All ({reminders.length})</TabsTrigger>
+              <TabsTrigger value="occasion">Occasions ({upcomingOccasions.length})</TabsTrigger>
+              <TabsTrigger value="gift">Gifts ({giftReminders.length})</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all" className="space-y-4">
+              <RemindersList 
+                reminders={filteredReminders}
+                isLoading={isLoading}
+                onDismiss={handleDismiss}
+                onComplete={handleComplete}
+                getReminderIcon={getReminderIcon}
+                getReminderBadge={getReminderBadge}
+                getDaysUntil={getDaysUntil}
+                getUrgencyColor={getUrgencyColor}
+              />
+            </TabsContent>
+
+            <TabsContent value="occasion" className="space-y-4">
+              <RemindersList 
+                reminders={filteredReminders}
+                isLoading={isLoading}
+                onDismiss={handleDismiss}
+                onComplete={handleComplete}
+                getReminderIcon={getReminderIcon}
+                getReminderBadge={getReminderBadge}
+                getDaysUntil={getDaysUntil}
+                getUrgencyColor={getUrgencyColor}
+              />
+            </TabsContent>
+
+            <TabsContent value="gift" className="space-y-4">
+              <RemindersList 
+                reminders={filteredReminders}
+                isLoading={isLoading}
+                onDismiss={handleDismiss}
+                onComplete={handleComplete}
+                getReminderIcon={getReminderIcon}
+                getReminderBadge={getReminderBadge}
+                getDaysUntil={getDaysUntil}
+                getUrgencyColor={getUrgencyColor}
+              />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Refresh Button */}
+      <div className="flex justify-center">
+        <Button 
+          onClick={loadReminders}
+          disabled={isLoading}
+          variant="outline"
+        >
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+              Loading...
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Refresh Reminders
+            </div>
+          )}
+        </Button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SmartNotifications; 
+interface RemindersListProps {
+  reminders: Reminder[]
+  isLoading: boolean
+  onDismiss: (id: string) => void
+  onComplete: (id: string) => void
+  getReminderIcon: (type: string) => React.ReactNode
+  getReminderBadge: (type: string) => string
+  getDaysUntil: (date: string) => number
+  getUrgencyColor: (days: number) => string
+}
+
+const RemindersList: React.FC<RemindersListProps> = ({
+  reminders,
+  isLoading,
+  onDismiss,
+  onComplete,
+  getReminderIcon,
+  getReminderBadge,
+  getDaysUntil,
+  getUrgencyColor
+}) => {
+  if (isLoading) {
+    return (
+      <div className="text-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+        <p className="text-gray-500">Loading reminders...</p>
+      </div>
+    )
+  }
+
+  if (reminders.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+        <p className="text-gray-500">No reminders found</p>
+        <p className="text-sm text-gray-400 mt-2">
+          You're all caught up!
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      {reminders.map((reminder) => {
+        const daysUntil = reminder.date ? getDaysUntil(reminder.date) : null
+        const urgencyColor = daysUntil !== null ? getUrgencyColor(daysUntil) : 'text-gray-600'
+        
+        return (
+          <div
+            key={reminder.id}
+            className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              {getReminderIcon(reminder.type)}
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-medium">{reminder.title}</h4>
+                  <Badge className={getReminderBadge(reminder.type)}>
+                    {reminder.type}
+                  </Badge>
+                </div>
+                {reminder.description && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    {reminder.description}
+                  </p>
+                )}
+                {reminder.date && (
+                  <div className="flex items-center gap-1 mt-2">
+                    <Clock className="h-3 w-3 text-gray-500" />
+                    <span className={`text-sm ${urgencyColor}`}>
+                      {daysUntil === 0 ? 'Today' : 
+                       daysUntil < 0 ? `${Math.abs(daysUntil)} days ago` :
+                       `${daysUntil} days away`}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onComplete(reminder.id)}
+              >
+                <CheckCircle className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => onDismiss(reminder.id)}
+              >
+                <XCircle className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+} 
