@@ -3,7 +3,7 @@ services:
     name: gift-tracker-api
     env: node
     plan: free
-    buildCommand: cd server && npm install --production --no-optional
+    buildCommand: echo "No dependencies to install"
     startCommand: cd server && npm start
     envVars:
       - key: NODE_ENV
