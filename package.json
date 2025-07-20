@@ -13,7 +13,8 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "render-build": "cd server && npm install --production",
-    "render-start": "cd server && npm start"
+    "render-start": "cd server && npm start",
+    "postinstall": "cd server && npm install --production"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.1.2",
@@ -74,5 +75,8 @@
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
   },
-  "packageManager": "npm@8.0.0"
+  "packageManager": "npm@8.0.0",
+  "workspaces": [
+    "server"
+  ]
 }
