@@ -42,7 +42,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 import { Gift, Person } from '@/types';
 
 interface TrackingInfo {
@@ -110,8 +110,8 @@ const GiftTracking: React.FC = () => {
     try {
       setLoading(true);
       const [giftsData, peopleData] = await Promise.all([
-        ApiService.getGifts(),
-        ApiService.getPeople()
+        apiService.getGifts(),
+        apiService.getPeople()
       ]);
       setGifts(giftsData);
       setPeople(peopleData);
@@ -308,9 +308,9 @@ const GiftTracking: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Truck className="w-8 h-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold">Gift Tracking</h1>
-            <p className="text-muted-foreground">Track your gift shipments and deliveries</p>
+          <div className="text-left">
+            <h1 className="text-3xl font-bold text-left">Gift Tracking</h1>
+            <p className="text-muted-foreground text-left">Track your gift shipments and deliveries</p>
           </div>
         </div>
         

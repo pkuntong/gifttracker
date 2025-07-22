@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Person } from '@/types';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 import GiftPreferencesForm from '@/components/GiftPreferencesForm';
 
 const People = () => {
@@ -63,8 +63,12 @@ const People = () => {
   const loadPeople = async () => {
     try {
       setLoading(true);
-      const data = await ApiService.getPeople();
-      setPeople(data);
+      const response = await apiService.getPeople();
+      
+      // Extract array from response (handle both direct arrays and objects with data property)
+      const peopleData = Array.isArray(response) ? response : (response?.people || []);
+      
+      setPeople(peopleData);
     } catch (error) {
       toast({
         title: "Error",
@@ -81,13 +85,13 @@ const People = () => {
     
     try {
       if (editingPerson) {
-        await ApiService.updatePerson(editingPerson.id, formData);
+        await apiService.updatePerson(editingPerson.id, formData);
         toast({
           title: "Success",
           description: "Person updated successfully.",
         });
       } else {
-        await ApiService.createPerson(formData);
+        await apiService.createPerson(formData);
         toast({
           title: "Success",
           description: "Person added successfully.",
@@ -111,7 +115,7 @@ const People = () => {
     if (!confirm('Are you sure you want to delete this person?')) return;
     
     try {
-      await ApiService.deletePerson(personId);
+      await apiService.deletePerson(personId);
       toast({
         title: "Success",
         description: "Person deleted successfully.",
@@ -163,9 +167,9 @@ const People = () => {
       {/* Header */}
       <div className="p-6 border-b">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">People</h1>
-            <p className="text-muted-foreground">Manage your gift recipients</p>
+          <div className="text-left">
+            <h1 className="text-3xl font-bold text-left">People</h1>
+            <p className="text-muted-foreground text-left">Manage your gift recipients</p>
           </div>
           <Button onClick={() => setIsAddDialogOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />

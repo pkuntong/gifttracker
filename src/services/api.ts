@@ -4,7 +4,7 @@
 const API_BASE_URL = 'https://jnhucgyztokoffzwiegj.supabase.co/functions/v1/api'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpuaHVjZ3l6dG9rb2ZmendpZWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5NzI0MTcsImV4cCI6MjA2ODU0ODQxN30.2M01OqtHmBv4CBqAw3pjTK7oysxnB_xJEXG3m2ENOn8'
 
-// Helper function to get headers
+// For development, we'll use the anon key as the authorization token
 const getHeaders = () => ({
   'Content-Type': 'application/json',
   'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
@@ -20,7 +20,7 @@ const handleResponse = async (response: Response) => {
 }
 
 // API Service Class
-class ApiService {
+export class ApiService {
   // Health Check
   async healthCheck() {
     const response = await fetch(`${API_BASE_URL}/health`, {
@@ -84,6 +84,23 @@ class ApiService {
     return handleResponse(response)
   }
 
+  async updatePerson(personId: string, personData: any) {
+    const response = await fetch(`${API_BASE_URL}/people/${personId}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(personData)
+    })
+    return handleResponse(response)
+  }
+
+  async deletePerson(personId: string) {
+    const response = await fetch(`${API_BASE_URL}/people/${personId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
   // Gift Management
   async getGifts() {
     const response = await fetch(`${API_BASE_URL}/gifts`, {
@@ -102,6 +119,23 @@ class ApiService {
     return handleResponse(response)
   }
 
+  async updateGift(giftId: string, giftData: any) {
+    const response = await fetch(`${API_BASE_URL}/gifts/${giftId}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(giftData)
+    })
+    return handleResponse(response)
+  }
+
+  async deleteGift(giftId: string) {
+    const response = await fetch(`${API_BASE_URL}/gifts/${giftId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
   // Occasion Management
   async getOccasions() {
     const response = await fetch(`${API_BASE_URL}/occasions`, {
@@ -116,6 +150,23 @@ class ApiService {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(occasionData)
+    })
+    return handleResponse(response)
+  }
+
+  async updateOccasion(occasionId: string, occasionData: any) {
+    const response = await fetch(`${API_BASE_URL}/occasions/${occasionId}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(occasionData)
+    })
+    return handleResponse(response)
+  }
+
+  async deleteOccasion(occasionId: string) {
+    const response = await fetch(`${API_BASE_URL}/occasions/${occasionId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
     })
     return handleResponse(response)
   }
@@ -157,8 +208,9 @@ class ApiService {
   }
 
   // Analytics
-  async getAnalytics() {
-    const response = await fetch(`${API_BASE_URL}/analytics`, {
+  async getAnalytics(filters?: any) {
+    const queryParams = filters ? `?${new URLSearchParams(filters).toString()}` : '';
+    const response = await fetch(`${API_BASE_URL}/analytics${queryParams}`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -216,6 +268,93 @@ class ApiService {
     })
     return handleResponse(response)
   }
+
+  // Gift Preferences
+  async getGiftPreferences(personId: string) {
+    const response = await fetch(`${API_BASE_URL}/preferences/${personId}`, {
+      method: 'GET',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
+  // Reports
+  async getReports() {
+    const response = await fetch(`${API_BASE_URL}/reports`, {
+      method: 'GET',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
+  async createReport(reportData: any) {
+    const response = await fetch(`${API_BASE_URL}/reports`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(reportData)
+    })
+    return handleResponse(response)
+  }
+
+  async exportReport(reportId: string, format: 'pdf' | 'csv' | 'json') {
+    const response = await fetch(`${API_BASE_URL}/reports/${reportId}/export?format=${format}`, {
+      method: 'GET',
+      headers: getHeaders()
+    })
+    return response.blob()
+  }
+
+  async deleteReport(reportId: string) {
+    const response = await fetch(`${API_BASE_URL}/reports/${reportId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
+  // Billing & Invoices
+  async getInvoices() {
+    const response = await fetch(`${API_BASE_URL}/invoices`, {
+      method: 'GET',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
+  async getUsage() {
+    const response = await fetch(`${API_BASE_URL}/usage`, {
+      method: 'GET',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
+  async cancelSubscription(subscriptionId: string) {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/${subscriptionId}/cancel`, {
+      method: 'POST',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
+  // Profile Management
+  async updateProfile(updates: Record<string, unknown>) {
+    const response = await fetch(`${API_BASE_URL}/profile`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(updates)
+    })
+    return handleResponse(response)
+  }
+
+  async updatePreferences(preferences: any) {
+    const response = await fetch(`${API_BASE_URL}/preferences`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(preferences)
+    })
+    return handleResponse(response)
+  }
 }
 
 // Create and export the API service instance
@@ -230,20 +369,34 @@ export const {
   logout,
   getPeople,
   createPerson,
+  updatePerson,
+  deletePerson,
   getGifts,
   createGift,
+  updateGift,
+  deleteGift,
   getOccasions,
   createOccasion,
+  updateOccasion,
+  deleteOccasion,
   getBudgets,
   createBudget,
   getFamilies,
   createFamily,
   getAnalytics,
   search,
+  getGiftPreferences,
   getRecommendations,
   getReminders,
   exportData,
-  importData
+  importData,
+  getReports,
+  createReport,
+  exportReport,
+  deleteReport,
+  getInvoices,
+  getUsage,
+  cancelSubscription
 } = apiService
 
 export default apiService 

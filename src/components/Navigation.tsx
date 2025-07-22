@@ -39,22 +39,22 @@ const Navigation = () => {
   };
 
   const navItems = [
-    { path: '/dashboard', label: t('navigation.dashboard'), icon: Home },
-    { path: '/gifts', label: t('navigation.gifts'), icon: Gift },
-    { path: '/people', label: t('navigation.people'), icon: Users },
-    { path: '/occasions', label: t('navigation.occasions'), icon: Calendar },
-    { path: '/recommendations', label: t('navigation.recommendations'), icon: Target },
-    { path: '/tracking', label: t('navigation.tracking'), icon: Truck },
-    { path: '/budgets', label: t('navigation.budgets'), icon: DollarSign },
-    { path: '/families', label: t('navigation.families'), icon: Users },
-    { path: '/notifications', label: t('navigation.notifications'), icon: Bell },
-    { path: '/analytics', label: t('navigation.analytics'), icon: BarChart3 },
-    { path: '/gift-ideas', label: t('navigation.giftIdeas'), icon: Lightbulb },
-    { path: '/wishlists', label: t('navigation.wishlists'), icon: Heart },
-    { path: '/reminders', label: t('navigation.reminders'), icon: Bell },
-    { path: '/search', label: t('navigation.search'), icon: Search },
-    { path: '/data', label: t('navigation.data'), icon: Database },
-    { path: '/settings', label: t('navigation.settings'), icon: Settings },
+    { path: '/app/dashboard', label: t('navigation.dashboard'), icon: Home },
+    { path: '/app/gifts', label: t('navigation.gifts'), icon: Gift },
+    { path: '/app/people', label: t('navigation.people'), icon: Users },
+    { path: '/app/occasions', label: t('navigation.occasions'), icon: Calendar },
+    { path: '/app/recommendations', label: t('navigation.recommendations'), icon: Target },
+    { path: '/app/tracking', label: t('navigation.tracking'), icon: Truck },
+    { path: '/app/budgets', label: t('navigation.budgets'), icon: DollarSign },
+    { path: '/app/families', label: t('navigation.families'), icon: Users },
+    { path: '/app/notifications', label: t('navigation.notifications'), icon: Bell },
+    { path: '/app/analytics', label: t('navigation.analytics'), icon: BarChart3 },
+    { path: '/app/gift-ideas', label: t('navigation.giftIdeas'), icon: Lightbulb },
+    { path: '/app/wishlists', label: t('navigation.wishlists'), icon: Heart },
+    { path: '/app/reminders', label: t('navigation.reminders'), icon: Bell },
+    { path: '/app/search', label: t('navigation.search'), icon: Search },
+    { path: '/app/data', label: t('navigation.data'), icon: Database },
+    { path: '/app/settings', label: t('navigation.settings'), icon: Settings },
   ];
 
   return (
@@ -62,7 +62,7 @@ const Navigation = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link to="/dashboard" className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-3">
               <Gift className="w-8 h-8 text-primary" />
               <h1 className="text-2xl font-bold">GiftTracker</h1>
             </Link>

@@ -32,7 +32,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 import { GiftPreferences, Person } from '@/types';
 
 interface GiftPreferencesFormProps {
@@ -95,7 +95,7 @@ const GiftPreferencesForm: React.FC<GiftPreferencesFormProps> = ({
 
   const loadPreferences = async () => {
     try {
-      const prefs = await ApiService.getGiftPreferences(personId);
+      const prefs = await apiService.getGiftPreferences(personId);
       if (prefs) {
         setPreferences(prefs);
       }
@@ -118,9 +118,9 @@ const GiftPreferencesForm: React.FC<GiftPreferencesFormProps> = ({
     try {
       setLoading(true);
       if (preferences.id) {
-        await ApiService.updateGiftPreferences(personId, preferences);
+        await apiService.updateGiftPreferences(personId, preferences);
       } else {
-        await ApiService.createGiftPreferences({
+        await apiService.createGiftPreferences({
           ...preferences,
           personId
         } as Omit<GiftPreferences, 'id' | 'userId' | 'createdAt' | 'updatedAt'>);

@@ -63,7 +63,7 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 import { Gift as GiftType, Person } from '@/types';
 
 interface FamilyGroup {
@@ -169,8 +169,8 @@ const Social: React.FC = () => {
     try {
       setLoading(true);
       const [familiesData, peopleData] = await Promise.all([
-        ApiService.getFamilies(),
-        ApiService.getPeople()
+        apiService.getFamilies(),
+        apiService.getPeople()
       ]);
       setFamilies(familiesData);
       setPeople(peopleData);
@@ -422,9 +422,9 @@ const Social: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Users className="w-8 h-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold">Social & Sharing</h1>
-            <p className="text-muted-foreground">Collaborate with family and friends on gift planning</p>
+          <div className="text-left">
+            <h1 className="text-3xl font-bold text-left">Social & Sharing</h1>
+            <p className="text-muted-foreground text-left">Collaborate with family and friends on gift planning</p>
           </div>
         </div>
         

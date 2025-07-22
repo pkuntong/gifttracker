@@ -30,7 +30,7 @@ import {
   Gift,
   Coins
 } from 'lucide-react';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 
 interface Budget {
   id: string;

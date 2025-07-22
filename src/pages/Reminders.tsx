@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Search, Filter, Bell, Clock, CheckCircle, XCircle, AlertTriangle, Settings, Smartphone, Mail, MessageSquare, BarChart3, MoreHorizontal, Edit, Trash2, Copy, Zap, Eye, EyeOff } from 'lucide-react';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 import { Reminder, ReminderTemplate, ReminderRule, NotificationPreferences, SmartReminder, ReminderChannel } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -99,11 +99,11 @@ const Reminders: React.FC = () => {
     try {
       setIsLoading(true);
       const [remindersData, templatesData, rulesData, smartData, prefsData] = await Promise.all([
-        ApiService.getReminders(),
-        ApiService.getReminderTemplates(),
-        ApiService.getReminderRules(),
-        ApiService.getSmartReminders(),
-        ApiService.getNotificationPreferences(),
+        apiService.getReminders(),
+        apiService.getReminderTemplates(),
+        apiService.getReminderRules(),
+        apiService.getSmartReminders(),
+        apiService.getNotificationPreferences(),
       ]);
       
       setReminders(remindersData);
@@ -124,7 +124,7 @@ const Reminders: React.FC = () => {
 
   const handleCreateReminder = async () => {
     try {
-      const created = await ApiService.createReminder(newReminder);
+      const created = await apiService.createReminder(newReminder);
       setReminders(prev => [created, ...prev]);
       setShowCreateDialog(false);
       setNewReminder({
@@ -158,7 +158,7 @@ const Reminders: React.FC = () => {
 
   const handleDismissReminder = async (id: string) => {
     try {
-      await ApiService.dismissReminder(id);
+      await apiService.dismissReminder(id);
       setReminders(prev => prev.map(r => r.id === id ? { ...r, status: 'dismissed' } : r));
       toast({
         title: t('success'),
@@ -175,7 +175,7 @@ const Reminders: React.FC = () => {
 
   const handleCompleteReminder = async (id: string) => {
     try {
-      await ApiService.completeReminder(id);
+      await apiService.completeReminder(id);
       setReminders(prev => prev.map(r => r.id === id ? { ...r, status: 'completed' } : r));
       toast({
         title: t('success'),
@@ -192,7 +192,7 @@ const Reminders: React.FC = () => {
 
   const handleDeleteReminder = async (id: string) => {
     try {
-      await ApiService.deleteReminder(id);
+      await apiService.deleteReminder(id);
       setReminders(prev => prev.filter(r => r.id !== id));
       toast({
         title: t('success'),
@@ -209,7 +209,7 @@ const Reminders: React.FC = () => {
 
   const handleCreateTemplate = async () => {
     try {
-      const created = await ApiService.createReminderTemplate(newTemplate);
+      const created = await apiService.createReminderTemplate(newTemplate);
       setTemplates(prev => [created, ...prev]);
       setShowTemplateDialog(false);
       setNewTemplate({
@@ -237,7 +237,7 @@ const Reminders: React.FC = () => {
 
   const handleCreateRule = async () => {
     try {
-      const created = await ApiService.createReminderRule(newRule);
+      const created = await apiService.createReminderRule(newRule);
       setRules(prev => [created, ...prev]);
       setShowRuleDialog(false);
       setNewRule({
@@ -273,7 +273,7 @@ const Reminders: React.FC = () => {
 
   const handleDismissSmartReminder = async (id: string) => {
     try {
-      await ApiService.dismissSmartReminder(id);
+      await apiService.dismissSmartReminder(id);
       setSmartReminders(prev => prev.map(r => r.id === id ? { ...r, isDismissed: true } : r));
       toast({
         title: t('success'),
@@ -355,9 +355,9 @@ const Reminders: React.FC = () => {
   return (
     <div className="container mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">{t('reminders.title')}</h1>
-          <p className="text-muted-foreground mt-1">{t('reminders.description')}</p>
+        <div className="text-left">
+          <h1 className="text-3xl font-bold text-left">{t('reminders.title')}</h1>
+          <p className="text-muted-foreground mt-1 text-left">{t('reminders.description')}</p>
         </div>
         <div className="flex items-center space-x-2">
           <Button

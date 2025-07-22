@@ -41,7 +41,7 @@ import {
   Languages
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 
 const currencies = [
   { value: 'USD', label: 'US Dollar ($)' },
@@ -82,7 +82,7 @@ const languages = [
 ];
 
 const Settings = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -129,6 +129,7 @@ const Settings = () => {
 
   const handleAccountUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Account update triggered');
     setLoading(true);
     
     try {
@@ -142,9 +143,39 @@ const Settings = () => {
         updates.email = accountForm.email;
       }
 
-      if (updates.name || updates.email) {
-        await ApiService.updateProfile(updates);
-        toast({ title: t('success.profileUpdated') });
+      // Handle password change if provided
+      if (accountForm.newPassword && accountForm.newPassword === accountForm.confirmPassword) {
+        updates.password = accountForm.newPassword;
+      } else if (accountForm.newPassword && accountForm.newPassword !== accountForm.confirmPassword) {
+        toast({
+          title: t('error.title'),
+          description: 'New passwords do not match.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+
+      console.log('Updates to send:', updates);
+      console.log('Current form data:', accountForm);
+
+      // Always save to show feedback, even if no changes
+      const response = await apiService.updateProfile(updates);
+      console.log('API response:', response);
+      
+      // Update local user state with response data
+      if (response.user) {
+        // Update localStorage with new user data
+        localStorage.setItem('user', JSON.stringify(response.user));
+        
+        // Update the user in AuthContext by triggering a re-render
+        // This is a workaround since we can't directly update the AuthContext
+        window.location.reload();
+        
+        toast({ 
+          title: t('success.profileUpdated'),
+          description: 'Your profile has been updated successfully.'
+        });
       }
 
       // Reset password fields
@@ -155,6 +186,7 @@ const Settings = () => {
         confirmPassword: '',
       }));
     } catch (error) {
+      console.error('Profile update error:', error);
       toast({
         title: t('error.title'),
         description: t('error.profileUpdate'),
@@ -166,12 +198,30 @@ const Settings = () => {
   };
 
   const handlePreferencesUpdate = async () => {
+    console.log('Preferences update triggered');
     setLoading(true);
     
     try {
-      await ApiService.updatePreferences(preferencesForm);
-      toast({ title: t('success.preferencesUpdated') });
+      console.log('Preferences to send:', preferencesForm);
+      const response = await apiService.updatePreferences(preferencesForm);
+      console.log('API response:', response);
+      
+      if (response.preferences) {
+        // Update localStorage with new preferences
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const updatedUser = {
+          ...currentUser,
+          preferences: response.preferences
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        toast({ 
+          title: t('success.preferencesUpdated'),
+          description: 'Your preferences have been updated successfully.'
+        });
+      }
     } catch (error) {
+      console.error('Preferences update error:', error);
       toast({
         title: t('error.title'),
         description: t('error.preferencesUpdate'),
@@ -207,10 +257,10 @@ const Settings = () => {
       
       // Fetch all user data
       const [people, gifts, occasions, budgets] = await Promise.all([
-        ApiService.getPeople(),
-        ApiService.getGifts(),
-        ApiService.getOccasions(),
-        ApiService.getBudgets(),
+        apiService.getPeople(),
+        apiService.getGifts(),
+        apiService.getOccasions(),
+        apiService.getBudgets(),
       ]);
 
       const exportData = {
@@ -271,7 +321,7 @@ const Settings = () => {
     }
   };
 
-  if (!user) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <main className="container mx-auto px-4 py-8">
@@ -286,15 +336,30 @@ const Settings = () => {
     );
   }
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold mb-2">Not Authenticated</h2>
+              <p className="text-muted-foreground">Please log in to access settings</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       
       {/* Header */}
       <div className="p-6 border-b">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Settings</h1>
-            <p className="text-muted-foreground">Manage your account and preferences</p>
+          <div className="text-left">
+            <h1 className="text-3xl font-bold text-left">Settings</h1>
+            <p className="text-muted-foreground text-left">Manage your account and preferences</p>
           </div>
         </div>
       </div>
@@ -631,7 +696,7 @@ const Settings = () => {
                   <div>
                     <Label className="text-sm font-medium">{t('settings.memberSince')}</Label>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(user.createdAt).toLocaleDateString()}
+                      {new Date(user.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>

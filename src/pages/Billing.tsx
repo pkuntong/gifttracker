@@ -5,18 +5,39 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Crown, CreditCard, FileText, Users, Shield, Zap, Check } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import BillingManagement from '@/components/BillingManagement';
 import StripePayment from '@/components/StripePayment';
 import PremiumFeatureGuard from '@/components/PremiumFeatureGuard';
 import { SUBSCRIPTION_PLANS, mockSubscription, type Subscription } from '@/services/stripeService';
 
 const Billing: React.FC = () => {
+  const { toast } = useToast();
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [subscription, setSubscription] = useState(mockSubscription);
+  const [planDialogs, setPlanDialogs] = useState<Record<string, boolean>>({});
 
   const handleSubscriptionSuccess = (newSubscription: Subscription) => {
     setSubscription(newSubscription);
     setShowPaymentDialog(false);
+  };
+
+  const handlePlanUpgrade = (planKey: string, planName: string) => {
+    // This will be handled by the StripePayment component
+    console.log(`Upgrading to ${planName}`);
+  };
+
+  const handlePlanDowngrade = (planKey: string, planName: string) => {
+    // This will be handled by the StripePayment component
+    console.log(`Downgrading to ${planName}`);
+  };
+
+  const openPlanDialog = (planKey: string) => {
+    setPlanDialogs(prev => ({ ...prev, [planKey]: true }));
+  };
+
+  const closePlanDialog = (planKey: string) => {
+    setPlanDialogs(prev => ({ ...prev, [planKey]: false }));
   };
 
   return (
@@ -95,7 +116,11 @@ const Billing: React.FC = () => {
                     </div>
                   </div>
 
-                  <Button variant="outline" className="w-full">
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => setShowPaymentDialog(true)}
+                  >
                     Manage Subscription
                   </Button>
                 </div>
@@ -108,15 +133,33 @@ const Billing: React.FC = () => {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => setShowPaymentDialog(true)}
+                >
                   <CreditCard className="h-4 w-4 mr-2" />
                   Add Payment Method
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    // Mock download invoices functionality
+                    const link = document.createElement('a');
+                    link.href = 'data:text/csv;charset=utf-8,Invoice ID,Amount,Date,Status\nINV-001,9.99,2025-07-22,Paid\nINV-002,19.99,2025-06-22,Paid';
+                    link.download = 'invoices.csv';
+                    link.click();
+                  }}
+                >
                   <FileText className="h-4 w-4 mr-2" />
                   Download Invoices
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => setShowPaymentDialog(true)}
+                >
                   <Crown className="h-4 w-4 mr-2" />
                   Change Plan
                 </Button>
@@ -197,22 +240,30 @@ const Billing: React.FC = () => {
                       Current Plan
                     </Button>
                   ) : (
-                    <Dialog>
+                    <Dialog open={planDialogs[key]} onOpenChange={(open) => open ? openPlanDialog(key) : closePlanDialog(key)}>
                       <DialogTrigger asChild>
-                        <Button className="w-full">
+                        <Button 
+                          className="w-full"
+                          onClick={() => openPlanDialog(key)}
+                        >
                           {key === 'FREE' ? 'Downgrade' : 'Upgrade'}
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-4xl">
+                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle>Upgrade to {plan.name}</DialogTitle>
+                          <DialogTitle>
+                            {key === 'FREE' ? 'Downgrade' : 'Upgrade'} to {plan.name}
+                          </DialogTitle>
                           <DialogDescription>
-                            Complete your subscription upgrade
+                            Complete your subscription {key === 'FREE' ? 'downgrade' : 'upgrade'}
                           </DialogDescription>
                         </DialogHeader>
                         <StripePayment 
-                          onSuccess={handleSubscriptionSuccess}
-                          onCancel={() => {}}
+                          onSuccess={(newSubscription) => {
+                            handleSubscriptionSuccess(newSubscription);
+                            closePlanDialog(key);
+                          }}
+                          onCancel={() => closePlanDialog(key)}
                         />
                       </DialogContent>
                     </Dialog>
@@ -234,58 +285,80 @@ const Billing: React.FC = () => {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr>
-                      <th className="text-left p-2">Feature</th>
-                      <th className="text-center p-2">Free</th>
-                      <th className="text-center p-2">Premium</th>
-                      <th className="text-center p-2">Family</th>
+                    <tr className="border-b">
+                      <th className="text-left p-2 font-medium">Feature</th>
+                      <th className="text-center p-2 font-medium">Free</th>
+                      <th className="text-center p-2 font-medium">Premium</th>
+                      <th className="text-center p-2 font-medium">Family</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
+                    <tr className="border-b">
                       <td className="p-2">Gifts Limit</td>
                       <td className="text-center p-2">10</td>
                       <td className="text-center p-2">∞</td>
                       <td className="text-center p-2">∞</td>
                     </tr>
-                    <tr>
+                    <tr className="border-b">
                       <td className="p-2">AI Recommendations</td>
                       <td className="text-center p-2">❌</td>
                       <td className="text-center p-2">✅</td>
                       <td className="text-center p-2">✅</td>
                     </tr>
-                    <tr>
+                    <tr className="border-b">
                       <td className="p-2">Advanced Analytics</td>
                       <td className="text-center p-2">❌</td>
                       <td className="text-center p-2">✅</td>
                       <td className="text-center p-2">✅</td>
                     </tr>
-                    <tr>
+                    <tr className="border-b">
                       <td className="p-2">Social Features</td>
                       <td className="text-center p-2">❌</td>
                       <td className="text-center p-2">✅</td>
                       <td className="text-center p-2">✅</td>
                     </tr>
-                    <tr>
+                    <tr className="border-b">
                       <td className="p-2">Integrations</td>
                       <td className="text-center p-2">❌</td>
                       <td className="text-center p-2">✅</td>
                       <td className="text-center p-2">✅</td>
                     </tr>
-                    <tr>
+                    <tr className="border-b">
                       <td className="p-2">Family Members</td>
                       <td className="text-center p-2">1</td>
                       <td className="text-center p-2">1</td>
                       <td className="text-center p-2">6</td>
                     </tr>
-                    <tr>
+                    <tr className="border-b">
                       <td className="p-2">Priority Support</td>
+                      <td className="text-center p-2">❌</td>
+                      <td className="text-center p-2">✅</td>
+                      <td className="text-center p-2">✅</td>
+                    </tr>
+                    <tr>
+                      <td className="p-2">Export Reports</td>
                       <td className="text-center p-2">❌</td>
                       <td className="text-center p-2">✅</td>
                       <td className="text-center p-2">✅</td>
                     </tr>
                   </tbody>
                 </table>
+              </div>
+              
+              <div className="mt-6 flex justify-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    // Open help or FAQ section
+                    toast({
+                      title: "Need Help?",
+                      description: "Contact our support team for detailed plan information.",
+                    });
+                  }}
+                >
+                  <Zap className="h-4 w-4 mr-2" />
+                  Need Help Choosing?
+                </Button>
               </div>
             </CardContent>
           </Card>

@@ -185,9 +185,9 @@ const IntegrationsHub: React.FC<IntegrationsHubProps> = ({ onOpenSettings }) => 
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('integrations.title')}</h1>
-          <p className="text-muted-foreground">{t('integrations.description')}</p>
+        <div className="text-left">
+          <h1 className="text-3xl font-bold text-left">{t('integrations.title')}</h1>
+          <p className="text-muted-foreground text-left">{t('integrations.description')}</p>
         </div>
         <Button>
           <Plus className="h-4 w-4 mr-2" />

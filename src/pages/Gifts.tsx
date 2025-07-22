@@ -38,7 +38,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Gift as GiftType, Person } from '@/types';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 
 const Gifts = () => {
   const [gifts, setGifts] = useState<GiftType[]>([]);
@@ -71,10 +71,17 @@ const Gifts = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [giftsData, peopleData] = await Promise.all([
-        ApiService.getGifts(),
-        ApiService.getPeople()
+      const [giftsResponse, peopleResponse] = await Promise.all([
+        apiService.getGifts(),
+        apiService.getPeople()
       ]);
+      
+      // Extract arrays from responses (handle different response formats)
+      const giftsData = Array.isArray(giftsResponse) ? giftsResponse : 
+                       (giftsResponse?.gifts || giftsResponse?.data || []);
+      const peopleData = Array.isArray(peopleResponse) ? peopleResponse : 
+                        (peopleResponse?.people || peopleResponse?.data || []);
+      
       setGifts(giftsData);
       setPeople(peopleData);
     } catch (error) {
@@ -93,18 +100,18 @@ const Gifts = () => {
     
     try {
       if (editingGift) {
-        await ApiService.updateGift(editingGift.id, {
+        await apiService.updateGift(editingGift.id, {
           ...formData,
-          price: parseFloat(formData.price),
+          price: formData.price ? parseFloat(formData.price) : null,
         });
         toast({
           title: "Success",
           description: "Gift updated successfully.",
         });
       } else {
-        await ApiService.createGift({
+        await apiService.createGift({
           ...formData,
-          price: parseFloat(formData.price),
+          price: formData.price ? parseFloat(formData.price) : null,
         });
         toast({
           title: "Success",
@@ -129,7 +136,7 @@ const Gifts = () => {
     if (!confirm('Are you sure you want to delete this gift?')) return;
     
     try {
-      await ApiService.deleteGift(giftId);
+      await apiService.deleteGift(giftId);
       toast({
         title: "Success",
         description: "Gift deleted successfully.",
@@ -234,9 +241,9 @@ const Gifts = () => {
       {/* Header */}
       <div className="p-6 border-b">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Gifts</h1>
-            <p className="text-muted-foreground">Manage your gift list and track purchases</p>
+          <div className="text-left">
+            <h1 className="text-3xl font-bold text-left">Gifts</h1>
+            <p className="text-muted-foreground text-left">Manage your gift list and track purchases</p>
           </div>
           <Button onClick={() => setIsAddDialogOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />

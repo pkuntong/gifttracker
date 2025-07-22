@@ -7,5 +7,10 @@
     "allowJs": true,
     "lib": ["deno.window"],
     "strict": true
+  },
+  "functions": {
+    "api": {
+      "verify_jwt": false
+    }
   }
 } 

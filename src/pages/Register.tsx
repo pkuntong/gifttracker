@@ -44,7 +44,7 @@ const Register = () => {
         title: "Account created!",
         description: "Welcome to GiftTracker. Your account has been created successfully.",
       });
-      navigate('/dashboard');
+      navigate('/app/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {

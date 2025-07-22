@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Search, Filter, Share2, Users, Eye, Edit, Trash2, Heart, ShoppingCart, MessageSquare, Calendar, DollarSign, Tag, Star, MoreHorizontal, Copy, Link, Settings, UserPlus, Activity, BarChart3 } from 'lucide-react';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 import { Wishlist, WishlistItem, WishlistCollaborator, WishlistActivity } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,7 +66,7 @@ const Wishlists: React.FC = () => {
   const loadWishlists = async () => {
     try {
       setIsLoading(true);
-      const data = await ApiService.getWishlists();
+      const data = await apiService.getWishlists();
       setWishlists(data);
     } catch (error) {
       toast({
@@ -81,7 +81,7 @@ const Wishlists: React.FC = () => {
 
   const handleCreateWishlist = async () => {
     try {
-      const created = await ApiService.createWishlist(newWishlist);
+      const created = await apiService.createWishlist(newWishlist);
       setWishlists(prev => [created, ...prev]);
       setShowCreateDialog(false);
       setNewWishlist({
@@ -111,7 +111,7 @@ const Wishlists: React.FC = () => {
 
   const handleDeleteWishlist = async (id: string) => {
     try {
-      await ApiService.deleteWishlist(id);
+      await apiService.deleteWishlist(id);
       setWishlists(prev => prev.filter(w => w.id !== id));
       if (selectedWishlist?.id === id) {
         setSelectedWishlist(null);
@@ -133,7 +133,7 @@ const Wishlists: React.FC = () => {
     if (!selectedWishlist) return;
     
     try {
-      const share = await ApiService.shareWishlist(
+      const share = await apiService.shareWishlist(
         selectedWishlist.id,
         shareSettings.shareType,
         {
@@ -160,7 +160,7 @@ const Wishlists: React.FC = () => {
     if (!selectedWishlist) return;
     
     try {
-      await ApiService.inviteWishlistCollaborator(
+      await apiService.inviteWishlistCollaborator(
         selectedWishlist.id,
         inviteEmail,
         inviteRole

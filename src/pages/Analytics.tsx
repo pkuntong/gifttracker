@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { CalendarIcon, Download, BarChart3, PieChart, TrendingUp, Users, Gift, DollarSign, Calendar, FileText, Filter, RefreshCw } from 'lucide-react';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 import { Analytics, Report } from '@/types';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -49,11 +49,19 @@ const AnalyticsPage: React.FC = () => {
     try {
       setLoading(true);
       const [analyticsData, reportsData] = await Promise.all([
-        ApiService.getAnalytics(filters),
-        ApiService.getReports(),
+        apiService.getAnalytics(filters),
+        apiService.getReports(),
       ]);
+      
+      console.log('Reports data received:', reportsData);
+      
+      // Extract arrays from responses (handle both direct arrays and objects with data property)
+      const reportsArray = Array.isArray(reportsData) ? reportsData : (reportsData?.reports || reportsData?.data || []);
+      
+      console.log('Reports array after extraction:', reportsArray);
+      
       setAnalytics(analyticsData);
-      setReports(reportsData);
+      setReports(reportsArray);
     } catch (error) {
       console.error('Error loading analytics:', error);
     } finally {
@@ -63,7 +71,8 @@ const AnalyticsPage: React.FC = () => {
 
   const handleCreateReport = async () => {
     try {
-      await ApiService.createReport(newReport);
+      const result = await apiService.createReport(newReport);
+      console.log('Report created:', result);
       setShowCreateReport(false);
       setNewReport({
         type: 'gift_summary',
@@ -74,7 +83,10 @@ const AnalyticsPage: React.FC = () => {
         filters: {},
         data: {},
       });
-      loadData();
+      // Add a small delay to ensure the database has updated
+      setTimeout(() => {
+        loadData();
+      }, 100);
     } catch (error) {
       console.error('Error creating report:', error);
     }
@@ -82,11 +94,13 @@ const AnalyticsPage: React.FC = () => {
 
   const handleExportReport = async (reportId: string, format: 'pdf' | 'csv' | 'json') => {
     try {
-      const blob = await ApiService.exportReport(reportId, format);
+      const blob = await apiService.exportReport(reportId, format);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `report-${reportId}.${format}`;
+      // Use .txt extension for PDF format since we're returning text
+      const fileExtension = format === 'pdf' ? 'txt' : format;
+      a.download = `report-${reportId}.${fileExtension}`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -96,7 +110,7 @@ const AnalyticsPage: React.FC = () => {
 
   const handleDeleteReport = async (reportId: string) => {
     try {
-      await ApiService.deleteReport(reportId);
+      await apiService.deleteReport(reportId);
       loadData();
     } catch (error) {
       console.error('Error deleting report:', error);
@@ -116,9 +130,9 @@ const AnalyticsPage: React.FC = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Analytics & Reports</h1>
-          <p className="text-muted-foreground">Track your gift giving patterns and generate insights</p>
+        <div className="text-left">
+          <h1 className="text-3xl font-bold text-left">Analytics & Reports</h1>
+          <p className="text-muted-foreground text-left">Track your gift giving patterns and generate insights</p>
         </div>
         <Button onClick={() => setShowCreateReport(true)}>
           <FileText className="mr-2 h-4 w-4" />

@@ -1,4 +1,4 @@
-import { ApiService } from './api';
+import { apiService } from './api';
 
 export interface IntegrationConfig {
   id: string;

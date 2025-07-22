@@ -7,6 +7,13 @@ interface User {
   name?: string
   created_at: string
   updated_at: string
+  preferences?: {
+    currency?: string
+    timezone?: string
+    theme?: 'light' | 'dark' | 'system'
+    notifications?: boolean
+    language?: string
+  }
 }
 
 interface AuthContextType {
@@ -48,16 +55,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true)
       setError(null)
       
+      console.log('Attempting login with:', email)
       const response = await apiService.login(email, password)
+      console.log('Login response:', response)
       
       if (response.user) {
         setUser(response.user)
         localStorage.setItem('authToken', response.session?.access_token || '')
         localStorage.setItem('user', JSON.stringify(response.user))
+        console.log('User set successfully:', response.user)
       } else {
         throw new Error('Login failed - no user data received')
       }
     } catch (err: any) {
+      console.error('Login error:', err)
       setError(err.message || 'Login failed')
       throw err
     } finally {
@@ -114,6 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userData = JSON.parse(storedUser)
           setUser(userData)
         }
+        // No automatic mock user creation - users must sign in properly
       } catch (err) {
         console.error('Auth check error:', err)
         localStorage.removeItem('authToken')

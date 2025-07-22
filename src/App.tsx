@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom
 import { AuthProvider } from './contexts/AuthContext'
 import { Toaster } from './components/ui/toaster'
 import Layout from './components/Layout'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import Index from './pages/Index'
 import Dashboard from './pages/Dashboard'
 import People from './pages/People'
 import Gifts from './pages/Gifts'
@@ -16,6 +18,7 @@ import Notifications from './pages/Notifications'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Settings from './pages/Settings'
+import Billing from './pages/Billing'
 import DataImportExport from './pages/DataImportExport'
 import NotFound from './pages/NotFound'
 import './App.css'
@@ -37,9 +40,17 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            
             {/* Protected routes */}
-            <Route path="/" element={<LayoutWrapper />}>
+            <Route path="/app" element={
+              <ProtectedRoute>
+                <LayoutWrapper />
+              </ProtectedRoute>
+            }>
               <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
               <Route path="people" element={<People />} />
               <Route path="gifts" element={<Gifts />} />
               <Route path="occasions" element={<Occasions />} />
@@ -50,6 +61,7 @@ function App() {
               <Route path="recommendations" element={<GiftRecommendations />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="billing" element={<Billing />} />
               <Route path="data" element={<DataImportExport />} />
             </Route>
             

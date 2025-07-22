@@ -19,7 +19,7 @@ import {
   Target
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { useMobile } from '@/hooks/use-mobile';
 import MobileDashboard from '@/components/MobileDashboard';
@@ -53,15 +53,21 @@ const Dashboard: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const [gifts, people, occasions, budgets] = await Promise.all([
-        ApiService.getGifts(),
-        ApiService.getPeople(),
-        ApiService.getOccasions(),
-        ApiService.getBudgets(),
+      const [giftsResponse, peopleResponse, occasionsResponse, budgetsResponse] = await Promise.all([
+        apiService.getGifts(),
+        apiService.getPeople(),
+        apiService.getOccasions(),
+        apiService.getBudgets(),
       ]);
 
-      const totalBudget = budgets.reduce((sum, budget) => sum + budget.amount, 0);
-      const spentBudget = budgets.reduce((sum, budget) => sum + budget.spent, 0);
+      // Extract arrays from responses (handle both direct arrays and objects with data property)
+      const gifts = Array.isArray(giftsResponse) ? giftsResponse : (giftsResponse?.data || []);
+      const people = Array.isArray(peopleResponse) ? peopleResponse : (peopleResponse?.data || []);
+      const occasions = Array.isArray(occasionsResponse) ? occasionsResponse : (occasionsResponse?.data || []);
+      const budgets = Array.isArray(budgetsResponse) ? budgetsResponse : (budgetsResponse?.data || []);
+
+      const totalBudget = budgets.reduce((sum, budget) => sum + (budget.amount || 0), 0);
+      const spentBudget = budgets.reduce((sum, budget) => sum + (budget.spent || 0), 0);
       const upcomingGifts = gifts.filter(gift => 
         gift.occasionId && new Date() > new Date()
       ).length;
@@ -114,21 +120,21 @@ const Dashboard: React.FC = () => {
   const budgetProgress = (stats.spentBudget / stats.totalBudget) * 100;
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome to your gift tracking dashboard</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button asChild>
-            <Link to="/gifts">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Gift
-            </Link>
-          </Button>
+    <div className="min-h-screen bg-background">
+      
+      {/* Header */}
+      <div className="p-6 border-b">
+        <div className="flex items-center justify-between">
+          <div className="text-left">
+            <h1 className="text-3xl font-bold text-left">Dashboard</h1>
+            <p className="text-muted-foreground text-left">Welcome to your gift tracking dashboard</p>
+          </div>
         </div>
       </div>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        <div className="space-y-6">
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -347,6 +353,8 @@ const Dashboard: React.FC = () => {
           );
         })}
       </div>
+        </div>
+      </main>
     </div>
   );
 };

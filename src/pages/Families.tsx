@@ -42,7 +42,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Family, FamilyMember, Person, Gift as GiftType, Occasion, Budget } from '@/types';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 
 const memberRoles = [
   { value: 'owner', label: 'Owner', icon: Crown, description: 'Full control over family' },
@@ -84,11 +84,11 @@ const Families = () => {
     try {
       setLoading(true);
       const [familiesData, peopleData, giftsData, occasionsData, budgetsData] = await Promise.all([
-        ApiService.getFamilies(),
-        ApiService.getPeople(),
-        ApiService.getGifts(),
-        ApiService.getOccasions(),
-        ApiService.getBudgets(),
+        apiService.getFamilies(),
+        apiService.getPeople(),
+        apiService.getGifts(),
+        apiService.getOccasions(),
+        apiService.getBudgets(),
       ]);
       setFamilies(familiesData);
       setPeople(peopleData);
@@ -109,7 +109,7 @@ const Families = () => {
   const handleCreateFamily = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await ApiService.createFamily({
+      await apiService.createFamily({
         ...familyForm,
         members: [],
       });
@@ -131,7 +131,7 @@ const Families = () => {
     if (!editingFamily) return;
     
     try {
-      await ApiService.updateFamily(editingFamily.id, familyForm);
+      await apiService.updateFamily(editingFamily.id, familyForm);
       toast({ title: 'Family updated successfully!' });
       setIsCreateDialogOpen(false);
       setEditingFamily(null);
@@ -150,7 +150,7 @@ const Families = () => {
     if (!confirm('Are you sure you want to delete this family? This action cannot be undone.')) return;
     
     try {
-      await ApiService.deleteFamily(familyId);
+      await apiService.deleteFamily(familyId);
       toast({ title: 'Family deleted successfully!' });
       loadData();
     } catch (error) {
@@ -167,7 +167,7 @@ const Families = () => {
     if (!selectedFamily) return;
     
     try {
-      await ApiService.inviteFamilyMember(selectedFamily.id, inviteForm.email);
+      await apiService.inviteFamilyMember(selectedFamily.id, inviteForm.email);
       toast({ title: 'Invitation sent successfully!' });
       setIsInviteDialogOpen(false);
       setInviteForm({ email: '', role: 'member' });
@@ -186,7 +186,7 @@ const Families = () => {
     if (!confirm('Are you sure you want to remove this member?')) return;
     
     try {
-      await ApiService.removeFamilyMember(familyId, memberId);
+      await apiService.removeFamilyMember(familyId, memberId);
       toast({ title: 'Member removed successfully!' });
       loadData();
     } catch (error) {
@@ -254,9 +254,9 @@ const Families = () => {
       {/* Header */}
       <div className="p-6 border-b">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Families</h1>
-            <p className="text-muted-foreground">Manage your family groups and shared gift planning</p>
+          <div className="text-left">
+            <h1 className="text-3xl font-bold text-left">Families</h1>
+            <p className="text-muted-foreground text-left">Manage your family groups and shared gift planning</p>
           </div>
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />

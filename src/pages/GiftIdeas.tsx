@@ -31,7 +31,7 @@ import {
   Users,
   Target
 } from 'lucide-react';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 import { GiftIdea, GiftRecommendation, GiftPreferences, Person, Occasion } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -84,9 +84,9 @@ const GiftIdeasPage: React.FC = () => {
     try {
       setLoading(true);
       const [ideasData, peopleData, occasionsData] = await Promise.all([
-        ApiService.getGiftIdeas(),
-        ApiService.getPeople(),
-        ApiService.getOccasions(),
+        apiService.getGiftIdeas(),
+        apiService.getPeople(),
+        apiService.getOccasions(),
       ]);
       setGiftIdeas(ideasData);
       setPeople(peopleData);
@@ -105,7 +105,7 @@ const GiftIdeasPage: React.FC = () => {
 
   const handleCreateIdea = async () => {
     try {
-      await ApiService.createGiftIdea({
+      await apiService.createGiftIdea({
         ...newIdea,
         category: newIdea.category === 'all' ? '' : newIdea.category,
         recipientId: newIdea.recipientId === 'all' ? '' : newIdea.recipientId,
@@ -145,7 +145,7 @@ const GiftIdeasPage: React.FC = () => {
 
   const handleToggleFavorite = async (id: string) => {
     try {
-      await ApiService.toggleFavorite(id);
+      await apiService.toggleFavorite(id);
       loadData();
     } catch (error) {
       console.error('Error toggling favorite:', error);
@@ -154,7 +154,7 @@ const GiftIdeasPage: React.FC = () => {
 
   const handleDeleteIdea = async (id: string) => {
     try {
-      await ApiService.deleteGiftIdea(id);
+      await apiService.deleteGiftIdea(id);
       loadData();
       toast({
         title: "Success",
@@ -181,7 +181,7 @@ const GiftIdeasPage: React.FC = () => {
         filters.priceRange = { min: priceRange[0], max: priceRange[1] };
       }
       
-      const recommendationsData = await ApiService.getGiftRecommendations(filters);
+      const recommendationsData = await apiService.getGiftRecommendations(filters);
       setRecommendations(recommendationsData);
       setActiveTab('recommendations');
     } catch (error) {
@@ -198,7 +198,7 @@ const GiftIdeasPage: React.FC = () => {
 
   const handleSavePreferences = async (personId: string) => {
     try {
-      await ApiService.createGiftPreferences({
+      await apiService.createGiftPreferences({
         personId,
         ...preferences,
       });

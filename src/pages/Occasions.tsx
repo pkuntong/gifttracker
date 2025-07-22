@@ -24,7 +24,7 @@ import {
 import { Calendar, Plus, Edit, Trash2, Search, Filter, Gift, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Occasion, Person } from '@/types';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 
 const occasionTypes = [
   { value: 'birthday', label: 'Birthday' },
@@ -62,11 +62,16 @@ const Occasions = () => {
     try {
       setLoading(true);
       const [occasionsData, peopleData] = await Promise.all([
-        ApiService.getOccasions(),
-        ApiService.getPeople(),
+        apiService.getOccasions(),
+        apiService.getPeople(),
       ]);
-      setOccasions(occasionsData);
-      setPeople(peopleData);
+      
+      // Extract arrays from responses (handle both direct arrays and objects with data property)
+      const occasionsArray = Array.isArray(occasionsData) ? occasionsData : (occasionsData?.occasions || occasionsData?.data || []);
+      const peopleArray = Array.isArray(peopleData) ? peopleData : (peopleData?.people || peopleData?.data || []);
+      
+      setOccasions(occasionsArray);
+      setPeople(peopleArray);
     } catch (error) {
       toast({
         title: 'Error',
@@ -89,10 +94,10 @@ const Occasions = () => {
       };
 
       if (editingOccasion) {
-        await ApiService.updateOccasion(editingOccasion.id, submitData);
+        await apiService.updateOccasion(editingOccasion.id, submitData);
         toast({ title: 'Occasion updated!' });
       } else {
-        await ApiService.createOccasion(submitData);
+        await apiService.createOccasion(submitData);
         toast({ title: 'Occasion added!' });
       }
       setIsDialogOpen(false);
@@ -111,7 +116,7 @@ const Occasions = () => {
   const handleDelete = async (occasionId: string) => {
     if (!confirm('Are you sure you want to delete this occasion?')) return;
     try {
-      await ApiService.deleteOccasion(occasionId);
+      await apiService.deleteOccasion(occasionId);
       toast({ title: 'Occasion deleted!' });
       loadData();
     } catch (error) {
@@ -166,9 +171,9 @@ const Occasions = () => {
       {/* Header */}
       <div className="p-6 border-b">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Occasions</h1>
-            <p className="text-muted-foreground">Manage special occasions and events</p>
+          <div className="text-left">
+            <h1 className="text-3xl font-bold text-left">Occasions</h1>
+            <p className="text-muted-foreground text-left">Manage special occasions and events</p>
           </div>
           <Button onClick={() => setIsDialogOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />

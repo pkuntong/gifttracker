@@ -62,7 +62,7 @@ import {
   Info
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 
 interface AnalyticsData {
   giftStats: {

@@ -40,7 +40,7 @@ import {
   Play,
   Pause
 } from 'lucide-react';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 
 interface Backup {
   id: string;
@@ -322,9 +322,9 @@ const AdvancedDataManagement: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('dataManagement.title')}</h1>
-          <p className="text-muted-foreground">{t('dataManagement.description')}</p>
+        <div className="text-left">
+          <h1 className="text-3xl font-bold text-left">{t('dataManagement.title')}</h1>
+          <p className="text-muted-foreground text-left">{t('dataManagement.description')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={() => createBackup('manual')} disabled={loading}>

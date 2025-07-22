@@ -43,7 +43,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ApiService } from '@/services/api';
+import { apiService } from '@/services/api';
 import { recommendationService } from '@/services/recommendationService';
 import { Person, Occasion, GiftRecommendation, GiftPreferences } from '@/types';
 
@@ -89,11 +89,16 @@ const GiftRecommendations: React.FC = () => {
     try {
       setLoading(true);
       const [peopleData, occasionsData] = await Promise.all([
-        ApiService.getPeople(),
-        ApiService.getOccasions()
+        apiService.getPeople(),
+        apiService.getOccasions()
       ]);
-      setPeople(peopleData);
-      setOccasions(occasionsData);
+      
+      // Extract arrays from responses (handle both direct arrays and objects with data property)
+      const peopleArray = Array.isArray(peopleData) ? peopleData : (peopleData?.people || peopleData?.data || []);
+      const occasionsArray = Array.isArray(occasionsData) ? occasionsData : (occasionsData?.occasions || occasionsData?.data || []);
+      
+      setPeople(peopleArray);
+      setOccasions(occasionsArray);
     } catch (error) {
       toast({
         title: "Error",
@@ -107,7 +112,7 @@ const GiftRecommendations: React.FC = () => {
 
   const loadPreferences = async (personId: string) => {
     try {
-      const prefs = await ApiService.getGiftPreferences(personId);
+      const prefs = await apiService.getGiftPreferences(personId);
       setPreferences(prefs);
     } catch (error) {
       // Preferences might not exist yet
@@ -171,60 +176,15 @@ const GiftRecommendations: React.FC = () => {
     }
   };
 
-  const mockRecommendations: GiftRecommendation[] = [
-    {
-      id: '1',
-      title: 'Wireless Bluetooth Headphones',
-      description: 'Premium noise-canceling headphones with 30-hour battery life',
-      category: 'Electronics',
-      price: 199.99,
-      currency: 'USD',
-      confidence: 95,
-      reason: 'Based on music interests and tech preferences',
-      tags: ['electronics', 'music', 'tech'],
-      imageUrl: 'https://via.placeholder.com/300x200',
-      purchaseUrl: 'https://example.com/headphones',
-      source: 'ai'
-    },
-    {
-      id: '2',
-      title: 'Personalized Photo Book',
-      description: 'Custom photo album with memories and stories',
-      category: 'Personal',
-      price: 49.99,
-      currency: 'USD',
-      confidence: 88,
-      reason: 'Perfect for sentimental value and personal connection',
-      tags: ['personal', 'memories', 'custom'],
-      imageUrl: 'https://via.placeholder.com/300x200',
-      purchaseUrl: 'https://example.com/photobook',
-      source: 'personalized'
-    },
-    {
-      id: '3',
-      title: 'Gourmet Coffee Subscription',
-      description: 'Monthly delivery of premium coffee beans',
-      category: 'Food & Beverage',
-      price: 79.99,
-      currency: 'USD',
-      confidence: 82,
-      reason: 'Matches coffee enthusiast interests',
-      tags: ['coffee', 'subscription', 'gourmet'],
-      imageUrl: 'https://via.placeholder.com/300x200',
-      purchaseUrl: 'https://example.com/coffee',
-      source: 'trending'
-    }
-  ];
-
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Sparkles className="w-8 h-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold">Gift Recommendations</h1>
-            <p className="text-muted-foreground">Smart personalized gift suggestions</p>
+          <div className="text-left">
+            <h1 className="text-3xl font-bold text-left">Gift Recommendations</h1>
+            <p className="text-muted-foreground text-left">Smart personalized gift suggestions</p>
           </div>
         </div>
         <Button onClick={generateRecommendations} disabled={loading}>
@@ -385,6 +345,7 @@ const GiftRecommendations: React.FC = () => {
                   src={recommendation.imageUrl} 
                   alt={recommendation.title}
                   className="w-full h-full object-cover"
+                  onError={e => { e.currentTarget.src = '/assets/hero-image.jpg'; }}
                 />
               </div>
               

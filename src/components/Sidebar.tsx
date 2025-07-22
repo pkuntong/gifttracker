@@ -43,16 +43,16 @@ const Sidebar = () => {
   };
 
   const navItems = [
-    { path: '/dashboard', label: t('navigation.dashboard'), icon: Home },
-    { path: '/gifts', label: t('navigation.gifts'), icon: Gift },
-    { path: '/people', label: t('navigation.people'), icon: Users },
-    { path: '/occasions', label: t('navigation.occasions'), icon: Calendar },
-    { path: '/recommendations', label: t('navigation.recommendations'), icon: Target },
-    { path: '/analytics', label: t('navigation.analytics'), icon: BarChart3 },
-    { path: '/search', label: t('navigation.search'), icon: Search },
-    { path: '/notifications', label: t('navigation.notifications'), icon: Bell },
-    { path: '/billing', label: t('navigation.billing'), icon: CreditCard },
-    { path: '/settings', label: t('navigation.settings'), icon: Settings },
+    { path: '/app/dashboard', label: t('navigation.dashboard'), icon: Home },
+    { path: '/app/gifts', label: t('navigation.gifts'), icon: Gift },
+    { path: '/app/people', label: t('navigation.people'), icon: Users },
+    { path: '/app/occasions', label: t('navigation.occasions'), icon: Calendar },
+    { path: '/app/recommendations', label: t('navigation.recommendations'), icon: Target },
+    { path: '/app/analytics', label: t('navigation.analytics'), icon: BarChart3 },
+    { path: '/app/search', label: t('navigation.search'), icon: Search },
+    { path: '/app/notifications', label: t('navigation.notifications'), icon: Bell },
+    { path: '/app/billing', label: t('navigation.billing'), icon: CreditCard },
+    { path: '/app/settings', label: t('navigation.settings'), icon: Settings },
   ];
 
   return (

@@ -220,6 +220,8 @@ export const SmartNotifications: React.FC = () => {
   )
 }
 
+export default SmartNotifications
+
 interface RemindersListProps {
   reminders: Reminder[]
   isLoading: boolean
