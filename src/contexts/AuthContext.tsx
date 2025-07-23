@@ -55,23 +55,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true)
       setError(null)
       
-      console.log('Attempting login with:', email)
+      console.log('🚀 Attempting login with:', email)
       const response = await apiService.login(email, password)
-      console.log('Login response:', response)
+      console.log('📨 Login response:', response)
       
       if (response.user) {
+        console.log('✅ User data received, setting user state')
         setUser(response.user)
         localStorage.setItem('authToken', response.session?.access_token || '')
         localStorage.setItem('user', JSON.stringify(response.user))
-        console.log('User set successfully:', response.user)
+        console.log('💾 User data saved to localStorage')
+        console.log('👤 User set successfully:', response.user)
       } else {
+        console.log('❌ No user data in response')
         throw new Error('Login failed - no user data received')
       }
     } catch (err: any) {
-      console.error('Login error:', err)
+      console.error('🚨 Login error:', err)
       setError(err.message || 'Login failed')
       throw err
     } finally {
+      console.log('🏁 Login process complete, setting isLoading to false')
       setIsLoading(false)
     }
   }
@@ -118,19 +122,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log('🔍 Checking authentication...')
         const storedUser = localStorage.getItem('user')
         const token = localStorage.getItem('authToken')
         
+        console.log('📦 Stored user:', storedUser)
+        console.log('🔑 Stored token:', token ? 'exists' : 'missing')
+        
         if (storedUser && token) {
           const userData = JSON.parse(storedUser)
+          console.log('✅ Setting user from localStorage:', userData)
           setUser(userData)
+        } else {
+          console.log('❌ No stored authentication found')
         }
         // No automatic mock user creation - users must sign in properly
       } catch (err) {
-        console.error('Auth check error:', err)
+        console.error('🚨 Auth check error:', err)
         localStorage.removeItem('authToken')
         localStorage.removeItem('user')
       } finally {
+        console.log('🏁 Auth check complete, setting isLoading to false')
         setIsLoading(false)
       }
     }
