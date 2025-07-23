@@ -41,12 +41,22 @@ export class ApiService {
 
   // Authentication
   async login(email: string, password: string) {
+    console.log('🌐 API: Making login request to:', `${API_BASE_URL}/auth/login`)
+    console.log('📤 API: Request payload:', { email, password: '***' })
+    
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ email, password })
     })
-    return handleResponse(response)
+    
+    console.log('📥 API: Response status:', response.status)
+    console.log('📥 API: Response headers:', Object.fromEntries(response.headers.entries()))
+    
+    const result = await handleResponse(response)
+    console.log('📥 API: Response data:', result)
+    
+    return result
   }
 
   async register(email: string, password: string, name: string) {
