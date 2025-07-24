@@ -43,10 +43,10 @@ export class ApiService {
 
   // Authentication
   async login(email: string, password: string) {
-    console.log('🌐 API: Making login request to:', `${API_BASE_URL}/auth/login`)
+    console.log('🌐 API: Making login request to:', `${API_BASE_URL}/api/auth/login`)
     console.log('📤 API: Request payload:', { email, password: '***' })
     
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ email, password })
@@ -62,7 +62,7 @@ export class ApiService {
   }
 
   async register(email: string, password: string, name: string) {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ email, password, name })
@@ -71,7 +71,7 @@ export class ApiService {
   }
 
   async logout() {
-    const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
       method: 'POST',
       headers: getHeaders()
     })
