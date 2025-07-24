@@ -139,29 +139,120 @@ serve(async (req) => {
     // Registration endpoint - PUBLIC (no auth required)
     if (path === '/api/auth/register') {
       if (req.method === 'POST') {
-        const body = await req.json()
-        const { email, password, name } = body
+        try {
+          const body = await req.json()
+          const { email, password, name } = body
 
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              name: name
-            }
+          // Log the registration attempt
+          console.log('Registration attempt:', {
+            email: email,
+            name: name,
+            hasPassword: !!password,
+            passwordLength: password?.length,
+            timestamp: new Date().toISOString()
+          })
+
+          // Basic validation
+          if (!email || !password || !name) {
+            return new Response(
+              JSON.stringify({
+                error: 'Missing required fields',
+                message: 'Email, password, and name are required',
+                timestamp: new Date().toISOString(),
+                server: 'Supabase Edge Functions'
+              }),
+              {
+                status: 400,
+                headers: {
+                  ...corsHeaders,
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
           }
-        })
 
-        if (error) {
+          // Email format validation
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          if (!emailRegex.test(email)) {
+            return new Response(
+              JSON.stringify({
+                error: 'Invalid email format',
+                message: 'Please enter a valid email address',
+                timestamp: new Date().toISOString(),
+                server: 'Supabase Edge Functions'
+              }),
+              {
+                status: 400,
+                headers: {
+                  ...corsHeaders,
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+          }
+
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                name: name
+              }
+            }
+          })
+
+          if (error) {
+            console.log('Supabase registration error:', error)
+            return new Response(
+              JSON.stringify({
+                error: 'Registration failed',
+                message: error.message,
+                timestamp: new Date().toISOString(),
+                server: 'Supabase Edge Functions'
+              }),
+              {
+                status: 400,
+                headers: {
+                  ...corsHeaders,
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+          }
+
+          console.log('Registration successful:', {
+            userId: data.user?.id,
+            email: data.user?.email,
+            timestamp: new Date().toISOString()
+          })
+
+          return new Response(
+            JSON.stringify({
+              user: data.user,
+              session: data.session,
+              message: 'Registration successful',
+              timestamp: new Date().toISOString(),
+              server: 'Supabase Edge Functions',
+              deployed: true
+            }),
+            {
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        } catch (err) {
+          console.log('Registration endpoint error:', err)
           return new Response(
             JSON.stringify({
               error: 'Registration failed',
-              message: error.message,
+              message: err instanceof Error ? err.message : 'Unknown error occurred',
               timestamp: new Date().toISOString(),
               server: 'Supabase Edge Functions'
             }),
             {
-              status: 400,
+              status: 500,
               headers: {
                 ...corsHeaders,
                 'Content-Type': 'application/json',
@@ -169,23 +260,6 @@ serve(async (req) => {
             }
           )
         }
-
-        return new Response(
-          JSON.stringify({
-            user: data.user,
-            session: data.session,
-            message: 'Registration successful',
-            timestamp: new Date().toISOString(),
-            server: 'Supabase Edge Functions',
-            deployed: true
-          }),
-          {
-            headers: {
-              ...corsHeaders,
-              'Content-Type': 'application/json',
-            },
-          }
-        )
       }
     }
 
