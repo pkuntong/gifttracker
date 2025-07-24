@@ -22,6 +22,7 @@ import DataImportExport from './pages/DataImportExport'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Help from './pages/Help'
+import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
 import './App.css'
 
@@ -42,6 +43,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
     <Route path="/help" element={<Help />} />
+    <Route path="/contact" element={<Contact />} />
             
             {/* Public routes */}
             <Route path="/" element={<Index />} />
