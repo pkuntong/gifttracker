@@ -187,7 +187,7 @@ const DataManagementWidget: React.FC = () => {
                   asChild
                   className="flex-1"
                 >
-                  <Link to="/data">
+                  <Link to="/app/data">
                     <Database className="h-3 w-3 mr-1" />
                     Manage
                   </Link>
@@ -198,7 +198,7 @@ const DataManagementWidget: React.FC = () => {
                   asChild
                   className="flex-1"
                 >
-                  <Link to="/data">
+                  <Link to="/app/data">
                     <Cloud className="h-3 w-3 mr-1" />
                     Sync
                   </Link>

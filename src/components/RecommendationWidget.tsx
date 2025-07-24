@@ -107,7 +107,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
             <CardTitle>AI Recommendations</CardTitle>
           </div>
           <Button variant="outline" size="sm" asChild>
-            <Link to="/recommendations">
+            <Link to="/app/recommendations">
               View All
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
@@ -179,7 +179,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
             
             <div className="pt-2">
               <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link to="/recommendations">
+                <Link to="/app/recommendations">
                   <Target className="w-4 h-4 mr-2" />
                   Get More Recommendations
                 </Link>

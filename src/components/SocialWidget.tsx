@@ -185,7 +185,7 @@ const SocialWidget: React.FC = () => {
             <CardTitle>Social Activity</CardTitle>
           </div>
           <Button variant="outline" size="sm" asChild>
-            <Link to="/social">
+            <Link to="/app/social">
               View All
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
@@ -203,7 +203,7 @@ const SocialWidget: React.FC = () => {
               No social activity yet. Start collaborating with family and friends.
             </p>
             <Button size="sm" asChild>
-              <Link to="/social">
+              <Link to="/app/social">
                 <Users className="w-4 h-4 mr-2" />
                 Create Family Group
               </Link>
@@ -285,7 +285,7 @@ const SocialWidget: React.FC = () => {
 
             <div className="pt-2">
               <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link to="/social">
+                <Link to="/app/social">
                   <Share2 className="w-4 h-4 mr-2" />
                   View All Social
                 </Link>

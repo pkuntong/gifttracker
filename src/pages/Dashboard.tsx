@@ -232,7 +232,7 @@ const Dashboard: React.FC = () => {
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <Button asChild variant="outline" className="h-20">
-                <Link to="/gifts">
+                <Link to="/app/gifts">
                   <div className="flex flex-col items-center gap-2">
                     <Gift className="h-6 w-6" />
                     <span className="text-sm">Add Gift</span>
@@ -240,7 +240,7 @@ const Dashboard: React.FC = () => {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="h-20">
-                <Link to="/people">
+                <Link to="/app/people">
                   <div className="flex flex-col items-center gap-2">
                     <Users className="h-6 w-6" />
                     <span className="text-sm">Add Person</span>
@@ -248,7 +248,7 @@ const Dashboard: React.FC = () => {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="h-20">
-                <Link to="/occasions">
+                <Link to="/app/occasions">
                   <div className="flex flex-col items-center gap-2">
                     <Calendar className="h-6 w-6" />
                     <span className="text-sm">Add Occasion</span>
@@ -256,7 +256,7 @@ const Dashboard: React.FC = () => {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="h-20">
-                <Link to="/budgets">
+                <Link to="/app/budgets">
                   <div className="flex flex-col items-center gap-2">
                     <DollarSign className="h-6 w-6" />
                     <span className="text-sm">Set Budget</span>
@@ -264,7 +264,7 @@ const Dashboard: React.FC = () => {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="h-20">
-                <Link to="/recommendations">
+                <Link to="/app/recommendations">
                   <div className="flex flex-col items-center gap-2">
                     <Sparkles className="h-6 w-6" />
                     <span className="text-sm">Get Recommendations</span>

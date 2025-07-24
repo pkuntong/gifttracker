@@ -156,7 +156,7 @@ const AnalyticsInsightsWidget: React.FC = () => {
             <CardTitle>Analytics Insights</CardTitle>
           </div>
           <Button variant="outline" size="sm" asChild>
-            <Link to="/advanced-analytics">
+            <Link to="/app/advanced-analytics">
               View All
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
@@ -174,7 +174,7 @@ const AnalyticsInsightsWidget: React.FC = () => {
               No analytics data yet. Start adding gifts to see insights.
             </p>
             <Button size="sm" asChild>
-              <Link to="/gifts">
+              <Link to="/app/gifts">
                 <Gift className="w-4 h-4 mr-2" />
                 Add First Gift
               </Link>
@@ -237,7 +237,7 @@ const AnalyticsInsightsWidget: React.FC = () => {
 
             <div className="pt-2">
               <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link to="/advanced-analytics">
+                <Link to="/app/advanced-analytics">
                   <BarChart3 className="w-4 h-4 mr-2" />
                   View Full Analytics
                 </Link>

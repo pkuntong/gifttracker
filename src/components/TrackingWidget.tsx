@@ -130,7 +130,7 @@ const TrackingWidget: React.FC = () => {
             <CardTitle>Package Tracking</CardTitle>
           </div>
           <Button variant="outline" size="sm" asChild>
-            <Link to="/tracking">
+            <Link to="/app/tracking">
               View All
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
@@ -148,7 +148,7 @@ const TrackingWidget: React.FC = () => {
               No tracking items yet. Add tracking information to monitor shipments.
             </p>
             <Button size="sm" asChild>
-              <Link to="/tracking">
+              <Link to="/app/tracking">
                 <Truck className="w-4 h-4 mr-2" />
                 Add Tracking
               </Link>
@@ -218,7 +218,7 @@ const TrackingWidget: React.FC = () => {
             
             <div className="pt-2">
               <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link to="/tracking">
+                <Link to="/app/tracking">
                   <Truck className="w-4 h-4 mr-2" />
                   View All Tracking
                 </Link>

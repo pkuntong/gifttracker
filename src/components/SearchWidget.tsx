@@ -182,7 +182,7 @@ const SearchWidget: React.FC = () => {
               asChild
               className="flex-1"
             >
-              <Link to="/search">
+              <Link to="/app/search">
                 <Search className="h-3 w-3 mr-1" />
                 Advanced
               </Link>
@@ -193,7 +193,7 @@ const SearchWidget: React.FC = () => {
               asChild
               className="flex-1"
             >
-              <Link to="/search">
+              <Link to="/app/search">
                 <Filter className="h-3 w-3 mr-1" />
                 Filters
               </Link>

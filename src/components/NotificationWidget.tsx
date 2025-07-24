@@ -198,7 +198,7 @@ const NotificationWidget: React.FC = () => {
             {notifications.length > 3 && (
               <div className="text-center pt-2">
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to="/notifications">
+                  <Link to="/app/notifications">
                     <span className="text-xs">View all {notifications.length} notifications</span>
                     <ArrowRight className="h-3 w-3 ml-1" />
                   </Link>

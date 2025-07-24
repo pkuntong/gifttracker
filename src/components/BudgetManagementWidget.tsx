@@ -294,7 +294,7 @@ const BudgetManagementWidget: React.FC = () => {
                   asChild
                   className="flex-1"
                 >
-                  <Link to="/budgets">
+                  <Link to="/app/budgets">
                     <Target className="h-3 w-3 mr-1" />
                     Manage
                   </Link>
@@ -305,7 +305,7 @@ const BudgetManagementWidget: React.FC = () => {
                   asChild
                   className="flex-1"
                 >
-                  <Link to="/budgets">
+                  <Link to="/app/budgets">
                     <Brain className="h-3 w-3 mr-1" />
                     Insights
                   </Link>
