@@ -63,6 +63,10 @@ function App() {
               <Route path="settings" element={<Settings />} />
               <Route path="billing" element={<Billing />} />
               <Route path="data" element={<DataImportExport />} />
+              <Route path="gift-ideas" element={<GiftRecommendations />} />
+              <Route path="tracking" element={<Gifts />} />
+              <Route path="social" element={<Families />} />
+              <Route path="advanced-analytics" element={<Analytics />} />
             </Route>
             
             {/* 404 route */}

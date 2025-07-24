@@ -321,14 +321,14 @@ const Dashboard: React.FC = () => {
       {/* Navigation Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { icon: Gift, label: 'Gifts', path: '/gifts', badge: stats.totalGifts },
-          { icon: Users, label: 'People', path: '/people', badge: stats.totalPeople },
-          { icon: Calendar, label: 'Occasions', path: '/occasions', badge: stats.totalOccasions },
-          { icon: DollarSign, label: 'Budgets', path: '/budgets' },
-          { icon: Heart, label: 'Families', path: '/families' },
-          { icon: Bell, label: 'Notifications', path: '/notifications' },
-          { icon: BarChart3, label: 'Analytics', path: '/analytics' },
-          { icon: Lightbulb, label: 'Gift Ideas', path: '/gift-ideas' },
+          { icon: Gift, label: 'Gifts', path: '/app/gifts', badge: stats.totalGifts },
+          { icon: Users, label: 'People', path: '/app/people', badge: stats.totalPeople },
+          { icon: Calendar, label: 'Occasions', path: '/app/occasions', badge: stats.totalOccasions },
+          { icon: DollarSign, label: 'Budgets', path: '/app/budgets' },
+          { icon: Heart, label: 'Families', path: '/app/families' },
+          { icon: Bell, label: 'Notifications', path: '/app/notifications' },
+          { icon: BarChart3, label: 'Analytics', path: '/app/analytics' },
+          { icon: Lightbulb, label: 'Gift Ideas', path: '/app/gift-ideas' },
         ].map((item) => {
           const Icon = item.icon;
           return (
