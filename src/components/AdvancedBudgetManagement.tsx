@@ -31,6 +31,7 @@ import {
   Coins
 } from 'lucide-react';
 import { apiService } from '@/services/api';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Budget {
   id: string;
@@ -94,6 +95,13 @@ const AdvancedBudgetManagement: React.FC = () => {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [insights, setInsights] = useState<FinancialInsight[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showInsights, setShowInsights] = useState(true);
+  const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
+  const [isAddBudgetOpen, setIsAddBudgetOpen] = useState(false);
+  const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState('monthly');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [currencies, setCurrencies] = useState<Currency[]>([
     { code: 'USD', name: 'US Dollar', symbol: '$', rate: 1 },
     { code: 'EUR', name: 'Euro', symbol: '€', rate: 0.85 },
@@ -102,187 +110,34 @@ const AdvancedBudgetManagement: React.FC = () => {
     { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$', rate: 1.25 }
   ]);
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
-  const [loading, setLoading] = useState(false);
-  const [showInsights, setShowInsights] = useState(true);
-  const [viewMode, setViewMode] = useState<'overview' | 'detailed' | 'analytics'>('overview');
-
-  // Mock data
-  const mockBudgets: Budget[] = [
-    {
-      id: '1',
-      name: 'Christmas 2024',
-      amount: 2000,
-      spent: 1450,
-      currency: 'USD',
-      period: 'yearly',
-      startDate: new Date('2024-01-01'),
-      endDate: new Date('2024-12-31'),
-      category: 'Holiday',
-      status: 'on_track',
-      priority: 'high',
-      description: 'Christmas gifts for family and friends',
-      tags: ['christmas', 'family', 'friends'],
-      notifications: true,
-      autoAdjust: true
-    },
-    {
-      id: '2',
-      name: 'Birthday Budget',
-      amount: 500,
-      spent: 320,
-      currency: 'USD',
-      period: 'monthly',
-      startDate: new Date('2024-12-01'),
-      endDate: new Date('2024-12-31'),
-      category: 'Personal',
-      status: 'under_budget',
-      priority: 'medium',
-      description: 'Monthly birthday gifts',
-      tags: ['birthday', 'monthly'],
-      notifications: true,
-      autoAdjust: false
-    },
-    {
-      id: '3',
-      name: 'Anniversary Fund',
-      amount: 800,
-      spent: 950,
-      currency: 'USD',
-      period: 'custom',
-      startDate: new Date('2024-11-01'),
-      endDate: new Date('2024-12-15'),
-      category: 'Special Occasion',
-      status: 'over_budget',
-      priority: 'critical',
-      description: 'Our 10th anniversary celebration',
-      tags: ['anniversary', 'special'],
-      notifications: true,
-      autoAdjust: true
-    }
-  ];
-
-  const mockExpenses: Expense[] = [
-    {
-      id: '1',
-      amount: 150,
-      currency: 'USD',
-      category: 'Electronics',
-      recipient: 'John Smith',
-      occasion: 'Christmas',
-      date: new Date('2024-12-10'),
-      description: 'Wireless headphones',
-      tags: ['tech', 'christmas'],
-      status: 'completed',
-      paymentMethod: 'Credit Card',
-      location: 'Amazon'
-    },
-    {
-      id: '2',
-      amount: 75,
-      currency: 'USD',
-      category: 'Books',
-      recipient: 'Sarah Johnson',
-      occasion: 'Birthday',
-      date: new Date('2024-12-05'),
-      description: 'Cooking recipe book',
-      tags: ['books', 'cooking'],
-      status: 'completed',
-      paymentMethod: 'Debit Card',
-      location: 'Local Bookstore'
-    },
-    {
-      id: '3',
-      amount: 200,
-      currency: 'USD',
-      category: 'Jewelry',
-      recipient: 'Spouse',
-      occasion: 'Anniversary',
-      date: new Date('2024-12-12'),
-      description: 'Silver necklace',
-      tags: ['jewelry', 'anniversary'],
-      status: 'pending',
-      paymentMethod: 'Credit Card',
-      location: 'Jewelry Store'
-    }
-  ];
-
-  const mockInsights: FinancialInsight[] = [
-    {
-      id: '1',
-      type: 'savings',
-      title: 'Potential Savings',
-      description: 'You could save $150 by buying gifts earlier',
-      value: 150,
-      currency: 'USD',
-      change: 12.5,
-      changeType: 'increase',
-      confidence: 85,
-      actionable: true,
-      action: 'Plan purchases 2 weeks earlier',
-      category: 'Timing',
-      priority: 'high'
-    },
-    {
-      id: '2',
-      type: 'spending',
-      title: 'Spending Trend',
-      description: 'Your spending is 15% higher than last year',
-      value: 15,
-      currency: 'USD',
-      change: 15,
-      changeType: 'increase',
-      confidence: 92,
-      actionable: true,
-      action: 'Review budget categories',
-      category: 'Analysis',
-      priority: 'medium'
-    },
-    {
-      id: '3',
-      type: 'prediction',
-      title: 'Budget Prediction',
-      description: 'You\'ll likely exceed your Christmas budget by $200',
-      value: 200,
-      currency: 'USD',
-      change: -10,
-      changeType: 'decrease',
-      confidence: 78,
-      actionable: true,
-      action: 'Adjust budget or reduce spending',
-      category: 'Forecasting',
-      priority: 'high'
-    },
-    {
-      id: '4',
-      type: 'optimization',
-      title: 'Category Optimization',
-      description: 'Electronics spending is 40% above average',
-      value: 40,
-      currency: 'USD',
-      change: 40,
-      changeType: 'increase',
-      confidence: 88,
-      actionable: true,
-      action: 'Consider alternative gift categories',
-      category: 'Optimization',
-      priority: 'medium'
-    }
-  ];
+  
+  const { toast } = useToast();
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [selectedPeriod, selectedCategory]);
 
   const loadData = async () => {
-    setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setBudgets(mockBudgets);
-      setExpenses(mockExpenses);
-      setInsights(mockInsights);
+      setLoading(true);
+      
+      // Load real data from API
+      const [budgetsData, expensesData, insightsData] = await Promise.all([
+        apiService.getBudgets(),
+        apiService.getExpenses(),
+        apiService.getFinancialInsights()
+      ]);
+      
+      setBudgets(budgetsData || []);
+      setExpenses(expensesData || []);
+      setInsights(insightsData || []);
     } catch (error) {
       console.error('Failed to load budget data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load budget data",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

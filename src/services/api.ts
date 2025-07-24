@@ -1,7 +1,9 @@
 // API Service for Gift Tracker
 // Updated to use Supabase Edge Functions
 
-const API_BASE_URL = 'https://jnhucgyztokoffzwiegj.supabase.co/functions/v1/api'
+import { User, Person, Gift, Occasion, Family, Budget, GiftPreferences, Report } from '@/types';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://jnhucgyztokoffzwiegj.supabase.co/functions/v1';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpuaHVjZ3l6dG9rb2ZmendpZWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5NzI0MTcsImV4cCI6MjA2ODU0ODQxN30.2M01OqtHmBv4CBqAw3pjTK7oysxnB_xJEXG3m2ENOn8'
 
 // For development, we'll use the anon key as the authorization token
@@ -184,7 +186,6 @@ export class ApiService {
   // Budget Management
   async getBudgets() {
     const response = await fetch(`${API_BASE_URL}/budgets`, {
-      method: 'GET',
       headers: getHeaders()
     })
     return handleResponse(response)
@@ -195,6 +196,65 @@ export class ApiService {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(budgetData)
+    })
+    return handleResponse(response)
+  }
+
+  async updateBudget(budgetId: string, budgetData: any) {
+    const response = await fetch(`${API_BASE_URL}/budgets/${budgetId}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(budgetData)
+    })
+    return handleResponse(response)
+  }
+
+  async deleteBudget(budgetId: string) {
+    const response = await fetch(`${API_BASE_URL}/budgets/${budgetId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
+  // Expenses
+  async getExpenses() {
+    const response = await fetch(`${API_BASE_URL}/expenses`, {
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
+  async createExpense(expenseData: any) {
+    const response = await fetch(`${API_BASE_URL}/expenses`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(expenseData)
+    })
+    return handleResponse(response)
+  }
+
+  async updateExpense(expenseId: string, expenseData: any) {
+    const response = await fetch(`${API_BASE_URL}/expenses/${expenseId}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(expenseData)
+    })
+    return handleResponse(response)
+  }
+
+  async deleteExpense(expenseId: string) {
+    const response = await fetch(`${API_BASE_URL}/expenses/${expenseId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
+  // Financial Insights
+  async getFinancialInsights() {
+    const response = await fetch(`${API_BASE_URL}/financial-insights`, {
+      headers: getHeaders()
     })
     return handleResponse(response)
   }
@@ -425,6 +485,13 @@ export const {
   deleteOccasion,
   getBudgets,
   createBudget,
+  updateBudget,
+  deleteBudget,
+  getExpenses,
+  createExpense,
+  updateExpense,
+  deleteExpense,
+  getFinancialInsights,
   getFamilies,
   createFamily,
   updateFamily,

@@ -85,42 +85,7 @@ serve(async (req) => {
         const body = await req.json()
         const { email, password } = body
 
-        // Mock authentication for development
-        if (email === 'demo@example.com' && password === 'demo123') {
-          const mockUser = {
-            id: 'mock-user-id',
-            email: 'demo@example.com',
-            name: 'Demo User',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            preferences: {
-              currency: 'USD',
-              timezone: 'UTC',
-              theme: 'system',
-              notifications: true,
-              language: 'en'
-            }
-          }
-
-          return new Response(
-            JSON.stringify({
-              user: mockUser,
-              session: { access_token: 'mock-token-' + Date.now() },
-              message: 'Login successful',
-              timestamp: new Date().toISOString(),
-              server: 'Supabase Edge Functions',
-              deployed: true
-            }),
-            {
-              headers: {
-                ...corsHeaders,
-                'Content-Type': 'application/json',
-              },
-            }
-          )
-        }
-
-        // Try real Supabase authentication if mock fails
+        // Real Supabase authentication
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password
