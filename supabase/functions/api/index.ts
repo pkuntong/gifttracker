@@ -79,6 +79,58 @@ serve(async (req) => {
       )
     }
 
+    // Contact form endpoint - PUBLIC (no auth required)
+    if (path === '/api/contact') {
+      if (req.method === 'POST') {
+        const body = await req.json()
+        const { name, email, subject, message } = body
+
+        // Validate required fields
+        if (!name || !email || !subject || !message) {
+          return new Response(
+            JSON.stringify({
+              error: 'Missing required fields',
+              message: 'Please fill in all required fields',
+              timestamp: new Date().toISOString(),
+              server: 'Supabase Edge Functions'
+            }),
+            {
+              status: 400,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        }
+
+        // Here you would typically send the email to paudcin@gmail.com
+        // For now, we'll log the contact form submission
+        console.log('Contact form submission:', {
+          name,
+          email,
+          subject,
+          message,
+          timestamp: new Date().toISOString()
+        })
+
+        return new Response(
+          JSON.stringify({
+            message: 'Contact form submitted successfully',
+            timestamp: new Date().toISOString(),
+            server: 'Supabase Edge Functions',
+            deployed: true
+          }),
+          {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+    }
+
     // Authentication endpoints
     if (path === '/api/auth/login') {
       if (req.method === 'POST') {
@@ -1757,58 +1809,6 @@ Time: ${new Date().toLocaleTimeString()}
       }
     }
 
-    // Contact form endpoint
-    if (path === '/api/contact') {
-      if (req.method === 'POST') {
-        const body = await req.json()
-        const { name, email, subject, message } = body
-
-        // Validate required fields
-        if (!name || !email || !subject || !message) {
-          return new Response(
-            JSON.stringify({
-              error: 'Missing required fields',
-              message: 'Please fill in all required fields',
-              timestamp: new Date().toISOString(),
-              server: 'Supabase Edge Functions'
-            }),
-            {
-              status: 400,
-              headers: {
-                ...corsHeaders,
-                'Content-Type': 'application/json',
-              },
-            }
-          )
-        }
-
-        // Here you would typically send the email to paudcin@gmail.com
-        // For now, we'll log the contact form submission
-        console.log('Contact form submission:', {
-          name,
-          email,
-          subject,
-          message,
-          timestamp: new Date().toISOString()
-        })
-
-        return new Response(
-          JSON.stringify({
-            message: 'Contact form submitted successfully',
-            timestamp: new Date().toISOString(),
-            server: 'Supabase Edge Functions',
-            deployed: true
-          }),
-          {
-            headers: {
-              ...corsHeaders,
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-      }
-    }
-
     // Subscription cancellation endpoint
     if (path.match(/^\/api\/subscriptions\/[^\/]+\/cancel$/)) {
       if (req.method === 'POST') {
@@ -1837,6 +1837,7 @@ Time: ${new Date().toLocaleTimeString()}
         availableEndpoints: [
           '/api/health', 
           '/api/test',
+          '/api/contact',
           '/api/auth/login',
           '/api/auth/register',
           '/api/auth/logout',
