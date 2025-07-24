@@ -90,15 +90,23 @@ const Families = () => {
         apiService.getOccasions(),
         apiService.getBudgets(),
       ]);
-      setFamilies(familiesData);
-      setPeople(peopleData);
-      setGifts(giftsData);
-      setOccasions(occasionsData);
-      setBudgets(budgetsData);
+      
+      // Safely extract arrays from API responses
+      const families = Array.isArray(familiesData) ? familiesData : (familiesData?.families || familiesData?.data || []);
+      const people = Array.isArray(peopleData) ? peopleData : (peopleData?.people || peopleData?.data || []);
+      const gifts = Array.isArray(giftsData) ? giftsData : (giftsData?.gifts || giftsData?.data || []);
+      const occasions = Array.isArray(occasionsData) ? occasionsData : (occasionsData?.occasions || occasionsData?.data || []);
+      const budgets = Array.isArray(budgetsData) ? budgetsData : (budgetsData?.budgets || budgetsData?.data || []);
+      
+      setFamilies(families);
+      setPeople(people);
+      setGifts(gifts);
+      setOccasions(occasions);
+      setBudgets(budgets);
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to load family data.',
+        description: 'Failed to load family data',
         variant: 'destructive',
       });
     } finally {

@@ -20,7 +20,9 @@ import {
   TrendingUp,
   ChevronLeft,
   ChevronRight,
-  LogOut
+  LogOut,
+  DollarSign,
+  Lightbulb
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -47,7 +49,10 @@ const Sidebar = () => {
     { path: '/app/gifts', label: t('navigation.gifts'), icon: Gift },
     { path: '/app/people', label: t('navigation.people'), icon: Users },
     { path: '/app/occasions', label: t('navigation.occasions'), icon: Calendar },
+    { path: '/app/budgets', label: t('navigation.budgets'), icon: DollarSign },
+    { path: '/app/families', label: t('navigation.families'), icon: Heart },
     { path: '/app/recommendations', label: t('navigation.recommendations'), icon: Target },
+    { path: '/app/gift-ideas', label: t('navigation.giftIdeas'), icon: Lightbulb },
     { path: '/app/analytics', label: t('navigation.analytics'), icon: BarChart3 },
     { path: '/app/search', label: t('navigation.search'), icon: Search },
     { path: '/app/notifications', label: t('navigation.notifications'), icon: Bell },

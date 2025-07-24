@@ -217,6 +217,40 @@ export class ApiService {
     return handleResponse(response)
   }
 
+  async updateFamily(familyId: string, familyData: any) {
+    const response = await fetch(`${API_BASE_URL}/families/${familyId}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(familyData)
+    })
+    return handleResponse(response)
+  }
+
+  async deleteFamily(familyId: string) {
+    const response = await fetch(`${API_BASE_URL}/families/${familyId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
+  async inviteFamilyMember(familyId: string, memberData: any) {
+    const response = await fetch(`${API_BASE_URL}/families/${familyId}/members`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(memberData)
+    })
+    return handleResponse(response)
+  }
+
+  async removeFamilyMember(familyId: string, memberId: string) {
+    const response = await fetch(`${API_BASE_URL}/families/${familyId}/members/${memberId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
   // Analytics
   async getAnalytics(filters?: any) {
     const queryParams = filters ? `?${new URLSearchParams(filters).toString()}` : '';
@@ -393,6 +427,10 @@ export const {
   createBudget,
   getFamilies,
   createFamily,
+  updateFamily,
+  deleteFamily,
+  inviteFamilyMember,
+  removeFamilyMember,
   getAnalytics,
   search,
   getGiftPreferences,

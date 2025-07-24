@@ -367,9 +367,9 @@ const AdvancedBudgetManagement: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('budgetManagement.title')}</h1>
-          <p className="text-muted-foreground">{t('budgetManagement.description')}</p>
+        <div className="text-left">
+          <h1 className="text-3xl font-bold text-left">{t('budgetManagement.title')}</h1>
+          <p className="text-muted-foreground text-left">{t('budgetManagement.description')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setShowInsights(!showInsights)}>
