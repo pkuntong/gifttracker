@@ -401,7 +401,7 @@ const Index = () => {
               <h3 className="font-semibold mb-4">Support</h3>
               <ul className="space-y-2 text-gray-600">
                 <li><Link to="/help" className="hover:text-gray-900">Help Center</Link></li>
-                <li><a href="mailto:support@gifttracker.cc" className="hover:text-gray-900">Contact Us</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); alert('Contact us at: hello@gifttracker.cc\n\nOr reach out through our GitHub repository for support.'); }} className="hover:text-gray-900">Contact Us</a></li>
                 <li><a href="https://github.com/pkuntong/gifttracker" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900">GitHub</a></li>
               </ul>
             </div>

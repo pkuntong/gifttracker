@@ -153,19 +153,12 @@ const Help = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                <Button className="w-full" asChild>
-                  <a href="mailto:support@gifttracker.cc">
+                              <div className="space-y-3">
+                  <Button className="w-full" onClick={() => alert('Contact us at: hello@gifttracker.cc\n\nOr reach out through our GitHub repository for support.')}>
                     <Mail className="mr-2 h-4 w-4" />
-                    Email Support
-                  </a>
-                </Button>
-                <Button variant="outline" className="w-full" asChild>
-                  <a href="https://github.com/pkuntong/gifttracker/issues" target="_blank" rel="noopener noreferrer">
-                    Report Issue
-                  </a>
-                </Button>
-              </div>
+                    Contact Support
+                  </Button>
+                </div>
             </CardContent>
           </Card>
         </div>
