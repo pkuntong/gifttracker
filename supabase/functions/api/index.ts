@@ -131,55 +131,7 @@ serve(async (req) => {
       }
     }
 
-    // Authentication endpoints
-    if (path === '/api/auth/login') {
-      if (req.method === 'POST') {
-        const body = await req.json()
-        const { email, password } = body
-
-        // Real Supabase authentication
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        })
-
-        if (error) {
-          return new Response(
-            JSON.stringify({
-              error: 'Authentication failed',
-              message: error.message,
-              timestamp: new Date().toISOString(),
-              server: 'Supabase Edge Functions'
-            }),
-            {
-              status: 401,
-              headers: {
-                ...corsHeaders,
-                'Content-Type': 'application/json',
-              },
-            }
-          )
-        }
-
-        return new Response(
-          JSON.stringify({
-            user: data.user,
-            session: data.session,
-            message: 'Login successful',
-            timestamp: new Date().toISOString(),
-            server: 'Supabase Edge Functions',
-            deployed: true
-          }),
-          {
-            headers: {
-              ...corsHeaders,
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-      }
-    }
-
+    // Registration endpoint - PUBLIC (no auth required)
     if (path === '/api/auth/register') {
       if (req.method === 'POST') {
         const body = await req.json()
@@ -218,6 +170,55 @@ serve(async (req) => {
             user: data.user,
             session: data.session,
             message: 'Registration successful',
+            timestamp: new Date().toISOString(),
+            server: 'Supabase Edge Functions',
+            deployed: true
+          }),
+          {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+    }
+
+    // Authentication endpoints
+    if (path === '/api/auth/login') {
+      if (req.method === 'POST') {
+        const body = await req.json()
+        const { email, password } = body
+
+        // Real Supabase authentication
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        })
+
+        if (error) {
+          return new Response(
+            JSON.stringify({
+              error: 'Authentication failed',
+              message: error.message,
+              timestamp: new Date().toISOString(),
+              server: 'Supabase Edge Functions'
+            }),
+            {
+              status: 401,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        }
+
+        return new Response(
+          JSON.stringify({
+            user: data.user,
+            session: data.session,
+            message: 'Login successful',
             timestamp: new Date().toISOString(),
             server: 'Supabase Edge Functions',
             deployed: true

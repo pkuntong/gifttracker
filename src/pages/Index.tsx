@@ -156,7 +156,7 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* Free Plan */}
           <Card className="border-2 border-gray-200">
             <CardHeader className="text-center">
@@ -181,6 +181,10 @@ const Index = () => {
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-green-500 mr-2" />
                   Mobile access
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-2" />
+                  Basic support
                 </li>
               </ul>
               <Button className="w-full mt-6" variant="outline" asChild>
@@ -225,48 +229,16 @@ const Index = () => {
                   <Check className="h-5 w-5 text-green-500 mr-2" />
                   Priority support
                 </li>
-              </ul>
-              <Button className="w-full mt-6" asChild>
-                <Link to="/register">Start Free Trial</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Family Plan */}
-          <Card className="border-2 border-gray-200">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Family</CardTitle>
-              <div className="text-4xl font-bold text-gray-900">$19.99</div>
-              <CardDescription>per month</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Up to 5 family members
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Shared wishlists
-                </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-green-500 mr-2" />
                   Gift coordination
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-green-500 mr-2" />
-                  All Premium features
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Family analytics
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Dedicated support
+                  Shared wishlists
                 </li>
               </ul>
-              <Button className="w-full mt-6" variant="outline" asChild>
+              <Button className="w-full mt-6" asChild>
                 <Link to="/register">Start Free Trial</Link>
               </Button>
             </CardContent>
