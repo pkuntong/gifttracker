@@ -391,9 +391,9 @@ const Index = () => {
             <div>
               <h3 className="font-semibold mb-4">Product</h3>
               <ul className="space-y-2 text-gray-600">
-                <li><Link to="/features" className="hover:text-gray-900">Features</Link></li>
-                <li><Link to="/pricing" className="hover:text-gray-900">Pricing</Link></li>
-                <li><Link to="/integrations" className="hover:text-gray-900">Integrations</Link></li>
+                <li><Link to="/app/dashboard" className="hover:text-gray-900">Dashboard</Link></li>
+                <li><Link to="/app/gifts" className="hover:text-gray-900">Gift Tracking</Link></li>
+                <li><Link to="/app/people" className="hover:text-gray-900">People Management</Link></li>
               </ul>
             </div>
             
@@ -401,17 +401,17 @@ const Index = () => {
               <h3 className="font-semibold mb-4">Support</h3>
               <ul className="space-y-2 text-gray-600">
                 <li><Link to="/help" className="hover:text-gray-900">Help Center</Link></li>
-                <li><Link to="/contact" className="hover:text-gray-900">Contact Us</Link></li>
-                <li><Link to="/status" className="hover:text-gray-900">Status</Link></li>
+                <li><a href="mailto:support@gifttracker.cc" className="hover:text-gray-900">Contact Us</a></li>
+                <li><a href="https://github.com/pkuntong/gifttracker" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900">GitHub</a></li>
               </ul>
             </div>
             
             <div>
               <h3 className="font-semibold mb-4">Legal</h3>
               <ul className="space-y-2 text-gray-600">
-                <li><Link to="/privacy" className="hover:text-gray-900">Privacy Policy</Link></li>
-                <li><Link to="/terms" className="hover:text-gray-900">Terms of Service</Link></li>
-                <li><Link to="/cookies" className="hover:text-gray-900">Cookie Policy</Link></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); alert('Privacy Policy - Coming Soon'); }} className="hover:text-gray-900">Privacy Policy</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); alert('Terms of Service - Coming Soon'); }} className="hover:text-gray-900">Terms of Service</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); alert('Cookie Policy - Coming Soon'); }} className="hover:text-gray-900">Cookie Policy</a></li>
               </ul>
             </div>
           </div>
