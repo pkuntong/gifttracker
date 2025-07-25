@@ -87,35 +87,41 @@ const PaymentForm: React.FC<StripePaymentProps> = ({ onSuccess, onCancel }) => {
   return (
     <div className="space-y-6">
       {/* Plan Selection */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         {Object.entries(SUBSCRIPTION_PLANS).map(([key, plan]) => (
           <Card 
             key={key}
-            className={`cursor-pointer transition-all ${
+            className={`cursor-pointer transition-all relative ${
               selectedPlan === key 
-                ? 'ring-2 ring-primary border-primary' 
-                : 'hover:border-gray-300'
+                ? 'ring-2 ring-primary border-primary shadow-lg' 
+                : 'hover:border-gray-300 hover:shadow-md'
             }`}
             onClick={() => setSelectedPlan(key as keyof typeof SUBSCRIPTION_PLANS)}
           >
-            <CardHeader className="text-center">
-              <div className="flex justify-center mb-2">
-                {key === 'FREE' && <Shield className="h-6 w-6 text-gray-500" />}
-                {key === 'PREMIUM' && <Crown className="h-6 w-6 text-yellow-500" />}
-                {key === 'FAMILY' && <Users className="h-6 w-6 text-blue-500" />}
+            {selectedPlan === key && (
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-primary text-primary-foreground">
+                  Selected
+                </Badge>
               </div>
-              <CardTitle className="text-lg">{plan.name}</CardTitle>
-              <div className="text-3xl font-bold">
+            )}
+            <CardHeader className="text-center pb-4">
+              <div className="flex justify-center mb-4">
+                {key === 'FREE' && <Shield className="h-8 w-8 text-gray-500" />}
+                {key === 'PREMIUM' && <Crown className="h-8 w-8 text-yellow-500" />}
+              </div>
+              <CardTitle className="text-xl">{plan.name}</CardTitle>
+              <div className="text-4xl font-bold text-primary">
                 ${plan.price}
                 <span className="text-sm font-normal text-gray-500">/month</span>
               </div>
             </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm">
+            <CardContent className="pt-0">
+              <ul className="space-y-3">
                 {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-center">
-                    <Check className="h-4 w-4 text-green-500 mr-2" />
-                    {feature}
+                  <li key={index} className="flex items-start">
+                    <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -126,7 +132,7 @@ const PaymentForm: React.FC<StripePaymentProps> = ({ onSuccess, onCancel }) => {
 
       {/* Payment Form */}
       {selectedPlan !== 'FREE' && (
-        <Card>
+        <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="flex items-center">
               <CreditCard className="h-5 w-5 mr-2" />
@@ -146,10 +152,10 @@ const PaymentForm: React.FC<StripePaymentProps> = ({ onSuccess, onCancel }) => {
               </div>
 
               {error && (
-                <div className="text-red-500 text-sm">{error}</div>
+                <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">{error}</div>
               )}
 
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <Button 
                   type="submit" 
                   disabled={!stripe || loading}
@@ -171,7 +177,7 @@ const PaymentForm: React.FC<StripePaymentProps> = ({ onSuccess, onCancel }) => {
       )}
 
       {/* Security Notice */}
-      <div className="text-center text-sm text-gray-500">
+      <div className="text-center text-sm text-gray-500 max-w-2xl mx-auto">
         <Shield className="h-4 w-4 inline mr-1" />
         Your payment information is secure and encrypted
       </div>

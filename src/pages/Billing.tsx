@@ -54,10 +54,10 @@ const Billing: React.FC = () => {
               Upgrade Plan
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Choose Your Plan</DialogTitle>
-              <DialogDescription>
+          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="text-center">
+              <DialogTitle className="text-2xl">Choose Your Plan</DialogTitle>
+              <DialogDescription className="text-lg">
                 Select the perfect plan for your gift tracking needs
               </DialogDescription>
             </DialogHeader>
@@ -246,9 +246,12 @@ const Billing: React.FC = () => {
                           {key === 'FREE' ? 'Downgrade' : 'Upgrade'}
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>{key === 'FREE' ? 'Downgrade to Free' : 'Upgrade to Premium'}</DialogTitle>
+                      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader className="text-center">
+                          <DialogTitle className="text-2xl">{key === 'FREE' ? 'Downgrade to Free' : 'Upgrade to Premium'}</DialogTitle>
+                          <DialogDescription className="text-lg">
+                            Complete your subscription {key === 'FREE' ? 'downgrade' : 'upgrade'}
+                          </DialogDescription>
                         </DialogHeader>
                         <StripePayment 
                           onSuccess={handleSubscriptionSuccess}
