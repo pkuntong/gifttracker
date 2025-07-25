@@ -84,7 +84,6 @@ const Billing: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   {subscription.plan === 'PREMIUM' && <Crown className="h-5 w-5 mr-2 text-yellow-500" />}
-                  {subscription.plan === 'FAMILY' && <Users className="h-5 w-5 mr-2 text-blue-500" />}
                   {subscription.plan === 'FREE' && <Shield className="h-5 w-5 mr-2 text-gray-500" />}
                   Current Plan
                 </CardTitle>
@@ -203,7 +202,7 @@ const Billing: React.FC = () => {
             <p className="text-gray-600">Upgrade to unlock premium features and unlimited gifts</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {Object.entries(SUBSCRIPTION_PLANS).map(([key, plan]) => (
               <Card key={key} className={`relative ${
                 subscription.plan === key ? 'ring-2 ring-primary' : ''
@@ -217,7 +216,6 @@ const Billing: React.FC = () => {
                   <div className="flex justify-center mb-4">
                     {key === 'FREE' && <Shield className="h-8 w-8 text-gray-500" />}
                     {key === 'PREMIUM' && <Crown className="h-8 w-8 text-yellow-500" />}
-                    {key === 'FAMILY' && <Users className="h-8 w-8 text-blue-500" />}
                   </div>
                   <CardTitle className="text-xl">{plan.name}</CardTitle>
                   <div className="text-3xl font-bold">
@@ -234,7 +232,6 @@ const Billing: React.FC = () => {
                       </li>
                     ))}
                   </ul>
-                  
                   {subscription.plan === key ? (
                     <Button variant="outline" className="w-full" disabled>
                       Current Plan
@@ -249,20 +246,12 @@ const Billing: React.FC = () => {
                           {key === 'FREE' ? 'Downgrade' : 'Upgrade'}
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                      <DialogContent>
                         <DialogHeader>
-                          <DialogTitle>
-                            {key === 'FREE' ? 'Downgrade' : 'Upgrade'} to {plan.name}
-                          </DialogTitle>
-                          <DialogDescription>
-                            Complete your subscription {key === 'FREE' ? 'downgrade' : 'upgrade'}
-                          </DialogDescription>
+                          <DialogTitle>{key === 'FREE' ? 'Downgrade to Free' : 'Upgrade to Premium'}</DialogTitle>
                         </DialogHeader>
                         <StripePayment 
-                          onSuccess={(newSubscription) => {
-                            handleSubscriptionSuccess(newSubscription);
-                            closePlanDialog(key);
-                          }}
+                          onSuccess={handleSubscriptionSuccess}
                           onCancel={() => closePlanDialog(key)}
                         />
                       </DialogContent>
@@ -289,7 +278,6 @@ const Billing: React.FC = () => {
                       <th className="text-left p-2 font-medium">Feature</th>
                       <th className="text-center p-2 font-medium">Free</th>
                       <th className="text-center p-2 font-medium">Premium</th>
-                      <th className="text-center p-2 font-medium">Family</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -297,48 +285,35 @@ const Billing: React.FC = () => {
                       <td className="p-2">Gifts Limit</td>
                       <td className="text-center p-2">10</td>
                       <td className="text-center p-2">∞</td>
-                      <td className="text-center p-2">∞</td>
                     </tr>
                     <tr className="border-b">
                       <td className="p-2">AI Recommendations</td>
                       <td className="text-center p-2">❌</td>
-                      <td className="text-center p-2">✅</td>
                       <td className="text-center p-2">✅</td>
                     </tr>
                     <tr className="border-b">
                       <td className="p-2">Advanced Analytics</td>
                       <td className="text-center p-2">❌</td>
                       <td className="text-center p-2">✅</td>
-                      <td className="text-center p-2">✅</td>
                     </tr>
                     <tr className="border-b">
                       <td className="p-2">Social Features</td>
                       <td className="text-center p-2">❌</td>
-                      <td className="text-center p-2">✅</td>
                       <td className="text-center p-2">✅</td>
                     </tr>
                     <tr className="border-b">
                       <td className="p-2">Integrations</td>
                       <td className="text-center p-2">❌</td>
                       <td className="text-center p-2">✅</td>
-                      <td className="text-center p-2">✅</td>
-                    </tr>
-                    <tr className="border-b">
-                      <td className="p-2">Family Members</td>
-                      <td className="text-center p-2">1</td>
-                      <td className="text-center p-2">1</td>
-                      <td className="text-center p-2">6</td>
                     </tr>
                     <tr className="border-b">
                       <td className="p-2">Priority Support</td>
                       <td className="text-center p-2">❌</td>
                       <td className="text-center p-2">✅</td>
-                      <td className="text-center p-2">✅</td>
                     </tr>
                     <tr>
                       <td className="p-2">Export Reports</td>
                       <td className="text-center p-2">❌</td>
-                      <td className="text-center p-2">✅</td>
                       <td className="text-center p-2">✅</td>
                     </tr>
                   </tbody>

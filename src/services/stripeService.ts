@@ -49,23 +49,6 @@ export const SUBSCRIPTION_PLANS = {
       people: -1,
       occasions: -1
     }
-  },
-  FAMILY: {
-    name: 'Family Plan',
-    price: 19.99,
-    priceId: 'price_family_monthly', // Replace with your actual Stripe price ID
-    features: [
-      'Everything in Premium',
-      'Up to 6 family members',
-      'Family features',
-      'Custom branding',
-      'Advanced data export'
-    ],
-    limits: {
-      gifts: -1,
-      people: -1,
-      occasions: -1
-    }
   }
 };
 
@@ -322,8 +305,6 @@ export const hasPremiumFeature = (feature: string, subscription?: Subscription):
       return subscription.plan !== 'FREE';
     case 'integrations':
       return subscription.plan !== 'FREE';
-    case 'family_features':
-      return subscription.plan === 'FAMILY';
     default:
       return false;
   }
