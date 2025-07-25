@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Gift, Users, Calendar, TrendingUp, Shield, Zap, Heart, Star, Check } from "lucide-react";
+import { ArrowRight, Gift, Users, Calendar, TrendingUp, Shield, Zap, Heart, Star, Check, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Index = () => {
@@ -156,35 +156,38 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {/* Free Plan */}
-          <Card className="border-2 border-gray-200">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Free</CardTitle>
-              <div className="text-4xl font-bold text-gray-900">$0</div>
+          <Card className="border-2 border-gray-200 hover:shadow-md transition-all">
+            <CardHeader className="text-center pb-4">
+              <div className="flex justify-center mb-4">
+                <Shield className="h-8 w-8 text-gray-500" />
+              </div>
+              <CardTitle className="text-xl">Free</CardTitle>
+              <div className="text-4xl font-bold text-primary">$0</div>
               <CardDescription>Perfect for getting started</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <ul className="space-y-3">
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Up to 10 people
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Up to 10 people</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Basic gift tracking
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Basic gift tracking</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Simple reminders
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Simple reminders</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Mobile access
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Mobile access</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Basic support
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Basic support</span>
                 </li>
               </ul>
               <Button className="w-full mt-6" variant="outline" asChild>
@@ -194,48 +197,51 @@ const Index = () => {
           </Card>
 
           {/* Premium Plan */}
-          <Card className="border-2 border-blue-500 relative">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-blue-500 text-white">Most Popular</Badge>
+          <Card className="border-2 border-primary relative hover:shadow-lg transition-all">
+            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+              <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
             </div>
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Premium</CardTitle>
-              <div className="text-4xl font-bold text-gray-900">$9.99</div>
+            <CardHeader className="text-center pb-4">
+              <div className="flex justify-center mb-4">
+                <Crown className="h-8 w-8 text-yellow-500" />
+              </div>
+              <CardTitle className="text-xl">Premium</CardTitle>
+              <div className="text-4xl font-bold text-primary">$9.99</div>
               <CardDescription>per month</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <ul className="space-y-3">
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Unlimited people
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Unlimited people</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  AI recommendations
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">AI recommendations</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Advanced analytics
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Advanced analytics</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Family sharing
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Family sharing</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Budget tracking
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Budget tracking</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Priority support
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Priority support</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Gift coordination
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Gift coordination</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2" />
-                  Shared wishlists
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Shared wishlists</span>
                 </li>
               </ul>
               <Button className="w-full mt-6" asChild>
