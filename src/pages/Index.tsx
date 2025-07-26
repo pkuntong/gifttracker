@@ -1,10 +1,23 @@
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Gift, Users, Calendar, TrendingUp, Shield, Zap, Heart, Star, Check, Crown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const handleProtectedLink = (path: string) => {
+    if (isAuthenticated) {
+      navigate(path);
+    } else {
+      navigate('/login', { state: { from: path } });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {/* Header */}
@@ -369,9 +382,9 @@ const Index = () => {
             <div>
               <h3 className="font-semibold mb-4">Product</h3>
               <ul className="space-y-2 text-gray-600">
-                <li><Link to="/app/dashboard" className="hover:text-gray-900">Dashboard</Link></li>
-                <li><Link to="/app/gifts" className="hover:text-gray-900">Gift Tracking</Link></li>
-                <li><Link to="/app/people" className="hover:text-gray-900">People Management</Link></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); handleProtectedLink('/app/dashboard'); }} className="hover:text-gray-900 cursor-pointer">Dashboard</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); handleProtectedLink('/app/gifts'); }} className="hover:text-gray-900 cursor-pointer">Gift Tracking</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); handleProtectedLink('/app/people'); }} className="hover:text-gray-900 cursor-pointer">People Management</a></li>
               </ul>
             </div>
             
