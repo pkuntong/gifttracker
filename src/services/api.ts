@@ -41,6 +41,18 @@ export class ApiService {
     return handleResponse(response)
   }
 
+  // Contact Form - Public endpoint (no auth required)
+  async submitContact(data: { name: string; email: string; subject: string; message: string }) {
+    const response = await fetch(`${API_BASE_URL}/api/contact`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    })
+    return handleResponse(response)
+  }
+
   // Test Endpoint
   async testEndpoint() {
     const response = await fetch(`${API_BASE_URL}/test`, {

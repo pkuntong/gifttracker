@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Mail, MessageCircle, Send, User, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { apiService } from "@/services/api";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -24,19 +25,7 @@ const Contact = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://jnhucgyztokoffzwiegj.supabase.co/functions/v1/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-
-      const result = await response.json();
+      await apiService.submitContact(formData);
       
       toast({
         title: "Message Sent!",
