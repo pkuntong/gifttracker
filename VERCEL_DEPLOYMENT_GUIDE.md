@@ -64,10 +64,12 @@ npm run lint
 3. **Test Authentication**: Try logging in with demo credentials
 4. **Test API Calls**: Verify Supabase integration works
 
-## Demo Credentials
+## Testing
 
-- **Email**: `demo@example.com`
-- **Password**: `demo123`
+After deployment, test the application by:
+1. Creating a new account
+2. Testing the login functionality
+3. Verifying all features work correctly
 
 ## Support
 
