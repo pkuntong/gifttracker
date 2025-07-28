@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { Toaster } from './components/ui/toaster'
+import ErrorBoundary from './components/ErrorBoundary'
 import Layout from './components/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import Index from './pages/Index'
@@ -35,52 +36,54 @@ const LayoutWrapper = () => (
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            {/* Public routes */}
-                <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/help" element={<Help />} />
-    <Route path="/contact" element={<Contact />} />
-            
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            
-            {/* Protected routes */}
-            <Route path="/app" element={
-              <ProtectedRoute>
-                <LayoutWrapper />
-              </ProtectedRoute>
-            }>
-              <Route index element={<Dashboard />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="people" element={<People />} />
-              <Route path="gifts" element={<Gifts />} />
-              <Route path="occasions" element={<Occasions />} />
-              <Route path="budgets" element={<Budgets />} />
-              <Route path="families" element={<Families />} />
-              <Route path="analytics" element={<Analytics />} />
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/help" element={<Help />} />
+              <Route path="/contact" element={<Contact />} />
               
-              <Route path="recommendations" element={<GiftRecommendations />} />
-              <Route path="notifications" element={<Notifications />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="billing" element={<Billing />} />
-              <Route path="data" element={<DataImportExport />} />
-              <Route path="gift-ideas" element={<GiftRecommendations />} />
-              <Route path="tracking" element={<Gifts />} />
-              <Route path="social" element={<Families />} />
-              <Route path="advanced-analytics" element={<Analytics />} />
-            </Route>
-            
-            {/* 404 route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Toaster />
-        </div>
-      </Router>
-    </AuthProvider>
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              
+              {/* Protected routes */}
+              <Route path="/app" element={
+                <ProtectedRoute>
+                  <LayoutWrapper />
+                </ProtectedRoute>
+              }>
+                <Route index element={<Dashboard />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="people" element={<People />} />
+                <Route path="gifts" element={<Gifts />} />
+                <Route path="occasions" element={<Occasions />} />
+                <Route path="budgets" element={<Budgets />} />
+                <Route path="families" element={<Families />} />
+                <Route path="analytics" element={<Analytics />} />
+                
+                <Route path="recommendations" element={<GiftRecommendations />} />
+                <Route path="notifications" element={<Notifications />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="billing" element={<Billing />} />
+                <Route path="data" element={<DataImportExport />} />
+                <Route path="gift-ideas" element={<GiftRecommendations />} />
+                <Route path="tracking" element={<Gifts />} />
+                <Route path="social" element={<Families />} />
+                <Route path="advanced-analytics" element={<Analytics />} />
+              </Route>
+              
+              {/* 404 route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster />
+          </div>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

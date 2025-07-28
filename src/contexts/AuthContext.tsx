@@ -13,6 +13,10 @@ interface User {
     theme?: 'light' | 'dark' | 'system'
     notifications?: boolean
     language?: string
+    subscription?: {
+      plan: 'FREE' | 'PREMIUM'
+      status: 'active' | 'inactive' | 'cancelled'
+    }
   }
 }
 

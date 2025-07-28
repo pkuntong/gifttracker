@@ -27,12 +27,76 @@ serve(async (req) => {
   // Get the authorization header
   const authHeader = req.headers.get('authorization')
   
-  // DEVELOPMENT MODE: Allow requests with our dummy token or no token
-  if (!authHeader || authHeader === 'Bearer development-token-bypass') {
-    console.log('Development mode: Allowing request with dummy token or no token')
-  } else {
-    // In production, you would verify the JWT token here
-    console.log('Production mode: Would verify JWT token here')
+  // Verify JWT token for protected endpoints
+  const isPublicEndpoint = (path: string) => {
+    const publicEndpoints = [
+      '/api/health',
+      '/api/test', 
+      '/api/user/validate',
+      '/api/contact',
+      '/api/auth/register',
+      '/api/auth/login'
+    ];
+    return publicEndpoints.includes(path);
+  };
+
+  // Skip authentication for public endpoints
+  if (!isPublicEndpoint(path)) {
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({
+          error: 'Authentication required',
+          message: 'Missing authorization header',
+          timestamp: new Date().toISOString(),
+          server: 'Supabase Edge Functions'
+        }),
+        {
+          status: 401,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
+    
+    // Verify the JWT token
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        return new Response(
+          JSON.stringify({
+            error: 'Authentication failed',
+            message: 'Invalid or expired token',
+            timestamp: new Date().toISOString(),
+            server: 'Supabase Edge Functions'
+          }),
+          {
+            status: 401,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+      }
+    } catch (err) {
+      return new Response(
+        JSON.stringify({
+          error: 'Authentication failed',
+          message: 'Token verification failed',
+          timestamp: new Date().toISOString(),
+          server: 'Supabase Edge Functions'
+        }),
+        {
+          status: 401,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
   }
 
   try {

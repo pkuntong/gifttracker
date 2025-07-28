@@ -19,6 +19,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { apiService } from '@/services/api';
 
 interface Budget {
   id: string;
@@ -50,66 +51,6 @@ const BudgetManagementWidget: React.FC = () => {
   const [insights, setInsights] = useState<FinancialInsight[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Mock data
-  const mockBudgets: Budget[] = [
-    {
-      id: '1',
-      name: 'Christmas 2024',
-      amount: 2000,
-      spent: 1450,
-      currency: 'USD',
-      status: 'on_track',
-      priority: 'high'
-    },
-    {
-      id: '2',
-      name: 'Birthday Budget',
-      amount: 500,
-      spent: 320,
-      currency: 'USD',
-      status: 'under_budget',
-      priority: 'medium'
-    },
-    {
-      id: '3',
-      name: 'Anniversary Fund',
-      amount: 800,
-      spent: 950,
-      currency: 'USD',
-      status: 'over_budget',
-      priority: 'critical'
-    }
-  ];
-
-  const mockInsights: FinancialInsight[] = [
-    {
-      id: '1',
-      type: 'savings',
-      title: 'Potential Savings',
-      description: 'You could save $150 by buying gifts earlier',
-      value: 150,
-      currency: 'USD',
-      change: 12.5,
-      changeType: 'increase',
-      actionable: true,
-      action: 'Plan purchases 2 weeks earlier',
-      priority: 'high'
-    },
-    {
-      id: '2',
-      type: 'prediction',
-      title: 'Budget Alert',
-      description: 'You\'ll likely exceed Christmas budget by $200',
-      value: 200,
-      currency: 'USD',
-      change: -10,
-      changeType: 'decrease',
-      actionable: true,
-      action: 'Adjust budget or reduce spending',
-      priority: 'high'
-    }
-  ];
-
   useEffect(() => {
     loadData();
   }, []);
@@ -117,10 +58,17 @@ const BudgetManagementWidget: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setBudgets(mockBudgets);
-      setInsights(mockInsights);
+      const [budgetsData, insightsData] = await Promise.all([
+        apiService.getBudgets(),
+        apiService.getFinancialInsights()
+      ]);
+      
+      // Extract arrays from responses
+      const budgetsArray = Array.isArray(budgetsData) ? budgetsData : (budgetsData?.data || []);
+      const insightsArray = Array.isArray(insightsData) ? insightsData : (insightsData?.data || []);
+      
+      setBudgets(budgetsArray);
+      setInsights(insightsArray);
     } catch (error) {
       console.error('Failed to load budget data:', error);
     } finally {

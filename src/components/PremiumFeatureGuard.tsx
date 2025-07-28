@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Lock, Zap, Users, Shield, Gift, Target, BarChart3, ExternalLink, Heart, MessageCircle, Search, Download, Palette } from 'lucide-react';
 import { SUBSCRIPTION_PLANS } from '@/services/stripeService';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface PremiumFeatureGuardProps {
   feature: string;
@@ -18,38 +19,36 @@ const PremiumFeatureGuard: React.FC<PremiumFeatureGuardProps> = ({
   fallback,
   showUpgradePrompt = true
 }) => {
-  // Mock subscription status - replace with actual user subscription
-  const mockSubscription = {
-    plan: 'FREE' as keyof typeof SUBSCRIPTION_PLANS,
-    status: 'active' as const
+  const { user } = useAuth();
+  
+  // Get subscription from user data or default to FREE
+  const subscription = {
+    plan: (user?.preferences?.subscription?.plan || 'FREE') as keyof typeof SUBSCRIPTION_PLANS,
+    status: (user?.preferences?.subscription?.status || 'active') as 'active' | 'inactive' | 'cancelled'
   };
 
   const hasFeature = (() => {
-    if (mockSubscription.status !== 'active') return false;
+    if (subscription.status !== 'active') return false;
     
-    const plan = SUBSCRIPTION_PLANS[mockSubscription.plan];
+    const plan = SUBSCRIPTION_PLANS[subscription.plan];
     
     switch (feature) {
       case 'unlimited_gifts':
         return plan.limits.gifts === -1;
       case 'ai_recommendations':
-        return mockSubscription.plan !== 'FREE';
+        return subscription.plan !== 'FREE';
       case 'advanced_analytics':
-        return mockSubscription.plan !== 'FREE';
+        return subscription.plan !== 'FREE';
       case 'social_features':
-        return mockSubscription.plan !== 'FREE';
+        return subscription.plan !== 'FREE';
       case 'integrations':
-        return mockSubscription.plan !== 'FREE';
-      case 'family_features':
-        return mockSubscription.plan === 'FAMILY';
+        return subscription.plan !== 'FREE';
       case 'priority_support':
-        return mockSubscription.plan !== 'FREE';
+        return subscription.plan !== 'FREE';
       case 'advanced_search':
-        return mockSubscription.plan !== 'FREE';
+        return subscription.plan !== 'FREE';
       case 'data_export':
-        return mockSubscription.plan !== 'FREE';
-      case 'custom_branding':
-        return mockSubscription.plan === 'FAMILY';
+        return subscription.plan !== 'FREE';
       default:
         return false;
     }
