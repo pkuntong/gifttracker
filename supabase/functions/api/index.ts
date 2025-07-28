@@ -84,7 +84,9 @@ serve(async (req) => {
       )
     }
 
-    // User validation endpoint - requires auth
+
+
+    // User validation endpoint - PUBLIC (no auth required, validates token)
     if (path === '/api/user/validate') {
       if (req.method === 'GET') {
         try {
