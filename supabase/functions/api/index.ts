@@ -305,12 +305,14 @@ serve(async (req) => {
             )
           }
 
-          // Basic email format check (very basic)
-          if (!email || !email.includes('@') || !email.includes('.')) {
+          // More comprehensive email validation
+          const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+          if (!email || !emailRegex.test(email)) {
+            console.log('Email validation failed for:', email)
             return new Response(
               JSON.stringify({
                 error: 'Invalid email format',
-                message: 'Please enter a valid email address',
+                message: 'Please enter a valid email address (e.g., user@gmail.com)',
                 timestamp: new Date().toISOString(),
                 server: 'Supabase Edge Functions'
               }),
@@ -345,23 +347,28 @@ serve(async (req) => {
             console.log('Error details:', {
               code: error.status,
               message: error.message,
-              name: error.name
+              name: error.name,
+              details: error.details,
+              hint: error.hint
             })
             
             // Provide more specific error messages
             let errorMessage = error.message
-            if (error.message.includes('email')) {
-              errorMessage = 'Please enter a valid email address'
-            } else if (error.message.includes('password')) {
+            if (error.message.includes('email') || error.message.includes('Email')) {
+              errorMessage = 'Please enter a valid email address (e.g., user@gmail.com)'
+            } else if (error.message.includes('password') || error.message.includes('Password')) {
               errorMessage = 'Password must be at least 6 characters long'
-            } else if (error.message.includes('already')) {
+            } else if (error.message.includes('already') || error.message.includes('exists')) {
               errorMessage = 'An account with this email already exists'
+            } else if (error.message.includes('invalid')) {
+              errorMessage = 'Invalid email format. Please use a valid email address.'
             }
             
             return new Response(
               JSON.stringify({
                 error: 'Registration failed',
                 message: errorMessage,
+                originalError: error.message,
                 timestamp: new Date().toISOString(),
                 server: 'Supabase Edge Functions'
               }),

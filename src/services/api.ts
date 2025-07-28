@@ -83,12 +83,26 @@ export class ApiService {
   }
 
   async register(email: string, password: string, name: string) {
+    console.log('🌐 API: Making registration request to:', `${API_BASE_URL}/api/auth/register`)
+    console.log('📤 API: Registration payload:', { email, password: '***', name })
+    
     const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ email, password, name })
     })
-    return handleResponse(response)
+    
+    console.log('📥 API: Registration response status:', response.status)
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.log('📥 API: Registration error data:', errorData)
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    }
+    
+    const result = await response.json()
+    console.log('📥 API: Registration success:', result)
+    return result
   }
 
   async logout() {
