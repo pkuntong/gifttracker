@@ -271,10 +271,26 @@ serve(async (req) => {
 
           if (error) {
             console.log('Supabase registration error:', error)
+            console.log('Error details:', {
+              code: error.status,
+              message: error.message,
+              name: error.name
+            })
+            
+            // Provide more specific error messages
+            let errorMessage = error.message
+            if (error.message.includes('email')) {
+              errorMessage = 'Please enter a valid email address'
+            } else if (error.message.includes('password')) {
+              errorMessage = 'Password must be at least 6 characters long'
+            } else if (error.message.includes('already')) {
+              errorMessage = 'An account with this email already exists'
+            }
+            
             return new Response(
               JSON.stringify({
                 error: 'Registration failed',
-                message: error.message,
+                message: errorMessage,
                 timestamp: new Date().toISOString(),
                 server: 'Supabase Edge Functions'
               }),

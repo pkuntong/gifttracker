@@ -39,6 +39,7 @@ const Register = () => {
     setIsLoading(true);
 
     try {
+      console.log('Attempting registration with:', { name, email, passwordLength: password.length })
       await register(name, email, password);
       toast({
         title: "Account created!",
@@ -46,6 +47,7 @@ const Register = () => {
       });
       navigate('/app/dashboard');
     } catch (err) {
+      console.error('Registration error:', err)
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
       setIsLoading(false);
