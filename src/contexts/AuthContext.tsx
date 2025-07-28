@@ -130,17 +130,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('🔑 Stored token:', token ? 'exists' : 'missing')
         
         if (storedUser && token) {
-          const userData = JSON.parse(storedUser)
-          console.log('✅ Setting user from localStorage:', userData)
-          setUser(userData)
+          // Validate token with server
+          try {
+            console.log('🔐 Validating token with server...')
+            const response = await apiService.validateUser()
+            console.log('✅ Token validation successful:', response)
+            
+            if (response.user) {
+              const userData = response.user
+              console.log('✅ Setting user from server validation:', userData)
+              setUser(userData)
+              // Update localStorage with fresh user data
+              localStorage.setItem('user', JSON.stringify(userData))
+            } else {
+              throw new Error('No user data in validation response')
+            }
+          } catch (validationError) {
+            console.log('❌ Token validation failed, clearing auth data')
+            localStorage.removeItem('authToken')
+            localStorage.removeItem('user')
+            setUser(null)
+          }
         } else {
           console.log('❌ No stored authentication found')
+          setUser(null)
         }
-        // No automatic mock user creation - users must sign in properly
       } catch (err) {
         console.error('🚨 Auth check error:', err)
         localStorage.removeItem('authToken')
         localStorage.removeItem('user')
+        setUser(null)
       } finally {
         console.log('🏁 Auth check complete, setting isLoading to false')
         setIsLoading(false)

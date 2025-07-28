@@ -84,6 +84,72 @@ serve(async (req) => {
       )
     }
 
+    // User validation endpoint - requires auth
+    if (path === '/api/user/validate') {
+      if (req.method === 'GET') {
+        try {
+          // Get the user from Supabase auth
+          const { data: { user }, error } = await supabase.auth.getUser()
+          
+          if (error || !user) {
+            return new Response(
+              JSON.stringify({
+                error: 'Authentication failed',
+                message: 'Invalid or missing authentication token',
+                timestamp: new Date().toISOString(),
+                server: 'Supabase Edge Functions'
+              }),
+              {
+                status: 401,
+                headers: {
+                  ...corsHeaders,
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+          }
+
+          return new Response(
+            JSON.stringify({
+              user: {
+                id: user.id,
+                email: user.email,
+                name: user.user_metadata?.name || user.email,
+                created_at: user.created_at,
+                updated_at: user.updated_at
+              },
+              message: 'User validated successfully',
+              timestamp: new Date().toISOString(),
+              server: 'Supabase Edge Functions',
+              deployed: true
+            }),
+            {
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        } catch (err) {
+          return new Response(
+            JSON.stringify({
+              error: 'Validation failed',
+              message: err instanceof Error ? err.message : 'Unknown error occurred',
+              timestamp: new Date().toISOString(),
+              server: 'Supabase Edge Functions'
+            }),
+            {
+              status: 500,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        }
+      }
+    }
+
     // Contact form endpoint - PUBLIC (no auth required)
     if (path === '/api/contact') {
       if (req.method === 'POST') {

@@ -32,6 +32,15 @@ export class ApiService {
     return handleResponse(response)
   }
 
+  // User Validation
+  async validateUser() {
+    const response = await fetch(`${API_BASE_URL}/api/user/validate`, {
+      method: 'GET',
+      headers: getHeaders()
+    })
+    return handleResponse(response)
+  }
+
   // Test Endpoint
   async testEndpoint() {
     const response = await fetch(`${API_BASE_URL}/test`, {
