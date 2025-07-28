@@ -214,6 +214,8 @@ serve(async (req) => {
           // Log the registration attempt
           console.log('Registration attempt:', {
             email: email,
+            emailType: typeof email,
+            emailLength: email?.length,
             name: name,
             hasPassword: !!password,
             passwordLength: password?.length,
@@ -239,9 +241,8 @@ serve(async (req) => {
             )
           }
 
-          // Email format validation
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-          if (!emailRegex.test(email)) {
+          // Basic email format check (very basic)
+          if (!email || !email.includes('@') || !email.includes('.')) {
             return new Response(
               JSON.stringify({
                 error: 'Invalid email format',
@@ -258,6 +259,12 @@ serve(async (req) => {
               }
             )
           }
+
+          console.log('About to call Supabase auth.signUp with:', {
+            email: email,
+            passwordLength: password?.length,
+            name: name
+          })
 
           const { data, error } = await supabase.auth.signUp({
             email,
