@@ -1980,19 +1980,51 @@ Time: ${new Date().toLocaleTimeString()}
         const body = await req.json()
         const { name, email, password } = body
 
-        // Mock profile update response
-        const updatedUser = {
-          id: 'mock-user-id',
-          name: name || 'Demo User',
-          email: email || 'demo@example.com',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+        // Get the current user from the authenticated session
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        
+        if (userError || !user) {
+          return new Response(
+            JSON.stringify({
+              error: 'Authentication failed',
+              message: 'User not authenticated',
+              timestamp: new Date().toISOString(),
+              server: 'Supabase Edge Functions'
+            }),
+            {
+              status: 401,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
         }
 
-        // If password was provided, simulate password change
-        if (password) {
-          console.log('Password change requested (mock)')
-          // In a real app, you would hash and update the password in the database
+        // Update user profile in Supabase
+        const { data: updatedUser, error: updateError } = await supabase.auth.updateUser({
+          data: {
+            name: name || user.user_metadata?.name,
+            email: email || user.email
+          }
+        })
+
+        if (updateError) {
+          return new Response(
+            JSON.stringify({
+              error: 'Profile update failed',
+              message: updateError.message,
+              timestamp: new Date().toISOString(),
+              server: 'Supabase Edge Functions'
+            }),
+            {
+              status: 400,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
         }
 
         return new Response(

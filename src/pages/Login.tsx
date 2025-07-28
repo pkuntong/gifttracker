@@ -129,11 +129,7 @@ const Login = () => {
               </p>
             </div>
 
-            <div className="mt-4 text-center">
-              <p className="text-xs text-muted-foreground">
-                For demo purposes, you can use any email and password
-              </p>
-            </div>
+
           </CardContent>
         </Card>
       </div>
