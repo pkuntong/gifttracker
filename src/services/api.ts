@@ -1,7 +1,112 @@
 // API Service for Gift Tracker
 // Updated to use Supabase Edge Functions
 
-import { User, Person, Gift, Occasion, Family, Budget, GiftPreferences, Report } from '@/types';
+import { User, Person, Gift, Occasion, Family, Budget, GiftPreferences, Report, ImportData, ExportOptions } from '@/types';
+
+// API Request/Response Types
+export interface CreatePersonRequest {
+  name: string;
+  email?: string;
+  relationship: string;
+  birthday?: string;
+  notes?: string;
+  avatar?: string;
+  familyId?: string;
+}
+
+export interface UpdatePersonRequest extends Partial<CreatePersonRequest> {
+  // Partial update interface for person data
+}
+
+export interface CreateGiftRequest {
+  name: string;
+  description?: string;
+  price: number;
+  currency: string;
+  status: 'planned' | 'purchased' | 'wrapped' | 'given';
+  recipientId: string;
+  occasionId?: string;
+  notes?: string;
+}
+
+export interface UpdateGiftRequest extends Partial<CreateGiftRequest> {
+  // Partial update interface for gift data
+}
+
+export interface CreateOccasionRequest {
+  name: string;
+  date: string;
+  type: 'birthday' | 'anniversary' | 'holiday' | 'other';
+  personId?: string;
+  description?: string;
+  budget?: number;
+}
+
+export interface UpdateOccasionRequest extends Partial<CreateOccasionRequest> {
+  // Partial update interface for occasion data
+}
+
+export interface CreateBudgetRequest {
+  name: string;
+  amount: number;
+  currency: string;
+  period: 'monthly' | 'yearly' | 'custom';
+  type: 'occasion' | 'person' | 'general';
+  personId?: string;
+  occasionId?: string;
+  description?: string;
+  startDate: string;
+  endDate?: string;
+}
+
+export interface UpdateBudgetRequest extends Partial<CreateBudgetRequest> {}
+
+export interface CreateExpenseRequest {
+  amount: number;
+  currency: string;
+  description: string;
+  category: string;
+  budgetId?: string;
+  giftId?: string;
+  date: string;
+}
+
+export interface UpdateExpenseRequest extends Partial<CreateExpenseRequest> {}
+
+export interface CreateFamilyRequest {
+  name: string;
+  description?: string;
+}
+
+export interface UpdateFamilyRequest extends Partial<CreateFamilyRequest> {}
+
+export interface InviteFamilyMemberRequest {
+  email: string;
+  role: 'admin' | 'member';
+}
+
+export interface AnalyticsFilters {
+  dateRange?: { start: string; end: string };
+  people?: string[];
+  occasions?: string[];
+  categories?: string[];
+}
+
+export interface CreateReportRequest {
+  type: 'gift_summary' | 'budget_report' | 'occasion_report' | 'spending_analysis' | 'family_report';
+  title: string;
+  description: string;
+  filters: AnalyticsFilters;
+  isScheduled: boolean;
+  scheduleFrequency?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+}
+
+export interface UpdatePreferencesRequest {
+  currency?: string;
+  timezone?: string;
+  notifications?: boolean;
+  theme?: 'light' | 'dark' | 'system';
+}
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://jnhucgyztokoffzwiegj.supabase.co/functions/v1';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpuaHVjZ3l6dG9rb2ZmendpZWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5NzI0MTcsImV4cCI6MjA2ODU0ODQxN30.2M01OqtHmBv4CBqAw3pjTK7oysxnB_xJEXG3m2ENOn8'
@@ -122,7 +227,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async createPerson(personData: any) {
+  async createPerson(personData: CreatePersonRequest) {
     const response = await fetch(`${API_BASE_URL}/api/people`, {
       method: 'POST',
       headers: getHeaders(),
@@ -131,7 +236,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async updatePerson(personId: string, personData: any) {
+  async updatePerson(personId: string, personData: UpdatePersonRequest) {
     const response = await fetch(`${API_BASE_URL}/api/people/${personId}`, {
       method: 'PUT',
       headers: getHeaders(),
@@ -157,7 +262,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async createGift(giftData: any) {
+  async createGift(giftData: CreateGiftRequest) {
     const response = await fetch(`${API_BASE_URL}/api/gifts`, {
       method: 'POST',
       headers: getHeaders(),
@@ -166,7 +271,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async updateGift(giftId: string, giftData: any) {
+  async updateGift(giftId: string, giftData: UpdateGiftRequest) {
     const response = await fetch(`${API_BASE_URL}/api/gifts/${giftId}`, {
       method: 'PUT',
       headers: getHeaders(),
@@ -192,7 +297,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async createOccasion(occasionData: any) {
+  async createOccasion(occasionData: CreateOccasionRequest) {
     const response = await fetch(`${API_BASE_URL}/api/occasions`, {
       method: 'POST',
       headers: getHeaders(),
@@ -201,7 +306,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async updateOccasion(occasionId: string, occasionData: any) {
+  async updateOccasion(occasionId: string, occasionData: UpdateOccasionRequest) {
     const response = await fetch(`${API_BASE_URL}/api/occasions/${occasionId}`, {
       method: 'PUT',
       headers: getHeaders(),
@@ -226,7 +331,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async createBudget(budgetData: any) {
+  async createBudget(budgetData: CreateBudgetRequest) {
     const response = await fetch(`${API_BASE_URL}/api/budgets`, {
       method: 'POST',
       headers: getHeaders(),
@@ -235,7 +340,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async updateBudget(budgetId: string, budgetData: any) {
+  async updateBudget(budgetId: string, budgetData: UpdateBudgetRequest) {
     const response = await fetch(`${API_BASE_URL}/api/budgets/${budgetId}`, {
       method: 'PUT',
       headers: getHeaders(),
@@ -260,7 +365,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async createExpense(expenseData: any) {
+  async createExpense(expenseData: CreateExpenseRequest) {
     const response = await fetch(`${API_BASE_URL}/api/expenses`, {
       method: 'POST',
       headers: getHeaders(),
@@ -269,7 +374,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async updateExpense(expenseId: string, expenseData: any) {
+  async updateExpense(expenseId: string, expenseData: UpdateExpenseRequest) {
     const response = await fetch(`${API_BASE_URL}/api/expenses/${expenseId}`, {
       method: 'PUT',
       headers: getHeaders(),
@@ -303,7 +408,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async createFamily(familyData: any) {
+  async createFamily(familyData: CreateFamilyRequest) {
     const response = await fetch(`${API_BASE_URL}/api/families`, {
       method: 'POST',
       headers: getHeaders(),
@@ -312,7 +417,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async updateFamily(familyId: string, familyData: any) {
+  async updateFamily(familyId: string, familyData: UpdateFamilyRequest) {
     const response = await fetch(`${API_BASE_URL}/api/families/${familyId}`, {
       method: 'PUT',
       headers: getHeaders(),
@@ -329,7 +434,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async inviteFamilyMember(familyId: string, memberData: any) {
+  async inviteFamilyMember(familyId: string, memberData: InviteFamilyMemberRequest) {
     const response = await fetch(`${API_BASE_URL}/api/families/${familyId}/members`, {
       method: 'POST',
       headers: getHeaders(),
@@ -347,7 +452,7 @@ export class ApiService {
   }
 
   // Analytics
-  async getAnalytics(filters?: any) {
+  async getAnalytics(filters?: AnalyticsFilters) {
     const queryParams = filters ? `?${new URLSearchParams(filters).toString()}` : '';
     const response = await fetch(`${API_BASE_URL}/api/analytics${queryParams}`, {
       method: 'GET',
@@ -399,7 +504,7 @@ export class ApiService {
   }
 
   // Data Import
-  async importData(data: any, overwrite: boolean = false) {
+  async importData(data: ImportData, overwrite: boolean = false) {
     const response = await fetch(`${API_BASE_URL}/api/import`, {
       method: 'POST',
       headers: getHeaders(),
@@ -426,7 +531,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async createReport(reportData: any) {
+  async createReport(reportData: CreateReportRequest) {
     const response = await fetch(`${API_BASE_URL}/api/reports`, {
       method: 'POST',
       headers: getHeaders(),
@@ -486,7 +591,7 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  async updatePreferences(preferences: any) {
+  async updatePreferences(preferences: UpdatePreferencesRequest) {
     const response = await fetch(`${API_BASE_URL}/api/preferences`, {
       method: 'PUT',
       headers: getHeaders(),

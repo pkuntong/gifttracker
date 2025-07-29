@@ -1,0 +1,122 @@
+
+> gift-tracker@1.0.0 lint
+> eslint .
+
+
+/Users/gnotnuk/Documents/gifttracker/src/components/AdvancedBudgetManagement.tsx
+  118:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/components/AdvancedDataManagement.tsx
+  184:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/components/AnalyticsInsightsWidget.tsx
+  47:6  warning  React Hook useEffect has a missing dependency: 'loadAnalyticsData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/components/GiftPreferencesForm.tsx
+  94:6  warning  React Hook useEffect has a missing dependency: 'loadPreferences'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/components/NotificationWidget.tsx
+  79:6  warning  React Hook useEffect has a missing dependency: 'loadNotifications'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/components/RecommendationWidget.tsx
+  40:6  warning  React Hook useEffect has a missing dependency: 'loadRecommendations'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/components/SocialWidget.tsx
+  57:6  warning  React Hook useEffect has a missing dependency: 'loadSocialData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/components/TrackingWidget.tsx
+  37:6  warning  React Hook useEffect has a missing dependency: 'loadTrackingData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/components/ui/badge.tsx
+  36:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/gnotnuk/Documents/gifttracker/src/components/ui/button.tsx
+  56:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/gnotnuk/Documents/gifttracker/src/components/ui/form.tsx
+  168:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/gnotnuk/Documents/gifttracker/src/components/ui/navigation-menu.tsx
+  119:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/gnotnuk/Documents/gifttracker/src/components/ui/sidebar.tsx
+  760:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/gnotnuk/Documents/gifttracker/src/components/ui/sonner.tsx
+  29:19  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/gnotnuk/Documents/gifttracker/src/components/ui/toggle.tsx
+  43:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/gnotnuk/Documents/gifttracker/src/contexts/AuthContext.tsx
+  36:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/AdvancedAnalytics.tsx
+  172:6  warning  React Hook useEffect has a missing dependency: 'loadAnalytics'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/Analytics.tsx
+  46:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/Dashboard.tsx
+  51:6  warning  React Hook useEffect has a missing dependency: 'loadDashboardData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/Families.tsx
+  81:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/GiftIdeas.tsx
+  81:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/GiftRecommendations.tsx
+  80:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/GiftTracking.tsx
+  107:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/Gifts.tsx
+  69:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/Occasions.tsx
+  59:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/People.tsx
+  61:6  warning  React Hook useEffect has a missing dependency: 'loadPeople'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/Reminders.tsx
+   96:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  627:79  error    Unexpected any. Specify a different type                                                                     @typescript-eslint/no-explicit-any
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/Social.tsx
+  166:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/gnotnuk/Documents/gifttracker/src/pages/Wishlists.tsx
+   64:6   warning  React Hook useEffect has a missing dependency: 'loadWishlists'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  688:78  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  751:65  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+
+/Users/gnotnuk/Documents/gifttracker/src/services/api.ts
+  17:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+  30:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+  41:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+  56:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+  68:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+  75:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+/Users/gnotnuk/Documents/gifttracker/supabase/functions/api/index.ts
+   517:39  error  Unnecessary escape character: \/                    no-useless-escape
+   721:57  error  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   935:61  error  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  1011:42  error  Unnecessary escape character: \/                    no-useless-escape
+  1332:13  error  'results' is never reassigned. Use 'const' instead  prefer-const
+  1332:22  error  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  1648:5   error  Move function declaration to function body root     no-inner-declarations
+  1648:33  error  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  1655:36  error  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  1660:33  error  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  1665:41  error  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  1772:40  error  Unnecessary escape character: \/                    no-useless-escape
+  1818:40  error  Unnecessary escape character: \/                    no-useless-escape
+  2087:46  error  Unnecessary escape character: \/                    no-useless-escape
+
+✖ 52 problems (23 errors, 29 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

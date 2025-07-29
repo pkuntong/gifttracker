@@ -685,7 +685,7 @@ const Wishlists: React.FC = () => {
           <div className="space-y-4">
             <div>
               <Label>{t('wishlists.shareType')}</Label>
-              <Select value={shareSettings.shareType} onValueChange={(value: any) => setShareSettings(prev => ({ ...prev, shareType: value }))}>
+              <Select value={shareSettings.shareType} onValueChange={(value: 'public' | 'private' | 'collaborative') => setShareSettings(prev => ({ ...prev, shareType: value }))}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -748,7 +748,7 @@ const Wishlists: React.FC = () => {
             </div>
             <div className="space-y-2">
               <Label>{t('wishlists.role')}</Label>
-              <Select value={inviteRole} onValueChange={(value: any) => setInviteRole(value)}>
+              <Select value={inviteRole} onValueChange={(value: 'viewer' | 'contributor' | 'admin') => setInviteRole(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

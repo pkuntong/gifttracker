@@ -74,9 +74,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('❌ No user data in response')
         throw new Error('Login failed - no user data received')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('🚨 Login error:', err)
-      setError(err.message || 'Login failed')
+      setError(err instanceof Error ? err.message : 'Login failed')
       throw err
     } finally {
       console.log('🏁 Login process complete, setting isLoading to false')
@@ -98,8 +98,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         throw new Error('Registration failed - no user data received')
       }
-    } catch (err: any) {
-      setError(err.message || 'Registration failed')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Registration failed')
       throw err
     } finally {
       setIsLoading(false)
@@ -112,7 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(null)
       
       await apiService.logout()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Logout error:', err)
     } finally {
       setUser(null)

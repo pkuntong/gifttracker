@@ -1,31 +1,42 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { Toaster } from './components/ui/toaster'
 import ErrorBoundary from './components/ErrorBoundary'
 import Layout from './components/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
-import Index from './pages/Index'
-import Dashboard from './pages/Dashboard'
-import People from './pages/People'
-import Gifts from './pages/Gifts'
-import GiftRecommendations from './pages/GiftRecommendations'
-import GiftTracking from './pages/GiftTracking'
-import Occasions from './pages/Occasions'
-import Analytics from './pages/Analytics'
-import AdvancedAnalytics from './pages/AdvancedAnalytics'
-import Budgets from './pages/Budgets'
-import Families from './pages/Families'
-import Notifications from './pages/Notifications'
-import Settings from './pages/Settings'
-import Billing from './pages/Billing'
-import DataImportExport from './pages/DataImportExport'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Help from './pages/Help'
-import Contact from './pages/Contact'
-import NotFound from './pages/NotFound'
+import LoadingSpinner from './components/LoadingSpinner'
 import './App.css'
+
+// Lazy load page components for better code splitting
+const Index = React.lazy(() => import('./pages/Index'))
+const Dashboard = React.lazy(() => import('./pages/Dashboard'))
+const People = React.lazy(() => import('./pages/People'))
+const Gifts = React.lazy(() => import('./pages/Gifts'))
+const GiftRecommendations = React.lazy(() => import('./pages/GiftRecommendations'))
+const GiftTracking = React.lazy(() => import('./pages/GiftTracking'))
+const Occasions = React.lazy(() => import('./pages/Occasions'))
+const Analytics = React.lazy(() => import('./pages/Analytics'))
+const AdvancedAnalytics = React.lazy(() => import('./pages/AdvancedAnalytics'))
+const Budgets = React.lazy(() => import('./pages/Budgets'))
+const Families = React.lazy(() => import('./pages/Families'))
+const Notifications = React.lazy(() => import('./pages/Notifications'))
+const Settings = React.lazy(() => import('./pages/Settings'))
+const Billing = React.lazy(() => import('./pages/Billing'))
+const DataImportExport = React.lazy(() => import('./pages/DataImportExport'))
+const Login = React.lazy(() => import('./pages/Login'))
+const Register = React.lazy(() => import('./pages/Register'))
+const Help = React.lazy(() => import('./pages/Help'))
+const Contact = React.lazy(() => import('./pages/Contact'))
+const NotFound = React.lazy(() => import('./pages/NotFound'))
+
+// Additional lazy-loaded pages
+const GiftIdeas = React.lazy(() => import('./pages/GiftIdeas'))
+const Integrations = React.lazy(() => import('./pages/Integrations'))
+const Reminders = React.lazy(() => import('./pages/Reminders'))
+const Search = React.lazy(() => import('./pages/Search'))
+const Social = React.lazy(() => import('./pages/Social'))
+const Wishlists = React.lazy(() => import('./pages/Wishlists'))
 
 // Layout wrapper component
 const LayoutWrapper = () => (
@@ -42,13 +53,13 @@ function App() {
           <div className="App">
             <Routes>
               {/* Public routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/help" element={<Help />} />
-              <Route path="/contact" element={<Contact />} />
+              <Route path="/login" element={<Suspense fallback={<LoadingSpinner />}><Login /></Suspense>} />
+              <Route path="/register" element={<Suspense fallback={<LoadingSpinner />}><Register /></Suspense>} />
+              <Route path="/help" element={<Suspense fallback={<LoadingSpinner />}><Help /></Suspense>} />
+              <Route path="/contact" element={<Suspense fallback={<LoadingSpinner />}><Contact /></Suspense>} />
               
               {/* Public routes */}
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<Suspense fallback={<LoadingSpinner />}><Index /></Suspense>} />
               
               {/* Protected routes */}
               <Route path="/app" element={
@@ -56,28 +67,32 @@ function App() {
                   <LayoutWrapper />
                 </ProtectedRoute>
               }>
-                <Route index element={<Dashboard />} />
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="people" element={<People />} />
-                <Route path="gifts" element={<Gifts />} />
-                <Route path="occasions" element={<Occasions />} />
-                <Route path="budgets" element={<Budgets />} />
-                <Route path="families" element={<Families />} />
-                <Route path="analytics" element={<Analytics />} />
+                <Route index element={<Suspense fallback={<LoadingSpinner />}><Dashboard /></Suspense>} />
+                <Route path="dashboard" element={<Suspense fallback={<LoadingSpinner />}><Dashboard /></Suspense>} />
+                <Route path="people" element={<Suspense fallback={<LoadingSpinner />}><People /></Suspense>} />
+                <Route path="gifts" element={<Suspense fallback={<LoadingSpinner />}><Gifts /></Suspense>} />
+                <Route path="occasions" element={<Suspense fallback={<LoadingSpinner />}><Occasions /></Suspense>} />
+                <Route path="budgets" element={<Suspense fallback={<LoadingSpinner />}><Budgets /></Suspense>} />
+                <Route path="families" element={<Suspense fallback={<LoadingSpinner />}><Families /></Suspense>} />
+                <Route path="analytics" element={<Suspense fallback={<LoadingSpinner />}><Analytics /></Suspense>} />
+                <Route path="advanced-analytics" element={<Suspense fallback={<LoadingSpinner />}><AdvancedAnalytics /></Suspense>} />
                 
-                <Route path="recommendations" element={<GiftRecommendations />} />
-                <Route path="notifications" element={<Notifications />} />
-                <Route path="settings" element={<Settings />} />
-                <Route path="billing" element={<Billing />} />
-                <Route path="data" element={<DataImportExport />} />
-                <Route path="gift-ideas" element={<GiftRecommendations />} />
-                <Route path="tracking" element={<Gifts />} />
-                <Route path="social" element={<Families />} />
-                <Route path="advanced-analytics" element={<Analytics />} />
+                <Route path="recommendations" element={<Suspense fallback={<LoadingSpinner />}><GiftRecommendations /></Suspense>} />
+                <Route path="gift-ideas" element={<Suspense fallback={<LoadingSpinner />}><GiftIdeas /></Suspense>} />
+                <Route path="tracking" element={<Suspense fallback={<LoadingSpinner />}><GiftTracking /></Suspense>} />
+                <Route path="notifications" element={<Suspense fallback={<LoadingSpinner />}><Notifications /></Suspense>} />
+                <Route path="reminders" element={<Suspense fallback={<LoadingSpinner />}><Reminders /></Suspense>} />
+                <Route path="search" element={<Suspense fallback={<LoadingSpinner />}><Search /></Suspense>} />
+                <Route path="social" element={<Suspense fallback={<LoadingSpinner />}><Social /></Suspense>} />
+                <Route path="wishlists" element={<Suspense fallback={<LoadingSpinner />}><Wishlists /></Suspense>} />
+                <Route path="integrations" element={<Suspense fallback={<LoadingSpinner />}><Integrations /></Suspense>} />
+                <Route path="settings" element={<Suspense fallback={<LoadingSpinner />}><Settings /></Suspense>} />
+                <Route path="billing" element={<Suspense fallback={<LoadingSpinner />}><Billing /></Suspense>} />
+                <Route path="data" element={<Suspense fallback={<LoadingSpinner />}><DataImportExport /></Suspense>} />
               </Route>
               
               {/* 404 route */}
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<Suspense fallback={<LoadingSpinner />}><NotFound /></Suspense>} />
             </Routes>
             <Toaster />
           </div>

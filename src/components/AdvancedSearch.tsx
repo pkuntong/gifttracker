@@ -13,7 +13,7 @@ interface SearchResult {
   name: string
   description?: string
   type: 'person' | 'gift' | 'occasion'
-  [key: string]: any
+  [key: string]: unknown
 }
 
 interface SearchFilters {
@@ -73,7 +73,7 @@ export const AdvancedSearch: React.FC = () => {
     }
   }
 
-  const handleFilterChange = (key: string, value: any) => {
+  const handleFilterChange = (key: string, value: unknown) => {
     setFilters(prev => ({ ...prev, [key]: value }))
   }
 

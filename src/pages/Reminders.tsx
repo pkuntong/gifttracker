@@ -624,7 +624,7 @@ const Reminders: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>{t('reminders.templateType')}</Label>
-                      <Select value={newTemplate.type} onValueChange={(value: any) => setNewTemplate(prev => ({ ...prev, type: value }))}>
+                      <Select value={newTemplate.type} onValueChange={(value: Reminder['type']) => setNewTemplate(prev => ({ ...prev, type: value }))}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -115,9 +115,9 @@ const AdvancedBudgetManagement: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [selectedPeriod, selectedCategory]);
+  }, [selectedPeriod, selectedCategory, loadData]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -141,7 +141,7 @@ const AdvancedBudgetManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
