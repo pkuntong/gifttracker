@@ -39,8 +39,38 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      console.log('Attempting registration with:', { name, email, passwordLength: password.length })
-      await register(name, email, password);
+      // Clean and validate the inputs before sending
+      const cleanName = name.trim();
+      const cleanEmail = email.trim().toLowerCase();
+      const cleanPassword = password;
+      
+      // Basic validation
+      if (!cleanName || cleanName.length < 2) {
+        setError('Name must be at least 2 characters long');
+        setIsLoading(false);
+        return;
+      }
+      
+      if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+        setError('Please enter a valid email address');
+        setIsLoading(false);
+        return;
+      }
+      
+      if (!cleanPassword || cleanPassword.length < 6) {
+        setError('Password must be at least 6 characters long');
+        setIsLoading(false);
+        return;
+      }
+      
+      console.log('Attempting registration with:', { 
+        name: cleanName, 
+        email: cleanEmail, 
+        passwordLength: cleanPassword.length,
+        emailValid: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)
+      })
+      
+      await register(cleanEmail, cleanPassword, cleanName);
       toast({
         title: "Account created!",
         description: "Welcome to GiftTracker. Your account has been created successfully.",

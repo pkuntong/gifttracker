@@ -108,20 +108,36 @@ export interface UpdatePreferencesRequest {
   theme?: 'light' | 'dark' | 'system';
 }
 
+export interface UpdateProfileRequest {
+  name?: string;
+  email?: string;
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://jnhucgyztokoffzwiegj.supabase.co/functions/v1';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpuaHVjZ3l6dG9rb2ZmendpZWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5NzI0MTcsImV4cCI6MjA2ODU0ODQxN30.2M01OqtHmBv4CBqAw3pjTK7oysxnB_xJEXG3m2ENOn8'
 
-// For development, we'll use the anon key as the authorization token
-const getHeaders = () => ({
-  'Content-Type': 'application/json',
-  'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-})
+// Get headers with appropriate authentication token
+const getHeaders = () => {
+  // Try to get user's auth token first, fallback to anon key
+  const authToken = localStorage.getItem('authToken') || SUPABASE_ANON_KEY
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${authToken}`
+  }
+}
 
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+    const errorMessage = errorData.message || `HTTP error! status: ${response.status}`
+    
+    // Add specific handling for 404s
+    if (response.status === 404) {
+      throw new Error(`404 Not Found: ${errorMessage}`)
+    }
+    
+    throw new Error(errorMessage)
   }
   return response.json()
 }
@@ -188,13 +204,33 @@ export class ApiService {
   }
 
   async register(email: string, password: string, name: string) {
+    // Clean and validate inputs on the client side
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanName = name.trim()
+    const cleanPassword = password
+    
+    // Basic email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+      throw new Error('Please enter a valid email address')
+    }
+    
     console.log('🌐 API: Making registration request to:', `${API_BASE_URL}/api/auth/register`)
-    console.log('📤 API: Registration payload:', { email, password: '***', name })
+    console.log('📤 API: Registration payload:', { 
+      email: cleanEmail, 
+      password: '***', 
+      name: cleanName,
+      emailValid: emailRegex.test(cleanEmail)
+    })
     
     const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ email, password, name })
+      body: JSON.stringify({ 
+        email: cleanEmail, 
+        password: cleanPassword, 
+        name: cleanName 
+      })
     })
     
     console.log('📥 API: Registration response status:', response.status)
@@ -583,12 +619,28 @@ export class ApiService {
 
   // Profile Management
   async updateProfile(updates: Record<string, unknown>) {
+    console.log('🔄 API: updateProfile called with:', updates);
+    console.log('🔄 API: Headers being sent:', getHeaders());
+    console.log('🔄 API: Making request to:', `${API_BASE_URL}/api/profile`);
+    
     const response = await fetch(`${API_BASE_URL}/api/profile`, {
       method: 'PUT',
       headers: getHeaders(),
       body: JSON.stringify(updates)
     })
-    return handleResponse(response)
+    
+    console.log('🔄 API: Response status:', response.status);
+    console.log('🔄 API: Response headers:', Object.fromEntries(response.headers.entries()));
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('🚨 API: Error response text:', errorText);
+      throw new Error(`Profile update failed: ${response.status} - ${errorText}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ API: Profile update successful:', result);
+    return result;
   }
 
   async updatePreferences(preferences: UpdatePreferencesRequest) {
@@ -599,6 +651,7 @@ export class ApiService {
     })
     return handleResponse(response)
   }
+
 }
 
 // Create and export the API service instance

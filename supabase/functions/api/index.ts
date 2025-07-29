@@ -307,12 +307,17 @@ serve(async (req) => {
 
           // More comprehensive email validation
           const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-          if (!email || !emailRegex.test(email)) {
-            console.log('Email validation failed for:', email)
+          if (!email || typeof email !== 'string' || email.trim() === '' || !emailRegex.test(email.trim())) {
+            console.log('Email validation failed for:', {
+              email: email,
+              type: typeof email,
+              trimmed: email?.trim(),
+              regexTest: email ? emailRegex.test(email.trim()) : false
+            })
             return new Response(
               JSON.stringify({
-                error: 'Invalid email format',
-                message: 'Please enter a valid email address (e.g., user@gmail.com)',
+                error: 'Registration failed',
+                message: 'Unable to validate email address: invalid format',
                 timestamp: new Date().toISOString(),
                 server: 'Supabase Edge Functions'
               }),
@@ -333,11 +338,11 @@ serve(async (req) => {
           })
 
           const { data, error } = await supabase.auth.signUp({
-            email,
+            email: email.trim().toLowerCase(),
             password,
             options: {
               data: {
-                name: name
+                name: name.trim()
               }
             }
           })

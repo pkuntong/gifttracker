@@ -158,10 +158,23 @@ const Settings = () => {
 
       console.log('Updates to send:', updates);
       console.log('Current form data:', accountForm);
+      console.log('Current auth token:', localStorage.getItem('authToken'));
 
-      // Always save to show feedback, even if no changes
+      // Only make the API call if there are actually updates to send
+      if (Object.keys(updates).length === 0) {
+        toast({
+          title: 'No Changes',
+          description: 'No changes were made to your profile.',
+          variant: 'default',
+        });
+        setLoading(false);
+        return;
+      }
+
+      console.log('Making API call to update profile...');
       const response = await apiService.updateProfile(updates);
       console.log('API response:', response);
+      console.log('Response keys:', Object.keys(response || {}));
       
       // Update local user state with response data
       if (response.user) {

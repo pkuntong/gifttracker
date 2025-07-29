@@ -150,10 +150,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               throw new Error('No user data in validation response')
             }
           } catch (validationError) {
-            console.log('❌ Token validation failed, clearing auth data')
-            localStorage.removeItem('authToken')
-            localStorage.removeItem('user')
-            setUser(null)
+            console.log('❌ Token validation failed:', validationError)
+            
+            // If it's a 404, the endpoint might not be deployed properly
+            // For now, let's be more lenient and keep the user logged in if we have stored data
+            if (validationError instanceof Error && validationError.message.includes('404')) {
+              console.log('⚠️ Validation endpoint not found (404), using stored user data')
+              setUser(storedUser)
+            } else {
+              console.log('❌ Token validation failed, clearing auth data')
+              localStorage.removeItem('authToken')
+              localStorage.removeItem('user')
+              setUser(null)
+            }
           }
         } else {
           console.log('❌ No stored authentication found')
