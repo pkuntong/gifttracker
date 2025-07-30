@@ -23,9 +23,10 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // React core
-          if (id.includes('react') || id.includes('react-dom')) {
-            return 'react-vendor';
+          // React core - ensure this is isolated and comes first
+          if (id.includes('react/') || id.includes('react-dom/') || 
+              (id.includes('react') && !id.includes('@radix-ui') && !id.includes('react-router') && !id.includes('react-i18next'))) {
+            return 'react-core';
           }
           
           // Radix UI components
@@ -68,6 +69,11 @@ export default defineConfig(({ mode }) => ({
             return 'icons';
           }
           
+          // Sonner (toast)
+          if (id.includes('sonner')) {
+            return 'sonner';
+          }
+          
           // Other vendor libraries
           if (id.includes('node_modules')) {
             return 'vendor';
@@ -75,14 +81,18 @@ export default defineConfig(({ mode }) => ({
         },
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId
-            ? chunkInfo.facadeModuleId.split('/').pop().replace(/\\.[^.]+$/, '')
+            ? chunkInfo.facadeModuleId.split('/').pop()?.replace(/\\.[^.]+$/, '') || 'chunk'
             : 'chunk';
           return `js/${facadeModuleId}-[hash].js`;
         }
       }
-    }
+    },
+    chunkSizeWarningLimit: 1000
   },
   define: {
     __DEV__: mode === 'development'
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom']
   }
 }));
