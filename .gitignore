@@ -106,3 +106,4 @@ server/.env
 # PWA files
 sw.js
 workbox-*.js
+.vercel
