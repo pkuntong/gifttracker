@@ -88,11 +88,15 @@ const GiftIdeasPage: React.FC = () => {
         apiService.getPeople(),
         apiService.getOccasions(),
       ]);
-      setGiftIdeas(ideasData);
-      setPeople(peopleData);
-      setOccasions(occasionsData);
+      setGiftIdeas(ideasData || []);
+      setPeople(peopleData || []);
+      setOccasions(occasionsData || []);
     } catch (error) {
       console.error('Error loading gift ideas:', error);
+      // Set default empty arrays to prevent map errors
+      setGiftIdeas([]);
+      setPeople([]);
+      setOccasions([]);
       toast({
         title: "Error",
         description: "Failed to load gift ideas",
@@ -272,7 +276,7 @@ const GiftIdeasPage: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Recipients</SelectItem>
-                  {people.map((person) => (
+                  {(people || []).map((person) => (
                     <SelectItem key={person.id} value={person.id}>
                       {person.name}
                     </SelectItem>
@@ -288,7 +292,7 @@ const GiftIdeasPage: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Occasions</SelectItem>
-                  {occasions.map((occasion) => (
+                  {(occasions || []).map((occasion) => (
                     <SelectItem key={occasion.id} value={occasion.id}>
                       {occasion.name}
                     </SelectItem>
@@ -354,7 +358,7 @@ const GiftIdeasPage: React.FC = () => {
 
         <TabsContent value="ideas" className="space-y-6">
           <div className="grid gap-6">
-            {filteredIdeas.map((idea) => (
+            {(filteredIdeas || []).map((idea) => (
               <Card key={idea.id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -429,7 +433,7 @@ const GiftIdeasPage: React.FC = () => {
 
         <TabsContent value="recommendations" className="space-y-6">
           <div className="grid gap-6">
-            {recommendations.map((rec) => (
+                              {(recommendations || []).map((rec) => (
               <Card key={rec.id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -460,7 +464,7 @@ const GiftIdeasPage: React.FC = () => {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      {rec.tags.map((tag) => (
+                      {(rec.tags || []).map((tag) => (
                         <Badge key={tag} variant="outline" className="text-xs">
                           {tag}
                         </Badge>
@@ -508,7 +512,7 @@ const GiftIdeasPage: React.FC = () => {
 
         <TabsContent value="favorites" className="space-y-6">
           <div className="grid gap-6">
-            {giftIdeas.filter(idea => idea.isFavorite).map((idea) => (
+            {(giftIdeas || []).filter(idea => idea.isFavorite).map((idea) => (
               <Card key={idea.id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -629,7 +633,7 @@ const GiftIdeasPage: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Select recipient</SelectItem>
-                    {people.map((person) => (
+                    {(people || []).map((person) => (
                       <SelectItem key={person.id} value={person.id}>
                         {person.name}
                       </SelectItem>
@@ -645,7 +649,7 @@ const GiftIdeasPage: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Select occasion</SelectItem>
-                    {occasions.map((occasion) => (
+                    {(occasions || []).map((occasion) => (
                       <SelectItem key={occasion.id} value={occasion.id}>
                         {occasion.name}
                       </SelectItem>

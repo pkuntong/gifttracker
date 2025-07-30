@@ -7,8 +7,8 @@ import App from './App.tsx'
 import './index.css'
 import './i18n/index.ts' // Initialize i18n
 
-// Wait for DOM to be ready
-document.addEventListener('DOMContentLoaded', () => {
+// Wait for DOM to be ready and ensure proper initialization
+const initializeApp = () => {
   const rootElement = document.getElementById('root')
   if (!rootElement) {
     console.error('Root element not found')
@@ -26,4 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Failed to render app:', error)
     rootElement.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">Loading...</div>'
   }
-})
+}
+
+// Initialize immediately if DOM is already ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp)
+} else {
+  initializeApp()
+}

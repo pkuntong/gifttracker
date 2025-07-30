@@ -113,10 +113,6 @@ const AdvancedBudgetManagement: React.FC = () => {
   
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadData();
-  }, [selectedPeriod, selectedCategory, loadData]);
-
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
@@ -142,6 +138,10 @@ const AdvancedBudgetManagement: React.FC = () => {
       setLoading(false);
     }
   }, [toast]);
+
+  useEffect(() => {
+    loadData();
+  }, [selectedPeriod, selectedCategory, loadData]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
