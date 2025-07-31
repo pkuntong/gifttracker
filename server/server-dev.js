@@ -102,6 +102,33 @@ const initDatabase = () => {
         FOREIGN KEY (occasion_id) REFERENCES occasions (id)
       )`);
 
+      // Expenses table
+      db.run(`CREATE TABLE IF NOT EXISTS expenses (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        amount REAL NOT NULL,
+        currency TEXT DEFAULT 'USD',
+        description TEXT,
+        category TEXT DEFAULT 'general',
+        budget_id TEXT,
+        gift_id TEXT,
+        date TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (budget_id) REFERENCES budgets (id),
+        FOREIGN KEY (gift_id) REFERENCES gifts (id)
+      )`);
+
+      // Families table
+      db.run(`CREATE TABLE IF NOT EXISTS families (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+      )`);
+
       console.log('✅ Database initialized successfully');
       resolve();
     });
@@ -232,12 +259,13 @@ initDatabase().then(() => {
       const token = jwt.sign({ userId, email }, JWT_SECRET, { expiresIn: '24h' });
 
       res.status(201).json({
-        message: 'User registered successfully',
-        token,
         user: {
           id: userId,
           email,
           name
+        },
+        session: {
+          access_token: token
         }
       });
     } catch (error) {
@@ -270,12 +298,13 @@ initDatabase().then(() => {
       const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '24h' });
 
       res.json({
-        message: 'Login successful',
-        token,
         user: {
           id: user.id,
           email: user.email,
           name: user.name
+        },
+        session: {
+          access_token: token
         }
       });
     } catch (error) {
@@ -418,6 +447,106 @@ initDatabase().then(() => {
     }
   });
 
+  // Expenses routes
+  app.get('/api/expenses', authenticateToken, async (req, res) => {
+    try {
+      const expenses = await runQuery(
+        'SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC',
+        [req.user.userId]
+      );
+      
+      // Transform the data to match the frontend expectations
+      const transformedExpenses = expenses.map(expense => ({
+        id: expense.id,
+        amount: parseFloat(expense.amount) || 0,
+        currency: expense.currency || 'USD',
+        category: expense.category || 'general',
+        recipient: expense.description || 'Unknown',
+        occasion: 'General',
+        date: new Date(expense.date),
+        description: expense.description,
+        tags: [],
+        status: 'completed',
+        paymentMethod: 'Unknown',
+        location: null
+      }));
+      
+      res.json(transformedExpenses);
+    } catch (error) {
+      console.error('Get expenses error:', error);
+      res.status(500).json({ message: 'Failed to get expenses' });
+    }
+  });
+
+  app.post('/api/expenses', authenticateToken, async (req, res) => {
+    try {
+      const { amount, currency, description, category, budgetId, giftId, date } = req.body;
+      const expenseId = uuidv4();
+      
+      await runQueryInsert(
+        'INSERT INTO expenses (id, user_id, amount, currency, description, category, budget_id, gift_id, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [expenseId, req.user.userId, amount, currency, description, category, budgetId, giftId, date]
+      );
+
+      const newExpense = await runQuerySingle(
+        'SELECT * FROM expenses WHERE id = ?',
+        [expenseId]
+      );
+
+      res.status(201).json(newExpense);
+    } catch (error) {
+      console.error('Create expense error:', error);
+      res.status(500).json({ message: 'Failed to create expense' });
+    }
+  });
+
+  // Families routes
+  app.get('/api/families', authenticateToken, async (req, res) => {
+    try {
+      const families = await runQuery(
+        'SELECT * FROM families WHERE user_id = ? ORDER BY created_at DESC',
+        [req.user.userId]
+      );
+      
+      // Transform the data to match the frontend expectations
+      const transformedFamilies = families.map(family => ({
+        id: family.id,
+        name: family.name,
+        description: family.description,
+        memberCount: 0, // We'll calculate this
+        createdAt: family.created_at,
+        updatedAt: family.created_at
+      }));
+      
+      res.json(transformedFamilies);
+    } catch (error) {
+      console.error('Get families error:', error);
+      res.status(500).json({ message: 'Failed to get families' });
+    }
+  });
+
+  app.post('/api/families', authenticateToken, async (req, res) => {
+    try {
+      const { name, description } = req.body;
+      const familyId = uuidv4();
+      
+      await runQueryInsert(
+        'INSERT INTO families (id, user_id, name, description) VALUES (?, ?, ?, ?)',
+        [familyId, req.user.userId, name, description]
+      );
+
+      const newFamily = await runQuerySingle(
+        'SELECT * FROM families WHERE id = ?',
+        [familyId]
+      );
+
+      res.status(201).json(newFamily);
+    } catch (error) {
+      console.error('Create family error:', error);
+      res.status(500).json({ message: 'Failed to create family' });
+    }
+  });
+
   // Budgets routes
   app.get('/api/budgets', authenticateToken, async (req, res) => {
     try {
@@ -425,7 +554,27 @@ initDatabase().then(() => {
         'SELECT * FROM budgets WHERE user_id = ? ORDER BY created_at DESC',
         [req.user.userId]
       );
-      res.json(budgets);
+      
+      // Transform the data to match the frontend expectations
+      const transformedBudgets = budgets.map(budget => ({
+        id: budget.id,
+        name: budget.name,
+        amount: parseFloat(budget.amount) || 0,
+        spent: 0, // We'll calculate this from expenses
+        currency: budget.currency || 'USD',
+        period: budget.period || 'monthly',
+        startDate: new Date(budget.start_date),
+        endDate: budget.end_date ? new Date(budget.end_date) : null,
+        category: budget.type || 'general',
+        status: 'on_track', // Default status
+        priority: 'medium', // Default priority
+        description: budget.description,
+        tags: [],
+        notifications: true,
+        autoAdjust: false
+      }));
+      
+      res.json(transformedBudgets);
     } catch (error) {
       console.error('Get budgets error:', error);
       res.status(500).json({ message: 'Failed to get budgets' });
@@ -451,6 +600,50 @@ initDatabase().then(() => {
     } catch (error) {
       console.error('Create budget error:', error);
       res.status(500).json({ message: 'Failed to create budget' });
+    }
+  });
+
+  // Financial Insights route
+  app.get('/api/financial-insights', authenticateToken, async (req, res) => {
+    try {
+      // Generate mock insights for now
+      const insights = [
+        {
+          id: '1',
+          type: 'savings',
+          title: 'Budget Optimization',
+          description: 'You can save 15% more by optimizing your gift spending',
+          value: 150,
+          currency: 'USD',
+          change: 15,
+          changeType: 'increase',
+          confidence: 85,
+          actionable: true,
+          action: 'Review gift categories',
+          category: 'spending',
+          priority: 'high'
+        },
+        {
+          id: '2',
+          type: 'trend',
+          title: 'Spending Trend',
+          description: 'Your gift spending has increased by 8% this month',
+          value: 320,
+          currency: 'USD',
+          change: 8,
+          changeType: 'increase',
+          confidence: 92,
+          actionable: true,
+          action: 'Set spending limits',
+          category: 'budget',
+          priority: 'medium'
+        }
+      ];
+      
+      res.json(insights);
+    } catch (error) {
+      console.error('Get financial insights error:', error);
+      res.status(500).json({ message: 'Failed to get financial insights' });
     }
   });
 

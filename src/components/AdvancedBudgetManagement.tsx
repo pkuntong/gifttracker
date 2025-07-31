@@ -195,10 +195,18 @@ const AdvancedBudgetManagement: React.FC = () => {
   };
 
   const getTotalBudget = () => {
+    if (!Array.isArray(budgets)) {
+      console.warn('Budgets is not an array:', budgets);
+      return 0;
+    }
     return budgets.reduce((sum, budget) => sum + budget.amount, 0);
   };
 
   const getTotalSpent = () => {
+    if (!Array.isArray(budgets)) {
+      console.warn('Budgets is not an array:', budgets);
+      return 0;
+    }
     return budgets.reduce((sum, budget) => sum + budget.spent, 0);
   };
 
@@ -207,6 +215,10 @@ const AdvancedBudgetManagement: React.FC = () => {
   };
 
   const getExpensesByCategory = () => {
+    if (!Array.isArray(expenses)) {
+      console.warn('Expenses is not an array:', expenses);
+      return {};
+    }
     const categories: { [key: string]: number } = {};
     expenses.forEach(expense => {
       categories[expense.category] = (categories[expense.category] || 0) + expense.amount;
@@ -215,6 +227,10 @@ const AdvancedBudgetManagement: React.FC = () => {
   };
 
   const getTopInsights = () => {
+    if (!Array.isArray(insights)) {
+      console.warn('Insights is not an array:', insights);
+      return [];
+    }
     return insights.filter(insight => insight.priority === 'high').slice(0, 3);
   };
 
@@ -278,7 +294,7 @@ const AdvancedBudgetManagement: React.FC = () => {
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-orange-600" />
               <div>
-                <div className="text-2xl font-bold">{budgets.length}</div>
+                <div className="text-2xl font-bold">{Array.isArray(budgets) ? budgets.length : 0}</div>
                 <div className="text-sm text-muted-foreground">{t('budgetManagement.activeBudgets')}</div>
               </div>
             </div>

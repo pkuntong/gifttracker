@@ -124,7 +124,7 @@ export interface UpdateProfileRequest {
 
 // Environment Configuration
 const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'https://jnhucgyztokoffzwiegj.supabase.co/functions/v1',
+  BASE_URL: import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001',
   SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
   TIMEOUT: 30000, // 30 seconds
   RETRY_ATTEMPTS: 3,
