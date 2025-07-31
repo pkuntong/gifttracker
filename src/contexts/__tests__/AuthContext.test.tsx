@@ -3,10 +3,21 @@ import { render, screen, act, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AuthProvider, useAuth } from '../AuthContext'
 import { mockApiService, mockUser, mockLocalStorage, setupApiMocks } from '@/test/utils'
+import { ApiError } from '@/types/api'
 
 // Mock the API service
 vi.mock('@/services/api', () => ({
   apiService: mockApiService
+}))
+
+// Mock utils
+vi.mock('@/utils/api-helpers', () => ({
+  isApiError: vi.fn((error: any) => error && typeof error.status === 'number'),
+  getErrorMessage: vi.fn((error: any) => {
+    if (error instanceof Error) return error.message
+    if (error && error.message) return error.message
+    return 'An unexpected error occurred'
+  })
 }))
 
 // Test component to access auth context
