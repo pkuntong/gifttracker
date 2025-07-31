@@ -3,7 +3,13 @@ export interface User {
   email: string;
   name: string;
   createdAt: string;
+  updatedAt?: string;
   preferences?: UserPreferences;
+  subscription?: {
+    plan: 'FREE' | 'PREMIUM';
+    status: 'active' | 'inactive' | 'cancelled';
+    expiresAt?: string;
+  };
 }
 
 export interface UserPreferences {
@@ -11,6 +17,10 @@ export interface UserPreferences {
   timezone: string;
   notifications: boolean;
   theme: 'light' | 'dark' | 'system';
+  language?: string;
+  dateFormat?: string;
+  timeFormat?: '12h' | '24h';
+  weekStartsOn?: 0 | 1; // 0 = Sunday, 1 = Monday
 }
 
 export interface Person {

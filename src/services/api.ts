@@ -1,5 +1,14 @@
-// API Service for Gift Tracker
-// Updated to use Supabase Edge Functions
+/**
+ * API Service for Gift Tracker Application
+ * 
+ * Features:
+ * - Type-safe API calls with comprehensive error handling
+ * - Request/response caching and batching
+ * - Retry mechanisms with exponential backoff
+ * - Secure authentication token management
+ * - Request/response interceptors
+ * - Performance monitoring and logging
+ */
 
 import { User, Person, Gift, Occasion, Family, Budget, GiftPreferences, Report, ImportData, ExportOptions } from '@/types';
 
@@ -113,214 +122,905 @@ export interface UpdateProfileRequest {
   email?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://jnhucgyztokoffzwiegj.supabase.co/functions/v1';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpuaHVjZ3l6dG9rb2ZmendpZWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5NzI0MTcsImV4cCI6MjA2ODU0ODQxN30.2M01OqtHmBv4CBqAw3pjTK7oysxnB_xJEXG3m2ENOn8'
+// Environment Configuration
+const API_CONFIG = {
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'https://jnhucgyztokoffzwiegj.supabase.co/functions/v1',
+  SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  TIMEOUT: 30000, // 30 seconds
+  RETRY_ATTEMPTS: 3,
+  RETRY_DELAY: 1000, // 1 second
+  CACHE_TTL: 5 * 60 * 1000, // 5 minutes default cache TTL
+  MAX_CONCURRENT_REQUESTS: 5,
+} as const;
 
-// Get headers with appropriate authentication token
-const getHeaders = () => {
-  // Try to get user's auth token first, fallback to anon key
-  const authToken = localStorage.getItem('authToken') || SUPABASE_ANON_KEY
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${authToken}`
+// Validate environment variables
+if (!API_CONFIG.SUPABASE_ANON_KEY) {
+  console.warn('⚠️ VITE_SUPABASE_ANON_KEY not found in environment variables');
+}
+
+// Log configuration in development
+if (import.meta.env.DEV) {
+  console.log('🔧 API Configuration:', {
+    BASE_URL: API_CONFIG.BASE_URL,
+    HAS_ANON_KEY: !!API_CONFIG.SUPABASE_ANON_KEY,
+    TIMEOUT: API_CONFIG.TIMEOUT,
+    RETRY_ATTEMPTS: API_CONFIG.RETRY_ATTEMPTS,
+  });
+}
+
+// API Response Types
+export interface ApiResponse<T = unknown> {
+  data?: T;
+  error?: {
+    message: string;
+    code: string;
+    details?: Record<string, unknown>;
+  };
+  meta?: {
+    page?: number;
+    pageSize?: number;
+    total?: number;
+    hasNext?: boolean;
+    hasPrev?: boolean;
+  };
+}
+
+export interface ApiError {
+  message: string;
+  code: string;
+  status: number;
+  details?: Record<string, unknown>;
+}
+
+// Request Configuration
+interface RequestConfig {
+  timeout?: number;
+  retries?: number;
+  cache?: boolean;
+  cacheTTL?: number;
+}
+
+// Cache implementation
+class ApiCache {
+  private cache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
+  private readonly defaultTTL = 5 * 60 * 1000; // 5 minutes
+
+  set(key: string, data: unknown, ttl: number = this.defaultTTL): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
+    });
+  }
+
+  get<T>(key: string): T | null {
+    const cached = this.cache.get(key);
+    if (!cached) return null;
+
+    const now = Date.now();
+    if (now - cached.timestamp > cached.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return cached.data as T;
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  delete(key: string): void {
+    this.cache.delete(key);
   }
 }
 
-// Helper function to handle API responses
-const handleResponse = async (response: Response) => {
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    const errorMessage = errorData.message || `HTTP error! status: ${response.status}`
-    
-    // Add specific handling for 404s
-    if (response.status === 404) {
-      throw new Error(`404 Not Found: ${errorMessage}`)
-    }
-    
-    throw new Error(errorMessage)
-  }
-  return response.json()
-}
+// Request Queue for batching
+class RequestQueue {
+  private queue: Array<{
+    url: string;
+    options: RequestInit;
+    resolve: (value: Response) => void;
+    reject: (reason: unknown) => void;
+  }> = [];
+  private processing = false;
+  private readonly batchDelay = 50; // ms
 
-// API Service Class
-export class ApiService {
-  // Health Check
-  async healthCheck() {
-    const response = await fetch(`${API_BASE_URL}/health`, {
-      method: 'GET',
-      headers: getHeaders()
-    })
-    return handleResponse(response)
+  add(url: string, options: RequestInit): Promise<Response> {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ url, options, resolve, reject });
+      this.scheduleProcess();
+    });
   }
 
-  // User Validation
-  async validateUser() {
-    const response = await fetch(`${API_BASE_URL}/api/user/validate`, {
-      method: 'GET',
-      headers: getHeaders()
-    })
-    return handleResponse(response)
+  private scheduleProcess(): void {
+    if (this.processing) return;
+    
+    setTimeout(() => {
+      this.process();
+    }, this.batchDelay);
   }
 
-  // Contact Form - Public endpoint (no auth required)
-  async submitContact(data: { name: string; email: string; subject: string; message: string }) {
-    const response = await fetch(`${API_BASE_URL}/api/contact`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data)
-    })
-    return handleResponse(response)
-  }
-
-  // Test Endpoint
-  async testEndpoint() {
-    const response = await fetch(`${API_BASE_URL}/test`, {
-      method: 'GET',
-      headers: getHeaders()
-    })
-    return handleResponse(response)
-  }
-
-  // Authentication
-  async login(email: string, password: string) {
-    console.log('🌐 API: Making login request to:', `${API_BASE_URL}/api/auth/login`)
-    console.log('📤 API: Request payload:', { email, password: '***' })
+  private async process(): Promise<void> {
+    if (this.processing || this.queue.length === 0) return;
     
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ email, password })
-    })
+    this.processing = true;
+    const batch = this.queue.splice(0);
     
-    console.log('📥 API: Response status:', response.status)
-    console.log('📥 API: Response headers:', Object.fromEntries(response.headers.entries()))
-    
-    const result = await handleResponse(response)
-    console.log('📥 API: Response data:', result)
-    
-    return result
-  }
-
-  async register(email: string, password: string, name: string) {
-    // Clean and validate inputs on the client side
-    const cleanEmail = email.trim().toLowerCase()
-    const cleanName = name.trim()
-    const cleanPassword = password
-    
-    // Basic email validation
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
-      throw new Error('Please enter a valid email address')
-    }
-    
-    console.log('🌐 API: Making registration request to:', `${API_BASE_URL}/api/auth/register`)
-    console.log('📤 API: Registration payload:', { 
-      email: cleanEmail, 
-      password: '***', 
-      name: cleanName,
-      emailValid: emailRegex.test(cleanEmail)
-    })
-    
-    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ 
-        email: cleanEmail, 
-        password: cleanPassword, 
-        name: cleanName 
-      })
-    })
-    
-    console.log('📥 API: Registration response status:', response.status)
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      console.log('📥 API: Registration error data:', errorData)
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
-    }
-    
-    const result = await response.json()
-    console.log('📥 API: Registration success:', result)
-    return result
-  }
-
-  async logout() {
-    const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
-      method: 'POST',
-      headers: getHeaders()
-    })
-    return handleResponse(response)
-  }
-
-  // People Management
-  async getPeople() {
-    const response = await fetch(`${API_BASE_URL}/api/people`, {
-      method: 'GET',
-      headers: getHeaders()
-    })
-    
-    if (response.status === 404) {
-      console.warn('People endpoint not found, returning mock data')
-      return [
-        {
-          id: '1',
-          name: 'Sarah Johnson',
-          email: 'sarah@example.com',
-          relationship: 'Sister',
-          birthday: '1990-05-15',
-          notes: 'Loves technology and coffee',
-          avatar: '/placeholder.svg'
-        },
-        {
-          id: '2',
-          name: 'Mike Chen',
-          email: 'mike@example.com',
-          relationship: 'Friend',
-          birthday: '1988-12-03',
-          notes: 'Into fitness and outdoor activities',
-          avatar: '/placeholder.svg'
-        },
-        {
-          id: '3',
-          name: 'Emma Davis',
-          email: 'emma@example.com',
-          relationship: 'Colleague',
-          birthday: '1992-08-22',
-          notes: 'Book lover and plant enthusiast',
-          avatar: '/placeholder.svg'
+    // Process requests in parallel with limit
+    const limit = 5;
+    for (let i = 0; i < batch.length; i += limit) {
+      const chunk = batch.slice(i, i + limit);
+      await Promise.allSettled(chunk.map(async ({ url, options, resolve, reject }) => {
+        try {
+          const response = await fetch(url, options);
+          resolve(response);
+        } catch (error) {
+          reject(error);
         }
-      ]
+      }));
     }
     
-    return handleResponse(response)
+    this.processing = false;
+  }
+}
+
+// Initialize cache and queue
+const apiCache = new ApiCache();
+const requestQueue = new RequestQueue();
+
+// Secure token management
+class TokenManager {
+  private readonly TOKEN_KEY = 'auth_token';
+  private readonly REFRESH_TOKEN_KEY = 'refresh_token';
+  
+  getToken(): string | null {
+    try {
+      return localStorage.getItem(this.TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  }
+  
+  setToken(token: string): void {
+    try {
+      localStorage.setItem(this.TOKEN_KEY, token);
+    } catch (error) {
+      console.error('Failed to store auth token:', error);
+    }
+  }
+  
+  getRefreshToken(): string | null {
+    try {
+      return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  }
+  
+  setRefreshToken(token: string): void {
+    try {
+      localStorage.setItem(this.REFRESH_TOKEN_KEY, token);
+    } catch (error) {
+      console.error('Failed to store refresh token:', error);
+    }
+  }
+  
+  clearTokens(): void {
+    try {
+      localStorage.removeItem(this.TOKEN_KEY);
+      localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    } catch (error) {
+      console.error('Failed to clear tokens:', error);
+    }
+  }
+  
+  isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
+  }
+}
+
+const tokenManager = new TokenManager();
+
+// Enhanced headers with better security
+const getHeaders = (): HeadersInit => {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'X-Client-Version': '1.0.0',
+  };
+
+  const authToken = tokenManager.getToken();
+  if (authToken && !tokenManager.isTokenExpired(authToken)) {
+    headers.Authorization = `Bearer ${authToken}`;
+  } else if (API_CONFIG.SUPABASE_ANON_KEY) {
+    headers.Authorization = `Bearer ${API_CONFIG.SUPABASE_ANON_KEY}`;
   }
 
-  async createPerson(personData: CreatePersonRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/people`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(personData)
-    })
-    return handleResponse(response)
+  return headers;
+};
+
+// Enhanced error handling
+const createApiError = async (response: Response): Promise<ApiError> => {
+  let errorData: { message?: string; code?: string; details?: Record<string, unknown> } = {};
+  
+  try {
+    const text = await response.text();
+    if (text) {
+      errorData = JSON.parse(text);
+    }
+  } catch {
+    // Failed to parse error response
   }
 
-  async updatePerson(personId: string, personData: UpdatePersonRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/people/${personId}`, {
-      method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify(personData)
-    })
-    return handleResponse(response)
+  const statusMessages: Record<number, string> = {
+    400: 'Bad Request',
+    401: 'Unauthorized',
+    403: 'Forbidden',
+    404: 'Not Found',
+    409: 'Conflict',
+    422: 'Validation Error',
+    429: 'Too Many Requests',
+    500: 'Internal Server Error',
+    502: 'Bad Gateway',
+    503: 'Service Unavailable',
+    504: 'Gateway Timeout',
+  };
+
+  return {
+    message: errorData.message || statusMessages[response.status] || `HTTP error! status: ${response.status}`,
+    code: errorData.code || `HTTP_${response.status}`,
+    status: response.status,
+    details: errorData.details,
+  };
+};
+
+// Enhanced response handler with better error handling
+const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> => {
+  if (!response.ok) {
+    const error = await createApiError(response);
+    throw error;
   }
 
-  async deletePerson(personId: string) {
-    const response = await fetch(`${API_BASE_URL}/api/people/${personId}`, {
-      method: 'DELETE',
-      headers: getHeaders()
-    })
-    return handleResponse(response)
+  try {
+    const data = await response.json();
+    return { data } as ApiResponse<T>;
+  } catch {
+    // Handle non-JSON responses
+    const text = await response.text();
+    return { data: text as T } as ApiResponse<T>;
+  }
+};
+
+// Retry mechanism with exponential backoff
+const retryRequest = async <T>(
+  fn: () => Promise<T>,
+  retries: number = API_CONFIG.RETRY_ATTEMPTS,
+  delay: number = API_CONFIG.RETRY_DELAY
+): Promise<T> => {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries <= 0) throw error;
+    
+    // Don't retry on 4xx errors (except 429)
+    if (error instanceof Error && 'status' in error) {
+      const status = (error as ApiError).status;
+      if (status >= 400 && status < 500 && status !== 429) {
+        throw error;
+      }
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, delay));
+    return retryRequest(fn, retries - 1, delay * 2);
+  }
+};
+
+// Enhanced fetch with timeout, caching, and retry
+const enhancedFetch = async <T>(
+  url: string,
+  options: RequestInit & RequestConfig = {}
+): Promise<ApiResponse<T>> => {
+  const {
+    timeout = API_CONFIG.TIMEOUT,
+    retries = API_CONFIG.RETRY_ATTEMPTS,
+    cache = false,
+    cacheTTL,
+    ...fetchOptions
+  } = options;
+
+  // Check cache first for GET requests
+  if (cache && (!fetchOptions.method || fetchOptions.method === 'GET')) {
+    const cacheKey = `${url}${fetchOptions.body ? `_${JSON.stringify(fetchOptions.body)}` : ''}`;
+    const cached = apiCache.get<T>(cacheKey);
+    if (cached) {
+      return { data: cached } as ApiResponse<T>;
+    }
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  const requestFn = async (): Promise<ApiResponse<T>> => {
+    try {
+      const response = await requestQueue.add(url, {
+        ...fetchOptions,
+        headers: {
+          ...getHeaders(),
+          ...fetchOptions.headers,
+        },
+        signal: controller.signal,
+      });
+
+      const result = await handleResponse<T>(response);
+
+      // Cache successful responses
+      if (cache && result.data && (!fetchOptions.method || fetchOptions.method === 'GET')) {
+        const cacheKey = `${url}${fetchOptions.body ? `_${JSON.stringify(fetchOptions.body)}` : ''}`;
+        apiCache.set(cacheKey, result.data, cacheTTL);
+      }
+
+      return result;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  };
+
+  return retryRequest(requestFn, retries);
+};
+
+// Performance monitoring
+class PerformanceMonitor {
+  private metrics = new Map<string, { count: number; totalTime: number; errors: number }>();
+
+  startRequest(endpoint: string): () => void {
+    const startTime = performance.now();
+    
+    return () => {
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      
+      const current = this.metrics.get(endpoint) || { count: 0, totalTime: 0, errors: 0 };
+      this.metrics.set(endpoint, {
+        count: current.count + 1,
+        totalTime: current.totalTime + duration,
+        errors: current.errors,
+      });
+    };
+  }
+
+  recordError(endpoint: string): void {
+    const current = this.metrics.get(endpoint) || { count: 0, totalTime: 0, errors: 0 };
+    this.metrics.set(endpoint, {
+      ...current,
+      errors: current.errors + 1,
+    });
+  }
+
+  getMetrics(): Record<string, { avgTime: number; successRate: number; totalRequests: number }> {
+    const result: Record<string, { avgTime: number; successRate: number; totalRequests: number }> = {};
+    
+    this.metrics.forEach((value, key) => {
+      result[key] = {
+        avgTime: value.count > 0 ? value.totalTime / value.count : 0,
+        successRate: value.count > 0 ? (value.count - value.errors) / value.count : 0,
+        totalRequests: value.count,
+      };
+    });
+    
+    return result;
+  }
+}
+
+const performanceMonitor = new PerformanceMonitor();
+
+// Enhanced API Service Class with comprehensive error handling and performance monitoring
+export class ApiService {
+  // Health Check with monitoring
+  async healthCheck(): Promise<{ status: string; timestamp: string; version?: string }> {
+    const endpoint = '/health';
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      const result = await enhancedFetch<{ status: string; timestamp: string; version?: string }>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        { 
+          method: 'GET',
+          cache: true,
+          cacheTTL: 30000, // 30 seconds
+        }
+      );
+      endTimer();
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      throw error;
+    }
+  }
+
+  // User Validation with token refresh
+  async validateUser(): Promise<{ user?: User; valid: boolean }> {
+    const endpoint = '/api/user/validate';
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      const result = await enhancedFetch<{ user?: User; valid: boolean }>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        { 
+          method: 'GET',
+          cache: true,
+          cacheTTL: 60000, // 1 minute
+        }
+      );
+      endTimer();
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      
+      // Handle token expiration
+      if ((error as ApiError).status === 401) {
+        await this.refreshToken();
+        // Retry once with new token
+        try {
+          const retryResult = await enhancedFetch<{ user?: User; valid: boolean }>(
+            `${API_CONFIG.BASE_URL}${endpoint}`,
+            { method: 'GET' }
+          );
+          return retryResult.data!;
+        } catch (retryError) {
+          tokenManager.clearTokens();
+          throw retryError;
+        }
+      }
+      
+      throw error;
+    }
+  }
+
+  // Token refresh mechanism
+  private async refreshToken(): Promise<void> {
+    const refreshToken = tokenManager.getRefreshToken();
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    try {
+      const result = await enhancedFetch<{ access_token: string; refresh_token?: string }>(
+        `${API_CONFIG.BASE_URL}/api/auth/refresh`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        }
+      );
+
+      if (result.data?.access_token) {
+        tokenManager.setToken(result.data.access_token);
+        if (result.data.refresh_token) {
+          tokenManager.setRefreshToken(result.data.refresh_token);
+        }
+      }
+    } catch (error) {
+      tokenManager.clearTokens();
+      throw error;
+    }
+  }
+
+  // Contact Form - Public endpoint with validation
+  async submitContact(data: { name: string; email: string; subject: string; message: string }): Promise<{ success: boolean; id?: string }> {
+    // Input validation
+    if (!data.name?.trim()) {
+      throw new Error('Name is required');
+    }
+    if (!data.email?.trim()) {
+      throw new Error('Email is required');
+    }
+    if (!data.subject?.trim()) {
+      throw new Error('Subject is required');
+    }
+    if (!data.message?.trim()) {
+      throw new Error('Message is required');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email.trim())) {
+      throw new Error('Please enter a valid email address');
+    }
+
+    const endpoint = '/api/contact';
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      const result = await enhancedFetch<{ success: boolean; id?: string }>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            name: data.name.trim(),
+            email: data.email.trim().toLowerCase(),
+            subject: data.subject.trim(),
+            message: data.message.trim(),
+          }),
+        }
+      );
+      
+      endTimer();
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      throw error;
+    }
+  }
+
+  // Test Endpoint for development
+  async testEndpoint(): Promise<{ message: string; timestamp: string; performance?: Record<string, unknown> }> {
+    const endpoint = '/test';
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      const result = await enhancedFetch<{ message: string; timestamp: string }>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        { 
+          method: 'GET',
+          cache: false, // Don't cache test endpoints
+        }
+      );
+      
+      endTimer();
+      
+      // Include performance metrics in development
+      if (import.meta.env.DEV) {
+        return {
+          ...result.data!,
+          performance: performanceMonitor.getMetrics(),
+        };
+      }
+      
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      throw error;
+    }
+  }
+
+  // Enhanced Authentication with input validation
+  async login(email: string, password: string): Promise<{ user: User; session: { access_token: string; refresh_token?: string } }> {
+    // Input validation
+    if (!email?.trim()) {
+      throw new Error('Email is required');
+    }
+    if (!password?.trim()) {
+      throw new Error('Password is required');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      throw new Error('Please enter a valid email address');
+    }
+
+    const endpoint = '/api/auth/login';
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      console.log('🔐 Attempting login for:', email.trim());
+      
+      const result = await enhancedFetch<{ user: User; session: { access_token: string; refresh_token?: string } }>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ 
+            email: email.trim().toLowerCase(), 
+            password 
+          }),
+        }
+      );
+      
+      endTimer();
+      
+      if (result.data?.session?.access_token) {
+        tokenManager.setToken(result.data.session.access_token);
+        if (result.data.session.refresh_token) {
+          tokenManager.setRefreshToken(result.data.session.refresh_token);
+        }
+      }
+      
+      console.log('✅ Login successful');
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      console.error('❌ Login failed:', error);
+      throw error;
+    }
+  }
+
+  async register(email: string, password: string, name: string): Promise<{ user: User; session: { access_token: string; refresh_token?: string } }> {
+    // Comprehensive input validation
+    if (!email?.trim()) {
+      throw new Error('Email is required');
+    }
+    if (!password?.trim()) {
+      throw new Error('Password is required');
+    }
+    if (!name?.trim()) {
+      throw new Error('Name is required');
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanName = name.trim();
+    
+    // Enhanced email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      throw new Error('Please enter a valid email address');
+    }
+
+    // Password strength validation
+    if (password.length < 8) {
+      throw new Error('Password must be at least 8 characters long');
+    }
+
+    // Name validation
+    if (cleanName.length < 2) {
+      throw new Error('Name must be at least 2 characters long');
+    }
+
+    const endpoint = '/api/auth/register';
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      console.log('📝 Attempting registration for:', cleanEmail);
+      
+      const result = await enhancedFetch<{ user: User; session: { access_token: string; refresh_token?: string } }>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ 
+            email: cleanEmail, 
+            password, 
+            name: cleanName 
+          }),
+        }
+      );
+      
+      endTimer();
+      
+      if (result.data?.session?.access_token) {
+        tokenManager.setToken(result.data.session.access_token);
+        if (result.data.session.refresh_token) {
+          tokenManager.setRefreshToken(result.data.session.refresh_token);
+        }
+      }
+      
+      console.log('✅ Registration successful');
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      console.error('❌ Registration failed:', error);
+      throw error;
+    }
+  }
+
+  async logout(): Promise<{ success: boolean }> {
+    const endpoint = '/api/auth/logout';
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      const result = await enhancedFetch<{ success: boolean }>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        { method: 'POST' }
+      );
+      
+      endTimer();
+      
+      // Clear tokens regardless of API response
+      tokenManager.clearTokens();
+      apiCache.clear();
+      
+      console.log('✅ Logout successful');
+      return result.data || { success: true };
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      
+      // Still clear tokens on error
+      tokenManager.clearTokens();
+      apiCache.clear();
+      
+      console.error('❌ Logout error (tokens cleared):', error);
+      return { success: true }; // Return success since tokens are cleared
+    }
+  }
+
+  // People Management with caching and fallback
+  async getPeople(): Promise<Person[]> {
+    const endpoint = '/api/people';
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      const result = await enhancedFetch<Person[]>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        { 
+          method: 'GET',
+          cache: true,
+          cacheTTL: 5 * 60 * 1000, // 5 minutes
+        }
+      );
+      
+      endTimer();
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      
+      // Provide fallback data for development
+      if ((error as ApiError).status === 404 && import.meta.env.DEV) {
+        console.warn('⚠️ People endpoint not found, returning mock data');
+        return [
+          {
+            id: '1',
+            name: 'Sarah Johnson',
+            email: 'sarah@example.com',
+            relationship: 'Sister',
+            birthday: '1990-05-15',
+            notes: 'Loves technology and coffee',
+            avatar: '/placeholder.svg',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '2',
+            name: 'Mike Chen',
+            email: 'mike@example.com',
+            relationship: 'Friend',
+            birthday: '1988-12-03',
+            notes: 'Into fitness and outdoor activities',
+            avatar: '/placeholder.svg',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '3',
+            name: 'Emma Davis',
+            email: 'emma@example.com',
+            relationship: 'Colleague',
+            birthday: '1992-08-22',
+            notes: 'Book lover and plant enthusiast',
+            avatar: '/placeholder.svg',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ];
+      }
+      
+      throw error;
+    }
+  }
+
+  async createPerson(personData: CreatePersonRequest): Promise<Person> {
+    // Input validation
+    if (!personData.name?.trim()) {
+      throw new Error('Name is required');
+    }
+    if (!personData.relationship?.trim()) {
+      throw new Error('Relationship is required');
+    }
+    if (personData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(personData.email.trim())) {
+      throw new Error('Please enter a valid email address');
+    }
+
+    const endpoint = '/api/people';
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      const result = await enhancedFetch<Person>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            ...personData,
+            name: personData.name.trim(),
+            relationship: personData.relationship.trim(),
+            email: personData.email?.trim().toLowerCase(),
+            notes: personData.notes?.trim(),
+          }),
+        }
+      );
+      
+      endTimer();
+      
+      // Clear people cache
+      apiCache.delete(`${API_CONFIG.BASE_URL}/api/people`);
+      
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      throw error;
+    }
+  }
+
+  async updatePerson(personId: string, personData: UpdatePersonRequest): Promise<Person> {
+    if (!personId?.trim()) {
+      throw new Error('Person ID is required');
+    }
+
+    // Validate email if provided
+    if (personData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(personData.email.trim())) {
+      throw new Error('Please enter a valid email address');
+    }
+
+    const endpoint = `/api/people/${personId}`;
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      const cleanData = {
+        ...personData,
+        ...(personData.name && { name: personData.name.trim() }),
+        ...(personData.relationship && { relationship: personData.relationship.trim() }),
+        ...(personData.email && { email: personData.email.trim().toLowerCase() }),
+        ...(personData.notes && { notes: personData.notes.trim() }),
+      };
+
+      const result = await enhancedFetch<Person>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(cleanData),
+        }
+      );
+      
+      endTimer();
+      
+      // Clear people cache
+      apiCache.delete(`${API_CONFIG.BASE_URL}/api/people`);
+      
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      throw error;
+    }
+  }
+
+  async deletePerson(personId: string): Promise<{ success: boolean }> {
+    if (!personId?.trim()) {
+      throw new Error('Person ID is required');
+    }
+
+    const endpoint = `/api/people/${personId}`;
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      const result = await enhancedFetch<{ success: boolean }>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        { method: 'DELETE' }
+      );
+      
+      endTimer();
+      
+      // Clear people cache
+      apiCache.delete(`${API_CONFIG.BASE_URL}/api/people`);
+      
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      throw error;
+    }
   }
 
   // Gift Management
@@ -854,53 +1554,154 @@ export class ApiService {
     return handleResponse(response)
   }
 
-  // Profile Management
-  async updateProfile(updates: Record<string, unknown>) {
-    console.log('🔄 API: updateProfile called with:', updates);
-    console.log('🔄 API: Headers being sent:', getHeaders());
-    console.log('🔄 API: Making request to:', `${API_BASE_URL}/api/profile`);
-    
-    const response = await fetch(`${API_BASE_URL}/api/profile`, {
-      method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify(updates)
-    })
-    
-    console.log('🔄 API: Response status:', response.status);
-    console.log('🔄 API: Response headers:', Object.fromEntries(response.headers.entries()));
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('🚨 API: Error response text:', errorText);
-      throw new Error(`Profile update failed: ${response.status} - ${errorText}`);
+  // Enhanced Profile Management
+  async updateProfile(updates: UpdateProfileRequest): Promise<User> {
+    // Input validation
+    if (!updates || Object.keys(updates).length === 0) {
+      throw new Error('Profile updates are required');
     }
+
+    if (updates.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updates.email.trim())) {
+      throw new Error('Please enter a valid email address');
+    }
+
+    if (updates.name && updates.name.trim().length < 2) {
+      throw new Error('Name must be at least 2 characters long');
+    }
+
+    const endpoint = '/api/profile';
+    const endTimer = performanceMonitor.startRequest(endpoint);
     
-    const result = await response.json();
-    console.log('✅ API: Profile update successful:', result);
-    return result;
+    try {
+      console.log('🔄 Updating profile...');
+      
+      const cleanUpdates = {
+        ...(updates.name && { name: updates.name.trim() }),
+        ...(updates.email && { email: updates.email.trim().toLowerCase() }),
+      };
+
+      const result = await enhancedFetch<User>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(cleanUpdates),
+        }
+      );
+      
+      endTimer();
+      
+      // Clear user validation cache
+      apiCache.delete(`${API_CONFIG.BASE_URL}/api/user/validate`);
+      
+      console.log('✅ Profile update successful');
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      console.error('❌ Profile update failed:', error);
+      throw error;
+    }
   }
 
-  async updatePreferences(preferences: UpdatePreferencesRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/preferences`, {
-      method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify(preferences)
-    })
-    return handleResponse(response)
+  async updatePreferences(preferences: UpdatePreferencesRequest): Promise<{ success: boolean; preferences: UpdatePreferencesRequest }> {
+    // Input validation
+    if (!preferences || Object.keys(preferences).length === 0) {
+      throw new Error('Preferences are required');
+    }
+
+    if (preferences.currency && !/^[A-Z]{3}$/.test(preferences.currency)) {
+      throw new Error('Currency must be a valid 3-letter code (e.g., USD, EUR)');
+    }
+
+    if (preferences.theme && !['light', 'dark', 'system'].includes(preferences.theme)) {
+      throw new Error('Theme must be light, dark, or system');
+    }
+
+    const endpoint = '/api/preferences';
+    const endTimer = performanceMonitor.startRequest(endpoint);
+    
+    try {
+      const result = await enhancedFetch<{ success: boolean; preferences: UpdatePreferencesRequest }>(
+        `${API_CONFIG.BASE_URL}${endpoint}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(preferences),
+        }
+      );
+      
+      endTimer();
+      
+      // Clear user validation cache
+      apiCache.delete(`${API_CONFIG.BASE_URL}/api/user/validate`);
+      
+      return result.data!;
+    } catch (error) {
+      performanceMonitor.recordError(endpoint);
+      endTimer();
+      throw error;
+    }
+  }
+
+  // Performance and debugging utilities
+  getPerformanceMetrics(): Record<string, { avgTime: number; successRate: number; totalRequests: number }> {
+    return performanceMonitor.getMetrics();
+  }
+
+  clearCache(): void {
+    apiCache.clear();
+  }
+
+  clearTokens(): void {
+    tokenManager.clearTokens();
   }
 
 }
 
+// Request/Response Logging Middleware (Development only)
+if (import.meta.env.DEV) {
+  const originalFetch = window.fetch;
+  window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input.toString();
+    const method = init?.method || 'GET';
+    
+    console.group(`🌐 API ${method} ${url}`);
+    console.log('Request:', { url, method, headers: init?.headers, body: init?.body });
+    
+    const startTime = performance.now();
+    try {
+      const response = await originalFetch(input, init);
+      const endTime = performance.now();
+      
+      console.log(`Response (${Math.round(endTime - startTime)}ms):`, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+      });
+      
+      console.groupEnd();
+      return response;
+    } catch (error) {
+      const endTime = performance.now();
+      console.error(`Error (${Math.round(endTime - startTime)}ms):`, error);
+      console.groupEnd();
+      throw error;
+    }
+  };
+}
+
 // Create and export the API service instance
-export const apiService = new ApiService()
+export const apiService = new ApiService();
 
 // Export individual functions for backward compatibility
+// Export individual methods for backward compatibility
 export const {
   healthCheck,
+  validateUser,
   testEndpoint,
   login,
   register,
   logout,
+  submitContact,
   getPeople,
   createPerson,
   updatePerson,
@@ -943,7 +1744,56 @@ export const {
   deleteReport,
   getInvoices,
   getUsage,
-  cancelSubscription
-} = apiService
+  cancelSubscription,
+  updateProfile,
+  updatePreferences,
+  getPerformanceMetrics,
+  clearCache,
+  clearTokens,
+} = apiService;
 
-export default apiService 
+// Type exports for consumers
+export type {
+  ApiResponse,
+  ApiError,
+  CreatePersonRequest,
+  UpdatePersonRequest,
+  CreateGiftRequest,
+  UpdateGiftRequest,
+  CreateOccasionRequest,
+  UpdateOccasionRequest,
+  CreateBudgetRequest,
+  UpdateBudgetRequest,
+  CreateExpenseRequest,
+  UpdateExpenseRequest,
+  CreateFamilyRequest,
+  UpdateFamilyRequest,
+  InviteFamilyMemberRequest,
+  AnalyticsFilters,
+  CreateReportRequest,
+  UpdatePreferencesRequest,
+  UpdateProfileRequest,
+};
+
+export default apiService;
+
+// Global error handler for unhandled API errors
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason && typeof event.reason === 'object' && 'status' in event.reason) {
+    const apiError = event.reason as ApiError;
+    console.error('Unhandled API Error:', {
+      message: apiError.message,
+      code: apiError.code,
+      status: apiError.status,
+      details: apiError.details,
+    });
+    
+    // Handle specific error codes globally
+    if (apiError.status === 401) {
+      // Redirect to login on unauthorized
+      console.warn('Unauthorized access detected, clearing tokens');
+      tokenManager.clearTokens();
+      apiCache.clear();
+    }
+  }
+}); 

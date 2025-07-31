@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { apiService } from '@/services/api'
+import type { ApiError } from '@/types/api'
+import { isApiError, getErrorMessage } from '@/utils/api-helpers'
 
 interface User {
   id: string
@@ -61,22 +63,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       console.log('🚀 Attempting login with:', email)
       const response = await apiService.login(email, password)
-      console.log('📨 Login response:', response)
+      console.log('📨 Login response received')
       
       if (response.user) {
         console.log('✅ User data received, setting user state')
         setUser(response.user)
-        localStorage.setItem('authToken', response.session?.access_token || '')
+        // Token management is handled by the API service now
         localStorage.setItem('user', JSON.stringify(response.user))
         console.log('💾 User data saved to localStorage')
-        console.log('👤 User set successfully:', response.user)
+        console.log('👤 User set successfully:', response.user.name)
       } else {
         console.log('❌ No user data in response')
         throw new Error('Login failed - no user data received')
       }
     } catch (err: unknown) {
       console.error('🚨 Login error:', err)
-      setError(err instanceof Error ? err.message : 'Login failed')
+      const errorMessage = getErrorMessage(err)
+      setError(errorMessage)
       throw err
     } finally {
       console.log('🏁 Login process complete, setting isLoading to false')
@@ -93,13 +96,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (response.user) {
         setUser(response.user)
-        localStorage.setItem('authToken', response.session?.access_token || '')
+        // Token management is handled by the API service now
         localStorage.setItem('user', JSON.stringify(response.user))
+        console.log('✅ Registration successful for:', response.user.name)
       } else {
         throw new Error('Registration failed - no user data received')
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Registration failed')
+      const errorMessage = getErrorMessage(err)
+      setError(errorMessage)
       throw err
     } finally {
       setIsLoading(false)
@@ -112,12 +117,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(null)
       
       await apiService.logout()
+      console.log('✅ Logout successful')
     } catch (err: unknown) {
-      console.error('Logout error:', err)
+      console.error('❌ Logout error (continuing anyway):', err)
     } finally {
       setUser(null)
-      localStorage.removeItem('authToken')
       localStorage.removeItem('user')
+      // Token clearing is handled by the API service
       setIsLoading(false)
     }
   }
@@ -128,40 +134,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         console.log('🔍 Checking authentication...')
         const storedUser = localStorage.getItem('user')
-        const token = localStorage.getItem('authToken')
         
-        console.log('📦 Stored user:', storedUser)
-        console.log('🔑 Stored token:', token ? 'exists' : 'missing')
+        console.log('📦 Stored user:', storedUser ? 'exists' : 'missing')
         
-        if (storedUser && token) {
-          // Validate token with server
+        if (storedUser) {
           try {
+            const userData = JSON.parse(storedUser)
+            
+            // Validate token with server
             console.log('🔐 Validating token with server...')
             const response = await apiService.validateUser()
-            console.log('✅ Token validation successful:', response)
+            console.log('✅ Token validation successful')
             
             if (response.user) {
-              const userData = response.user
-              console.log('✅ Setting user from server validation:', userData)
-              setUser(userData)
+              console.log('✅ Setting user from server validation')
+              setUser(response.user)
               // Update localStorage with fresh user data
-              localStorage.setItem('user', JSON.stringify(userData))
+              localStorage.setItem('user', JSON.stringify(response.user))
+            } else if (response.valid) {
+              // Token is valid but no user data returned, use stored data
+              console.log('✅ Token valid, using stored user data')
+              setUser(userData)
             } else {
-              throw new Error('No user data in validation response')
+              throw new Error('Token validation failed')
             }
           } catch (validationError) {
             console.log('❌ Token validation failed:', validationError)
             
-            // If it's a 404, the endpoint might not be deployed properly
-            // For now, let's be more lenient and keep the user logged in if we have stored data
-            if (validationError instanceof Error && validationError.message.includes('404')) {
+            // Check if it's a network/endpoint error vs auth error
+            if (isApiError(validationError) && validationError.status === 404) {
               console.log('⚠️ Validation endpoint not found (404), using stored user data')
-              setUser(storedUser)
-            } else {
-              console.log('❌ Token validation failed, clearing auth data')
-              localStorage.removeItem('authToken')
+              const userData = JSON.parse(storedUser)
+              setUser(userData)
+            } else if (isApiError(validationError) && validationError.status === 401) {
+              console.log('❌ Authentication expired, clearing data')
+              apiService.clearTokens()
               localStorage.removeItem('user')
               setUser(null)
+            } else {
+              console.log('⚠️ Network error during validation, using stored data temporarily')
+              const userData = JSON.parse(storedUser)
+              setUser(userData)
             }
           }
         } else {
@@ -170,7 +183,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       } catch (err) {
         console.error('🚨 Auth check error:', err)
-        localStorage.removeItem('authToken')
+        apiService.clearTokens()
         localStorage.removeItem('user')
         setUser(null)
       } finally {
