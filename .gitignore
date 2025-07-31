@@ -110,3 +110,4 @@ workbox-*.js
 
 # Claude development configuration
 .claude/
+server/dev.db
