@@ -14,13 +14,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(() => {
-    const path = location.pathname.split('/')[1] || 'dashboard';
-    return path;
+    const pathParts = location.pathname.split('/').filter(p => p);
+    // Handle /app/dashboard pattern
+    if (pathParts[0] === 'app' && pathParts[1]) {
+      return pathParts[1];
+    }
+    // Handle direct /dashboard pattern
+    return pathParts[0] || 'dashboard';
   });
 
   const handlePageChange = (page: string) => {
     setCurrentPage(page);
-    navigate(`/${page}`);
+    // Ensure consistent routing with /app prefix for protected routes
+    if (page === 'dashboard' || page === 'gifts' || page === 'people' || page === 'occasions' || page === 'search') {
+      navigate(`/app/${page}`);
+    } else {
+      navigate(`/${page}`);
+    }
   };
 
   if (isMobile) {

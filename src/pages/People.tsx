@@ -80,21 +80,58 @@ const People = () => {
     }
   };
 
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validateForm = (data: typeof formData) => {
+    const errors: Record<string, string> = {};
+    
+    if (!data.name.trim()) {
+      errors.name = 'Name is required';
+    } else if (data.name.trim().length < 2) {
+      errors.name = 'Name must be at least 2 characters';
+    }
+    
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    if (!data.relationship) {
+      errors.relationship = 'Relationship is required';
+    }
+    
+    return errors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const errors = validateForm(formData);
+    setFormErrors(errors);
+    
+    if (Object.keys(errors).length > 0) {
+      toast({
+        title: "Please fix the errors",
+        description: "Check the highlighted fields and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
     
     try {
       if (editingPerson) {
         await apiService.updatePerson(editingPerson.id, formData);
         toast({
           title: "Success",
-          description: "Person updated successfully.",
+          description: `${formData.name} has been updated successfully.`,
         });
       } else {
         await apiService.createPerson(formData);
         toast({
           title: "Success",
-          description: "Person added successfully.",
+          description: `${formData.name} has been added to your people list.`,
         });
       }
       
@@ -103,11 +140,14 @@ const People = () => {
       resetForm();
       loadPeople();
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save person';
       toast({
         title: "Error",
-        description: "Failed to save person. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -150,6 +190,7 @@ const People = () => {
       birthday: '',
       notes: ''
     });
+    setFormErrors({});
   };
 
   const filteredPeople = people.filter(person => {
@@ -210,9 +251,37 @@ const People = () => {
 
           {/* People Grid */}
           {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">Loading people...</p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-2">
+                        <div className="h-5 bg-gray-200 rounded w-24"></div>
+                        <div className="h-4 bg-gray-200 rounded w-32"></div>
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                        <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-5 bg-gray-200 rounded w-16"></div>
+                      <div className="h-5 bg-gray-200 rounded w-12"></div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="flex gap-2">
+                        <div className="h-8 bg-gray-200 rounded flex-1"></div>
+                        <div className="h-8 bg-gray-200 rounded flex-1"></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           ) : filteredPeople.length === 0 ? (
             <Card>
@@ -316,10 +385,19 @@ const People = () => {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, name: e.target.value });
+                    if (formErrors.name) {
+                      setFormErrors(prev => ({ ...prev, name: '' }));
+                    }
+                  }}
                   placeholder="Enter full name"
+                  className={formErrors.name ? 'border-red-500' : ''}
                   required
                 />
+                {formErrors.name && (
+                  <p className="text-sm text-red-500">{formErrors.name}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -327,17 +405,34 @@ const People = () => {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    if (formErrors.email) {
+                      setFormErrors(prev => ({ ...prev, email: '' }));
+                    }
+                  }}
                   placeholder="email@example.com"
+                  className={formErrors.email ? 'border-red-500' : ''}
                 />
+                {formErrors.email && (
+                  <p className="text-sm text-red-500">{formErrors.email}</p>
+                )}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="relationship">Relationship *</Label>
-                <Select value={formData.relationship} onValueChange={(value) => setFormData({ ...formData, relationship: value })}>
-                  <SelectTrigger>
+                <Select 
+                  value={formData.relationship} 
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, relationship: value });
+                    if (formErrors.relationship) {
+                      setFormErrors(prev => ({ ...prev, relationship: '' }));
+                    }
+                  }}
+                >
+                  <SelectTrigger className={formErrors.relationship ? 'border-red-500' : ''}>
                     <SelectValue placeholder="Select relationship" />
                   </SelectTrigger>
                   <SelectContent>
@@ -348,6 +443,9 @@ const People = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                {formErrors.relationship && (
+                  <p className="text-sm text-red-500">{formErrors.relationship}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="birthday">Birthday</Label>
@@ -378,8 +476,15 @@ const People = () => {
               }}>
                 Cancel
               </Button>
-              <Button type="submit">
-                {editingPerson ? 'Update Person' : 'Add Person'}
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    {editingPerson ? 'Updating...' : 'Adding...'}
+                  </>
+                ) : (
+                  editingPerson ? 'Update Person' : 'Add Person'
+                )}
               </Button>
             </DialogFooter>
           </form>

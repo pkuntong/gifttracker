@@ -107,3 +107,6 @@ server/.env
 sw.js
 workbox-*.js
 .vercel
+
+# Claude development configuration
+.claude/

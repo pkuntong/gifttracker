@@ -28,8 +28,8 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
     { id: 'dashboard', icon: Home, label: t('nav.dashboard') },
     { id: 'gifts', icon: Gift, label: t('nav.gifts') },
     { id: 'people', icon: Users, label: t('nav.people') },
-    { id: 'occasions', icon: Calendar, label: t('nav.occasions') },
-    { id: 'analytics', icon: BarChart3, label: t('nav.analytics') },
+    { id: 'search', icon: Search, label: t('nav.search') },
+    { id: 'more', icon: Bell, label: 'More', isMenu: true },
   ];
 
   return (

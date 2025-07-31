@@ -88,9 +88,9 @@ const GiftIdeasPage: React.FC = () => {
         apiService.getPeople(),
         apiService.getOccasions(),
       ]);
-      setGiftIdeas(ideasData || []);
-      setPeople(peopleData || []);
-      setOccasions(occasionsData || []);
+      setGiftIdeas(Array.isArray(ideasData) ? ideasData : []);
+      setPeople(Array.isArray(peopleData) ? peopleData : []);
+      setOccasions(Array.isArray(occasionsData) ? occasionsData : []);
     } catch (error) {
       console.error('Error loading gift ideas:', error);
       // Set default empty arrays to prevent map errors
@@ -259,93 +259,117 @@ const GiftIdeasPage: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filters & Recommendations
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <Label>Recipient</Label>
-              <Select value={selectedPerson} onValueChange={setSelectedPerson}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select recipient" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Recipients</SelectItem>
-                  {(people || []).map((person) => (
-                    <SelectItem key={person.id} value={person.id}>
-                      {person.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Occasion</Label>
-              <Select value={selectedOccasion} onValueChange={setSelectedOccasion}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select occasion" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Occasions</SelectItem>
-                  {(occasions || []).map((occasion) => (
-                    <SelectItem key={occasion.id} value={occasion.id}>
-                      {occasion.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Category</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="electronics">Electronics</SelectItem>
-                  <SelectItem value="clothing">Clothing</SelectItem>
-                  <SelectItem value="books">Books</SelectItem>
-                  <SelectItem value="home">Home & Garden</SelectItem>
-                  <SelectItem value="sports">Sports & Outdoors</SelectItem>
-                  <SelectItem value="toys">Toys & Games</SelectItem>
-                  <SelectItem value="jewelry">Jewelry</SelectItem>
-                  <SelectItem value="food">Food & Beverages</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Price Range: ${priceRange[0]} - ${priceRange[1]}</Label>
-              <Slider
-                value={priceRange}
-                onValueChange={setPriceRange}
-                max={1000}
-                min={0}
-                step={10}
-                className="mt-2"
-              />
-            </div>
+      {/* Simplified Search and Quick Actions */}
+      <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search for gift ideas, recipients, or occasions..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-12 text-base"
+            />
           </div>
-          <div className="flex items-center gap-4 mt-4">
-            <div className="flex-1">
-              <Label>Search</Label>
-              <Input
-                placeholder="Search gift ideas..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="mt-1"
-              />
-            </div>
-            <Button onClick={handleGetRecommendations} className="mt-6">
-              <Target className="mr-2 h-4 w-4" />
-              Smart Ideas
-            </Button>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleGetRecommendations} 
+            size="lg"
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            Get Smart Ideas
+          </Button>
+          <Button onClick={() => setShowAddIdea(true)} variant="outline" size="lg">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Idea
+          </Button>
+        </div>
+      </div>
+
+      {/* Quick Filters */}
+      <Card className="border-dashed">
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap gap-2">
+            <Badge 
+              variant={selectedPerson === 'all' ? 'outline' : 'default'} 
+              className="cursor-pointer"
+              onClick={() => setSelectedPerson('all')}
+            >
+              All Recipients
+            </Badge>
+            {(people || []).slice(0, 4).map((person) => (
+              <Badge 
+                key={person.id}
+                variant={selectedPerson === person.id ? 'default' : 'outline'} 
+                className="cursor-pointer"
+                onClick={() => setSelectedPerson(person.id)}
+              >
+                {person.name}
+              </Badge>
+            ))}
+            <Badge 
+              variant={category === 'all' ? 'outline' : 'secondary'} 
+              className="cursor-pointer"
+              onClick={() => setCategory('all')}
+            >
+              All Categories
+            </Badge>
+            {['electronics', 'clothing', 'books', 'home'].map((cat) => (
+              <Badge 
+                key={cat}
+                variant={category === cat ? 'secondary' : 'outline'} 
+                className="cursor-pointer"
+                onClick={() => setCategory(cat)}
+              >
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </Badge>
+            ))}
+            {priceRange[0] > 0 || priceRange[1] < 1000 ? (
+              <Badge 
+                variant="destructive" 
+                className="cursor-pointer"
+                onClick={() => setPriceRange([0, 1000])}
+              >
+                ${priceRange[0]} - ${priceRange[1]} ✕
+              </Badge>
+            ) : null}
           </div>
+          <details className="mt-4">
+            <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+              More filters
+            </summary>
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label className="text-xs">Price Range: ${priceRange[0]} - ${priceRange[1]}</Label>
+                <Slider
+                  value={priceRange}
+                  onValueChange={setPriceRange}
+                  max={1000}
+                  min={0}
+                  step={10}
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Occasion</Label>
+                <Select value={selectedOccasion} onValueChange={setSelectedOccasion}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Any occasion" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Occasions</SelectItem>
+                    {(occasions || []).map((occasion) => (
+                      <SelectItem key={occasion.id} value={occasion.id}>
+                        {occasion.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </details>
         </CardContent>
       </Card>
 

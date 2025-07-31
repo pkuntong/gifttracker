@@ -18,7 +18,7 @@ import {
   Sparkles,
   Target
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiService } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { useMobile } from '@/hooks/use-mobile';
@@ -45,6 +45,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { isMobile } = useMobile();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadDashboardData();
@@ -123,12 +124,22 @@ const Dashboard: React.FC = () => {
     <div className="min-h-screen bg-background">
       
       {/* Header */}
-      <div className="p-6 border-b">
+      <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-purple-50">
         <div className="flex items-center justify-between">
           <div className="text-left">
-            <h1 className="text-3xl font-bold text-left">Dashboard</h1>
-            <p className="text-muted-foreground text-left">Welcome to your gift tracking dashboard</p>
+            <h1 className="text-3xl font-bold text-left">Welcome back!</h1>
+            <p className="text-muted-foreground text-left">
+              {stats.upcomingGifts > 0 
+                ? `You have ${stats.upcomingGifts} upcoming gifts to plan`
+                : "Ready to plan some thoughtful gifts?"
+              }
+            </p>
           </div>
+          {stats.upcomingGifts > 0 && (
+            <Badge variant="destructive" className="px-3 py-1">
+              {stats.upcomingGifts} urgent
+            </Badge>
+          )}
         </div>
       </div>
 
@@ -136,57 +147,79 @@ const Dashboard: React.FC = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-6">
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Gifts</CardTitle>
-            <Gift className="h-4 w-4 text-muted-foreground" />
+      {/* Priority Actions - Only show if user needs to take action */}
+      {stats.upcomingGifts > 0 && (
+        <Card className="border-l-4 border-l-red-500 bg-red-50">
+          <CardHeader>
+            <CardTitle className="text-red-800 flex items-center gap-2">
+              <Bell className="h-5 w-5" />
+              Action Required
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalGifts}</div>
-            <p className="text-xs text-muted-foreground">
-              +2 from last month
+            <p className="text-red-700 mb-4">
+              You have {stats.upcomingGifts} gifts to plan for upcoming occasions. 
+              Don't wait until the last minute!
             </p>
+            <div className="flex gap-2">
+              <Button asChild>
+                <Link to="/app/gifts">Plan Gifts Now</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/app/occasions">View Occasions</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Simplified Stats Overview - Only most important metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/app/gifts')}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-bold">{stats.totalGifts}</div>
+                <p className="text-sm text-muted-foreground">Gifts Tracked</p>
+              </div>
+              <Gift className="h-8 w-8 text-blue-500" />
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">People</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalPeople}</div>
-            <p className="text-xs text-muted-foreground">
-              +1 from last month
-            </p>
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/app/people')}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-bold">{stats.totalPeople}</div>
+                <p className="text-sm text-muted-foreground">People</p>
+              </div>
+              <Users className="h-8 w-8 text-green-500" />
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Occasions</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalOccasions}</div>
-            <p className="text-xs text-muted-foreground">
-              +3 from last month
-            </p>
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/app/budgets')}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-bold">${stats.totalBudget}</div>
+                <p className="text-sm text-muted-foreground">Budget Set</p>
+              </div>
+              <DollarSign className="h-8 w-8 text-purple-500" />
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Gifts</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.upcomingGifts}</div>
-            <p className="text-xs text-muted-foreground">
-              Next 30 days
-            </p>
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/app/occasions')}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-bold">{stats.totalOccasions}</div>
+                <p className="text-sm text-muted-foreground">Occasions</p>
+              </div>
+              <Calendar className="h-8 w-8 text-orange-500" />
+            </div>
           </CardContent>
         </Card>
       </div>

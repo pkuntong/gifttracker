@@ -47,10 +47,7 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   handleGoHome = () => {
-    // Use React Router navigation instead of window.location
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
-    window.history.pushState({}, '', '/');
-    window.dispatchEvent(new PopStateEvent('popstate'));
+    window.location.href = '/';
   };
 
   render() {

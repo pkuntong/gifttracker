@@ -1025,7 +1025,7 @@ export class ApiService {
 
   // Gift Management
   async getGifts() {
-    const response = await fetch(`${API_BASE_URL}/api/gifts`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/gifts`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -1033,7 +1033,7 @@ export class ApiService {
   }
 
   async createGift(giftData: CreateGiftRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/gifts`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/gifts`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(giftData)
@@ -1042,7 +1042,7 @@ export class ApiService {
   }
 
   async updateGift(giftId: string, giftData: UpdateGiftRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/gifts/${giftId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/gifts/${giftId}`, {
       method: 'PUT',
       headers: getHeaders(),
       body: JSON.stringify(giftData)
@@ -1051,7 +1051,7 @@ export class ApiService {
   }
 
   async deleteGift(giftId: string) {
-    const response = await fetch(`${API_BASE_URL}/api/gifts/${giftId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/gifts/${giftId}`, {
       method: 'DELETE',
       headers: getHeaders()
     })
@@ -1060,7 +1060,7 @@ export class ApiService {
 
   // Occasion Management
   async getOccasions() {
-    const response = await fetch(`${API_BASE_URL}/api/occasions`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/occasions`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -1100,7 +1100,7 @@ export class ApiService {
   }
 
   async createOccasion(occasionData: CreateOccasionRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/occasions`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/occasions`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(occasionData)
@@ -1109,7 +1109,7 @@ export class ApiService {
   }
 
   async updateOccasion(occasionId: string, occasionData: UpdateOccasionRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/occasions/${occasionId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/occasions/${occasionId}`, {
       method: 'PUT',
       headers: getHeaders(),
       body: JSON.stringify(occasionData)
@@ -1118,7 +1118,7 @@ export class ApiService {
   }
 
   async deleteOccasion(occasionId: string) {
-    const response = await fetch(`${API_BASE_URL}/occasions/${occasionId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/occasions/${occasionId}`, {
       method: 'DELETE',
       headers: getHeaders()
     })
@@ -1127,7 +1127,7 @@ export class ApiService {
 
   // Budget Management
   async getBudgets() {
-    const response = await fetch(`${API_BASE_URL}/api/budgets`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/budgets`, {
       headers: getHeaders()
     })
     
@@ -1165,7 +1165,7 @@ export class ApiService {
   }
 
   async createBudget(budgetData: CreateBudgetRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/budgets`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/budgets`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(budgetData)
@@ -1174,7 +1174,7 @@ export class ApiService {
   }
 
   async updateBudget(budgetId: string, budgetData: UpdateBudgetRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/budgets/${budgetId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/budgets/${budgetId}`, {
       method: 'PUT',
       headers: getHeaders(),
       body: JSON.stringify(budgetData)
@@ -1183,7 +1183,7 @@ export class ApiService {
   }
 
   async deleteBudget(budgetId: string) {
-    const response = await fetch(`${API_BASE_URL}/api/budgets/${budgetId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/budgets/${budgetId}`, {
       method: 'DELETE',
       headers: getHeaders()
     })
@@ -1192,7 +1192,7 @@ export class ApiService {
 
   // Expenses
   async getExpenses() {
-    const response = await fetch(`${API_BASE_URL}/api/expenses`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/expenses`, {
       headers: getHeaders()
     })
     
@@ -1226,7 +1226,7 @@ export class ApiService {
   }
 
   async createExpense(expenseData: CreateExpenseRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/expenses`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/expenses`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(expenseData)
@@ -1235,7 +1235,7 @@ export class ApiService {
   }
 
   async updateExpense(expenseId: string, expenseData: UpdateExpenseRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/expenses/${expenseId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/expenses/${expenseId}`, {
       method: 'PUT',
       headers: getHeaders(),
       body: JSON.stringify(expenseData)
@@ -1244,7 +1244,7 @@ export class ApiService {
   }
 
   async deleteExpense(expenseId: string) {
-    const response = await fetch(`${API_BASE_URL}/api/expenses/${expenseId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/expenses/${expenseId}`, {
       method: 'DELETE',
       headers: getHeaders()
     })
@@ -1253,7 +1253,7 @@ export class ApiService {
 
   // Financial Insights
   async getFinancialInsights() {
-    const response = await fetch(`${API_BASE_URL}/api/financial-insights`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/financial-insights`, {
       headers: getHeaders()
     })
     
@@ -1288,7 +1288,7 @@ export class ApiService {
 
   // Family Management
   async getFamilies() {
-    const response = await fetch(`${API_BASE_URL}/api/families`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/families`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -1296,7 +1296,7 @@ export class ApiService {
   }
 
   async createFamily(familyData: CreateFamilyRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/families`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/families`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(familyData)
@@ -1305,7 +1305,7 @@ export class ApiService {
   }
 
   async updateFamily(familyId: string, familyData: UpdateFamilyRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/families/${familyId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/families/${familyId}`, {
       method: 'PUT',
       headers: getHeaders(),
       body: JSON.stringify(familyData)
@@ -1314,7 +1314,7 @@ export class ApiService {
   }
 
   async deleteFamily(familyId: string) {
-    const response = await fetch(`${API_BASE_URL}/api/families/${familyId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/families/${familyId}`, {
       method: 'DELETE',
       headers: getHeaders()
     })
@@ -1322,7 +1322,7 @@ export class ApiService {
   }
 
   async inviteFamilyMember(familyId: string, memberData: InviteFamilyMemberRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/families/${familyId}/members`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/families/${familyId}/members`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(memberData)
@@ -1331,7 +1331,7 @@ export class ApiService {
   }
 
   async removeFamilyMember(familyId: string, memberId: string) {
-    const response = await fetch(`${API_BASE_URL}/api/families/${familyId}/members/${memberId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/families/${familyId}/members/${memberId}`, {
       method: 'DELETE',
       headers: getHeaders()
     })
@@ -1341,7 +1341,7 @@ export class ApiService {
   // Analytics
   async getAnalytics(filters?: AnalyticsFilters) {
     const queryParams = filters ? `?${new URLSearchParams(filters).toString()}` : '';
-    const response = await fetch(`${API_BASE_URL}/api/analytics${queryParams}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/analytics${queryParams}`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -1350,7 +1350,7 @@ export class ApiService {
 
   // Search
   async search(query: string, type?: string) {
-    const response = await fetch(`${API_BASE_URL}/api/search`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/search`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ query, type })
@@ -1360,7 +1360,7 @@ export class ApiService {
 
   // Gift Recommendations
   async getRecommendations(personId: string, occasion: string, budget?: number, interests?: string[]) {
-    const response = await fetch(`${API_BASE_URL}/api/recommendations`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/recommendations`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ personId, occasion, budget, interests })
@@ -1370,7 +1370,7 @@ export class ApiService {
 
   // Reminders
   async getReminders() {
-    const response = await fetch(`${API_BASE_URL}/api/reminders`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/reminders`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -1379,7 +1379,7 @@ export class ApiService {
 
   // Data Export
   async exportData(format: 'json' | 'csv' = 'json') {
-    const response = await fetch(`${API_BASE_URL}/api/export?format=${format}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/export?format=${format}`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -1392,7 +1392,7 @@ export class ApiService {
 
   // Data Import
   async importData(data: ImportData, overwrite: boolean = false) {
-    const response = await fetch(`${API_BASE_URL}/api/import`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/import`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ data, overwrite })
@@ -1402,7 +1402,7 @@ export class ApiService {
 
   // Gift Preferences
   async getGiftPreferences(personId: string) {
-    const response = await fetch(`${API_BASE_URL}/api/preferences/${personId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/preferences/${personId}`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -1413,7 +1413,7 @@ export class ApiService {
   async getGiftIdeas(filters?: { budget?: number; interests?: string[]; occasion?: string; personId?: string }) {
     try {
       const queryParams = filters ? `?${new URLSearchParams(filters as Record<string, string>).toString()}` : '';
-      const response = await fetch(`${API_BASE_URL}/api/gift-ideas${queryParams}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/gift-ideas${queryParams}`, {
         method: 'GET',
         headers: getHeaders()
       })
@@ -1464,7 +1464,7 @@ export class ApiService {
 
   async createGiftIdea(ideaData: { name: string; description: string; price: number; category: string; tags: string[] }) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/gift-ideas`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/gift-ideas`, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify(ideaData)
@@ -1497,7 +1497,7 @@ export class ApiService {
 
   // Reports
   async getReports() {
-    const response = await fetch(`${API_BASE_URL}/api/reports`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/reports`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -1505,7 +1505,7 @@ export class ApiService {
   }
 
   async createReport(reportData: CreateReportRequest) {
-    const response = await fetch(`${API_BASE_URL}/api/reports`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/reports`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(reportData)
@@ -1514,7 +1514,7 @@ export class ApiService {
   }
 
   async exportReport(reportId: string, format: 'pdf' | 'csv' | 'json') {
-    const response = await fetch(`${API_BASE_URL}/api/reports/${reportId}/export?format=${format}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/reports/${reportId}/export?format=${format}`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -1522,7 +1522,7 @@ export class ApiService {
   }
 
   async deleteReport(reportId: string) {
-    const response = await fetch(`${API_BASE_URL}/api/reports/${reportId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/reports/${reportId}`, {
       method: 'DELETE',
       headers: getHeaders()
     })
@@ -1531,7 +1531,7 @@ export class ApiService {
 
   // Billing & Invoices
   async getInvoices() {
-    const response = await fetch(`${API_BASE_URL}/api/invoices`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/invoices`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -1539,7 +1539,7 @@ export class ApiService {
   }
 
   async getUsage() {
-    const response = await fetch(`${API_BASE_URL}/api/usage`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/usage`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -1547,7 +1547,7 @@ export class ApiService {
   }
 
   async cancelSubscription(subscriptionId: string) {
-    const response = await fetch(`${API_BASE_URL}/api/subscriptions/${subscriptionId}/cancel`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/subscriptions/${subscriptionId}/cancel`, {
       method: 'POST',
       headers: getHeaders()
     })
