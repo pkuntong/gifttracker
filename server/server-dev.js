@@ -129,6 +129,82 @@ const initDatabase = () => {
         FOREIGN KEY (user_id) REFERENCES users (id)
       )`);
 
+      // Gift preferences table
+      db.run(`CREATE TABLE IF NOT EXISTS gift_preferences (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        person_id TEXT NOT NULL,
+        interests TEXT DEFAULT '[]',
+        hobbies TEXT DEFAULT '[]',
+        favorite_categories TEXT DEFAULT '[]',
+        price_range TEXT DEFAULT '{}',
+        preferred_stores TEXT DEFAULT '[]',
+        allergies TEXT DEFAULT '[]',
+        dislikes TEXT DEFAULT '[]',
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (person_id) REFERENCES people (id)
+      )`);
+
+      // Reports table
+      db.run(`CREATE TABLE IF NOT EXISTS reports (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        filters TEXT DEFAULT '{}',
+        frequency TEXT DEFAULT 'manual',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+      )`);
+
+      // Reminders table
+      db.run(`CREATE TABLE IF NOT EXISTS reminders (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        date TEXT NOT NULL,
+        type TEXT DEFAULT 'general',
+        person_id TEXT,
+        occasion_id TEXT,
+        status TEXT DEFAULT 'active',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (person_id) REFERENCES people (id),
+        FOREIGN KEY (occasion_id) REFERENCES occasions (id)
+      )`);
+
+      // Gift ideas table
+      db.run(`CREATE TABLE IF NOT EXISTS gift_ideas (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        category TEXT,
+        price_range TEXT DEFAULT '{}',
+        tags TEXT DEFAULT '[]',
+        source TEXT,
+        url TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+      )`);
+
+      // Wishlists table
+      db.run(`CREATE TABLE IF NOT EXISTS wishlists (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT,
+        person_id TEXT,
+        occasion TEXT,
+        privacy TEXT DEFAULT 'private',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (person_id) REFERENCES people (id)
+      )`);
+
       console.log('✅ Database initialized successfully');
       resolve();
     });
@@ -375,6 +451,48 @@ initDatabase().then(() => {
     }
   });
 
+  app.put('/api/people/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, email, relationship, birthday, notes, avatar, familyId } = req.body;
+      
+      await runQueryInsert(
+        'UPDATE people SET name = ?, email = ?, relationship = ?, birthday = ?, notes = ?, avatar = ?, family_id = ? WHERE id = ? AND user_id = ?',
+        [name, email, relationship, birthday, notes, avatar, familyId, id, req.user.userId]
+      );
+
+      const updatedPerson = await runQuerySingle(
+        'SELECT * FROM people WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+
+      if (!updatedPerson) {
+        return res.status(404).json({ message: 'Person not found' });
+      }
+
+      res.json(updatedPerson);
+    } catch (error) {
+      console.error('Update person error:', error);
+      res.status(500).json({ message: 'Failed to update person' });
+    }
+  });
+
+  app.delete('/api/people/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      await runQueryInsert(
+        'DELETE FROM people WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+
+      res.json({ message: 'Person deleted successfully' });
+    } catch (error) {
+      console.error('Delete person error:', error);
+      res.status(500).json({ message: 'Failed to delete person' });
+    }
+  });
+
   // Gifts routes
   app.get('/api/gifts', authenticateToken, async (req, res) => {
     try {
@@ -411,6 +529,48 @@ initDatabase().then(() => {
     }
   });
 
+  app.put('/api/gifts/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, description, price, currency, status, recipientId, occasionId, notes } = req.body;
+      
+      await runQueryInsert(
+        'UPDATE gifts SET name = ?, description = ?, price = ?, currency = ?, status = ?, recipient_id = ?, occasion_id = ?, notes = ? WHERE id = ? AND user_id = ?',
+        [name, description, price, currency, status, recipientId, occasionId, notes, id, req.user.userId]
+      );
+
+      const updatedGift = await runQuerySingle(
+        'SELECT * FROM gifts WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+
+      if (!updatedGift) {
+        return res.status(404).json({ message: 'Gift not found' });
+      }
+
+      res.json(updatedGift);
+    } catch (error) {
+      console.error('Update gift error:', error);
+      res.status(500).json({ message: 'Failed to update gift' });
+    }
+  });
+
+  app.delete('/api/gifts/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      await runQueryInsert(
+        'DELETE FROM gifts WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+
+      res.json({ message: 'Gift deleted successfully' });
+    } catch (error) {
+      console.error('Delete gift error:', error);
+      res.status(500).json({ message: 'Failed to delete gift' });
+    }
+  });
+
   // Occasions routes
   app.get('/api/occasions', authenticateToken, async (req, res) => {
     try {
@@ -444,6 +604,48 @@ initDatabase().then(() => {
     } catch (error) {
       console.error('Create occasion error:', error);
       res.status(500).json({ message: 'Failed to create occasion' });
+    }
+  });
+
+  app.put('/api/occasions/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, date, type, personId, description, budget } = req.body;
+      
+      await runQueryInsert(
+        'UPDATE occasions SET name = ?, date = ?, type = ?, person_id = ?, description = ?, budget = ? WHERE id = ? AND user_id = ?',
+        [name, date, type, personId, description, budget, id, req.user.userId]
+      );
+
+      const updatedOccasion = await runQuerySingle(
+        'SELECT * FROM occasions WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+
+      if (!updatedOccasion) {
+        return res.status(404).json({ message: 'Occasion not found' });
+      }
+
+      res.json(updatedOccasion);
+    } catch (error) {
+      console.error('Update occasion error:', error);
+      res.status(500).json({ message: 'Failed to update occasion' });
+    }
+  });
+
+  app.delete('/api/occasions/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      await runQueryInsert(
+        'DELETE FROM occasions WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+
+      res.json({ message: 'Occasion deleted successfully' });
+    } catch (error) {
+      console.error('Delete occasion error:', error);
+      res.status(500).json({ message: 'Failed to delete occasion' });
     }
   });
 
@@ -644,6 +846,204 @@ initDatabase().then(() => {
     } catch (error) {
       console.error('Get financial insights error:', error);
       res.status(500).json({ message: 'Failed to get financial insights' });
+    }
+  });
+
+  // Gift Preferences routes
+  app.get('/api/preferences/:personId', authenticateToken, async (req, res) => {
+    try {
+      const { personId } = req.params;
+      const preferences = await runQuerySingle(
+        'SELECT * FROM gift_preferences WHERE person_id = ? AND user_id = ?',
+        [personId, req.user.userId]
+      );
+      res.json(preferences || {});
+    } catch (error) {
+      console.error('Get gift preferences error:', error);
+      res.status(500).json({ message: 'Failed to get gift preferences' });
+    }
+  });
+
+  app.post('/api/preferences', authenticateToken, async (req, res) => {
+    try {
+      const { personId, interests, hobbies, favoriteCategories, priceRange, preferredStores, allergies, dislikes, notes } = req.body;
+      const preferencesId = uuidv4();
+      
+      await runQueryInsert(
+        'INSERT INTO gift_preferences (id, user_id, person_id, interests, hobbies, favorite_categories, price_range, preferred_stores, allergies, dislikes, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [preferencesId, req.user.userId, personId, JSON.stringify(interests || []), JSON.stringify(hobbies || []), JSON.stringify(favoriteCategories || []), JSON.stringify(priceRange || {}), JSON.stringify(preferredStores || []), JSON.stringify(allergies || []), JSON.stringify(dislikes || []), notes]
+      );
+
+      const newPreferences = await runQuerySingle(
+        'SELECT * FROM gift_preferences WHERE id = ?',
+        [preferencesId]
+      );
+
+      res.status(201).json(newPreferences);
+    } catch (error) {
+      console.error('Create gift preferences error:', error);
+      res.status(500).json({ message: 'Failed to create gift preferences' });
+    }
+  });
+
+  app.put('/api/preferences/:personId', authenticateToken, async (req, res) => {
+    try {
+      const { personId } = req.params;
+      const { interests, hobbies, favoriteCategories, priceRange, preferredStores, allergies, dislikes, notes } = req.body;
+      
+      await runQueryInsert(
+        'UPDATE gift_preferences SET interests = ?, hobbies = ?, favorite_categories = ?, price_range = ?, preferred_stores = ?, allergies = ?, dislikes = ?, notes = ? WHERE person_id = ? AND user_id = ?',
+        [JSON.stringify(interests || []), JSON.stringify(hobbies || []), JSON.stringify(favoriteCategories || []), JSON.stringify(priceRange || {}), JSON.stringify(preferredStores || []), JSON.stringify(allergies || []), JSON.stringify(dislikes || []), notes, personId, req.user.userId]
+      );
+
+      const updatedPreferences = await runQuerySingle(
+        'SELECT * FROM gift_preferences WHERE person_id = ? AND user_id = ?',
+        [personId, req.user.userId]
+      );
+
+      res.json(updatedPreferences);
+    } catch (error) {
+      console.error('Update gift preferences error:', error);
+      res.status(500).json({ message: 'Failed to update gift preferences' });
+    }
+  });
+
+  // Profile and User Preferences routes
+  app.get('/api/profile', authenticateToken, async (req, res) => {
+    try {
+      const userData = await getUserData(req.user.userId);
+      if (!userData) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      res.json(userData);
+    } catch (error) {
+      console.error('Get profile error:', error);
+      res.status(500).json({ message: 'Failed to get profile' });
+    }
+  });
+
+  app.put('/api/profile', authenticateToken, async (req, res) => {
+    try {
+      const { name, email } = req.body;
+      
+      await runQueryInsert(
+        'UPDATE users SET name = ?, email = ? WHERE id = ?',
+        [name, email, req.user.userId]
+      );
+
+      const updatedUser = await getUserData(req.user.userId);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Update profile error:', error);
+      res.status(500).json({ message: 'Failed to update profile' });
+    }
+  });
+
+  app.put('/api/user/preferences', authenticateToken, async (req, res) => {
+    try {
+      const preferences = req.body;
+      
+      await runQueryInsert(
+        'UPDATE users SET preferences = ? WHERE id = ?',
+        [JSON.stringify(preferences), req.user.userId]
+      );
+
+      res.json({ message: 'Preferences updated successfully' });
+    } catch (error) {
+      console.error('Update user preferences error:', error);
+      res.status(500).json({ message: 'Failed to update preferences' });
+    }
+  });
+
+  // Reports routes
+  app.post('/api/reports', authenticateToken, async (req, res) => {
+    try {
+      const { name, type, filters, frequency } = req.body;
+      const reportId = uuidv4();
+      
+      await runQueryInsert(
+        'INSERT INTO reports (id, user_id, name, type, filters, frequency) VALUES (?, ?, ?, ?, ?, ?)',
+        [reportId, req.user.userId, name, type, JSON.stringify(filters || {}), frequency]
+      );
+
+      const newReport = await runQuerySingle(
+        'SELECT * FROM reports WHERE id = ?',
+        [reportId]
+      );
+
+      res.status(201).json(newReport);
+    } catch (error) {
+      console.error('Create report error:', error);
+      res.status(500).json({ message: 'Failed to create report' });
+    }
+  });
+
+  // Reminders routes
+  app.post('/api/reminders', authenticateToken, async (req, res) => {
+    try {
+      const { title, description, date, type, personId, occasionId } = req.body;
+      const reminderId = uuidv4();
+      
+      await runQueryInsert(
+        'INSERT INTO reminders (id, user_id, title, description, date, type, person_id, occasion_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [reminderId, req.user.userId, title, description, date, type, personId, occasionId]
+      );
+
+      const newReminder = await runQuerySingle(
+        'SELECT * FROM reminders WHERE id = ?',
+        [reminderId]
+      );
+
+      res.status(201).json(newReminder);
+    } catch (error) {
+      console.error('Create reminder error:', error);
+      res.status(500).json({ message: 'Failed to create reminder' });
+    }
+  });
+
+  // Gift Ideas routes
+  app.post('/api/gift-ideas', authenticateToken, async (req, res) => {
+    try {
+      const { title, description, category, priceRange, tags, source, url } = req.body;
+      const ideaId = uuidv4();
+      
+      await runQueryInsert(
+        'INSERT INTO gift_ideas (id, user_id, title, description, category, price_range, tags, source, url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [ideaId, req.user.userId, title, description, category, JSON.stringify(priceRange || {}), JSON.stringify(tags || []), source, url]
+      );
+
+      const newIdea = await runQuerySingle(
+        'SELECT * FROM gift_ideas WHERE id = ?',
+        [ideaId]
+      );
+
+      res.status(201).json(newIdea);
+    } catch (error) {
+      console.error('Create gift idea error:', error);
+      res.status(500).json({ message: 'Failed to create gift idea' });
+    }
+  });
+
+  // Wishlists routes
+  app.post('/api/wishlists', authenticateToken, async (req, res) => {
+    try {
+      const { name, description, personId, occasion, privacy } = req.body;
+      const wishlistId = uuidv4();
+      
+      await runQueryInsert(
+        'INSERT INTO wishlists (id, user_id, name, description, person_id, occasion, privacy) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [wishlistId, req.user.userId, name, description, personId, occasion, privacy]
+      );
+
+      const newWishlist = await runQuerySingle(
+        'SELECT * FROM wishlists WHERE id = ?',
+        [wishlistId]
+      );
+
+      res.status(201).json(newWishlist);
+    } catch (error) {
+      console.error('Create wishlist error:', error);
+      res.status(500).json({ message: 'Failed to create wishlist' });
     }
   });
 
