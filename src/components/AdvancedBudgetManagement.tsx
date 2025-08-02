@@ -116,6 +116,7 @@ const AdvancedBudgetManagement: React.FC = () => {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
+      console.log('Loading budget data...');
       
       // Load real data from API
       const [budgetsData, expensesData, insightsData] = await Promise.all([
@@ -124,9 +125,25 @@ const AdvancedBudgetManagement: React.FC = () => {
         apiService.getFinancialInsights()
       ]);
       
-      setBudgets(budgetsData || []);
-      setExpenses(expensesData || []);
-      setInsights(insightsData || []);
+      console.log('Raw budgets data:', budgetsData);
+      console.log('Raw expenses data:', expensesData);
+      console.log('Raw insights data:', insightsData);
+      
+      // Handle different response formats
+      const budgetsArray = Array.isArray(budgetsData) ? budgetsData : 
+                          ((budgetsData as any)?.budgets || (budgetsData as any)?.data || []);
+      const expensesArray = Array.isArray(expensesData) ? expensesData : 
+                           ((expensesData as any)?.expenses || (expensesData as any)?.data || []);
+      const insightsArray = Array.isArray(insightsData) ? insightsData : 
+                           ((insightsData as any)?.insights || (insightsData as any)?.data || []);
+      
+      console.log('Processed budgets array:', budgetsArray);
+      console.log('Processed expenses array:', expensesArray);
+      console.log('Processed insights array:', insightsArray);
+      
+      setBudgets(budgetsArray);
+      setExpenses(expensesArray);
+      setInsights(insightsArray);
     } catch (error) {
       console.error('Failed to load budget data:', error);
       toast({
@@ -380,7 +397,7 @@ const AdvancedBudgetManagement: React.FC = () => {
                   <p className="text-muted-foreground">{t('budgetManagement.noBudgetsDescription')}</p>
                 </div>
               ) : (
-                budgets.map((budget) => {
+                (Array.isArray(budgets) ? budgets : []).map((budget) => {
                   const progress = calculateBudgetProgress(budget);
                   
                   return (
@@ -424,7 +441,7 @@ const AdvancedBudgetManagement: React.FC = () => {
                       </div>
                       
                       <div className="flex flex-wrap gap-2">
-                        {budget.tags.map((tag) => (
+                        {(budget.tags || []).map((tag) => (
                           <Badge key={tag} variant="outline" className="text-xs">
                             {tag}
                           </Badge>

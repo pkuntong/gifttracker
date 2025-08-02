@@ -83,6 +83,8 @@ const Families = () => {
   const loadData = async () => {
     try {
       setLoading(true);
+      console.log('Loading families data...');
+      
       const [familiesData, peopleData, giftsData, occasionsData, budgetsData] = await Promise.all([
         apiService.getFamilies(),
         apiService.getPeople(),
@@ -91,6 +93,12 @@ const Families = () => {
         apiService.getBudgets(),
       ]);
       
+      console.log('Raw families data:', familiesData);
+      console.log('Raw people data:', peopleData);
+      console.log('Raw gifts data:', giftsData);
+      console.log('Raw occasions data:', occasionsData);
+      console.log('Raw budgets data:', budgetsData);
+      
       // Safely extract arrays from API responses
       const families = Array.isArray(familiesData) ? familiesData : (familiesData?.families || familiesData?.data || []);
       const people = Array.isArray(peopleData) ? peopleData : (peopleData?.people || peopleData?.data || []);
@@ -98,16 +106,23 @@ const Families = () => {
       const occasions = Array.isArray(occasionsData) ? occasionsData : (occasionsData?.occasions || occasionsData?.data || []);
       const budgets = Array.isArray(budgetsData) ? budgetsData : (budgetsData?.budgets || budgetsData?.data || []);
       
+      console.log('Processed families array:', families);
+      console.log('Processed people array:', people);
+      console.log('Processed gifts array:', gifts);
+      console.log('Processed occasions array:', occasions);
+      console.log('Processed budgets array:', budgets);
+      
       setFamilies(families);
       setPeople(people);
       setGifts(gifts);
       setOccasions(occasions);
       setBudgets(budgets);
     } catch (error) {
+      console.error('Failed to load families data:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load family data',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to load families data",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -221,6 +236,9 @@ const Families = () => {
   };
 
   const getMemberRole = (family: Family) => {
+    if (!family.members || !Array.isArray(family.members)) {
+      return 'member';
+    }
     const member = family.members.find(m => m.userId === user?.id);
     return member?.role || 'member';
   };
@@ -246,7 +264,7 @@ const Families = () => {
       gifts: familyGifts.length,
       occasions: familyOccasions.length,
       budgets: familyBudgets.length,
-      totalSpent: familyGifts.reduce((sum, g) => sum + g.price, 0),
+      totalSpent: familyGifts.reduce((sum, g) => sum + (g.price || 0), 0),
     };
   };
 
@@ -312,7 +330,9 @@ const Families = () => {
           </Card>
         ) : (
           <div className="space-y-6">
-            {filteredFamilies.map((family) => {
+            {(Array.isArray(filteredFamilies) ? filteredFamilies : []).map((family) => {
+              if (!family) return null;
+              
               const stats = getFamilyStats(family);
               const userRole = getMemberRole(family);
               const canManage = canManageFamily(family);
@@ -324,7 +344,7 @@ const Families = () => {
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <CardTitle className="flex items-center gap-2">
-                          {family.name}
+                          {family.name || 'Unnamed Family'}
                           <Badge variant={userRole === 'owner' ? 'default' : userRole === 'admin' ? 'secondary' : 'outline'}>
                             {userRole}
                           </Badge>

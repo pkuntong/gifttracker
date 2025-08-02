@@ -71,10 +71,15 @@ const Gifts = () => {
   const loadData = async () => {
     try {
       setLoading(true);
+      console.log('Loading gifts and people data...');
+      
       const [giftsResponse, peopleResponse] = await Promise.all([
         apiService.getGifts(),
         apiService.getPeople()
       ]);
+      
+      console.log('Raw gifts response:', giftsResponse);
+      console.log('Raw people response:', peopleResponse);
       
       // Extract arrays from responses (handle different response formats)
       const giftsData = Array.isArray(giftsResponse) ? giftsResponse : 
@@ -82,9 +87,13 @@ const Gifts = () => {
       const peopleData = Array.isArray(peopleResponse) ? peopleResponse : 
                         (peopleResponse?.people || peopleResponse?.data || []);
       
+      console.log('Processed gifts data:', giftsData);
+      console.log('Processed people data:', peopleData);
+      
       setGifts(giftsData);
       setPeople(peopleData);
     } catch (error) {
+      console.error('Failed to load data:', error);
       toast({
         title: "Error",
         description: "Failed to load data. Please try again.",
@@ -98,21 +107,45 @@ const Gifts = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form data being submitted:', formData);
+    console.log('Available people:', people);
+    console.log('Selected recipientId:', formData.recipientId);
+    
+    // Validate required fields
+    if (!formData.name || !formData.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Gift name is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!formData.recipientId) {
+      toast({
+        title: "Error",
+        description: "Please select a recipient.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Debug: Log the form data being sent
+    const giftData = {
+      ...formData,
+      price: formData.price ? parseFloat(formData.price) : null,
+    };
+    console.log('Sending gift data:', giftData);
+    
     try {
       if (editingGift) {
-        await apiService.updateGift(editingGift.id, {
-          ...formData,
-          price: formData.price ? parseFloat(formData.price) : null,
-        });
+        await apiService.updateGift(editingGift.id, giftData);
         toast({
           title: "Success",
           description: "Gift updated successfully.",
         });
       } else {
-        await apiService.createGift({
-          ...formData,
-          price: formData.price ? parseFloat(formData.price) : null,
-        });
+        await apiService.createGift(giftData);
         toast({
           title: "Success",
           description: "Gift added successfully.",
@@ -124,6 +157,7 @@ const Gifts = () => {
       resetForm();
       loadData();
     } catch (error) {
+      console.error('Gift save error:', error);
       toast({
         title: "Error",
         description: "Failed to save gift. Please try again.",

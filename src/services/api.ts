@@ -1118,7 +1118,7 @@ export class ApiService {
   }
 
   async deleteOccasion(occasionId: string) {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/occasions/${occasionId}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/occasions/${occasionId}`, {
       method: 'DELETE',
       headers: getHeaders()
     })

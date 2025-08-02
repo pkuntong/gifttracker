@@ -375,6 +375,66 @@ initDatabase().then(() => {
     }
   });
 
+  app.put('/api/people/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, email, relationship, birthday, notes, avatar, familyId } = req.body;
+      
+      // Check if person exists and belongs to user
+      const existingPerson = await runQuerySingle(
+        'SELECT * FROM people WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+      
+      if (!existingPerson) {
+        return res.status(404).json({ message: 'Person not found' });
+      }
+      
+      // Update the person
+      await runQueryInsert(
+        'UPDATE people SET name = ?, email = ?, relationship = ?, birthday = ?, notes = ?, avatar = ?, family_id = ? WHERE id = ? AND user_id = ?',
+        [name, email, relationship, birthday, notes, avatar, familyId, id, req.user.userId]
+      );
+
+      const updatedPerson = await runQuerySingle(
+        'SELECT * FROM people WHERE id = ?',
+        [id]
+      );
+
+      res.json(updatedPerson);
+    } catch (error) {
+      console.error('Update person error:', error);
+      res.status(500).json({ message: 'Failed to update person' });
+    }
+  });
+
+  app.delete('/api/people/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Check if person exists and belongs to user
+      const existingPerson = await runQuerySingle(
+        'SELECT * FROM people WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+      
+      if (!existingPerson) {
+        return res.status(404).json({ message: 'Person not found' });
+      }
+      
+      // Delete the person
+      await runQueryInsert(
+        'DELETE FROM people WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+
+      res.json({ message: 'Person deleted successfully' });
+    } catch (error) {
+      console.error('Delete person error:', error);
+      res.status(500).json({ message: 'Failed to delete person' });
+    }
+  });
+
   // Gifts routes
   app.get('/api/gifts', authenticateToken, async (req, res) => {
     try {
@@ -382,7 +442,17 @@ initDatabase().then(() => {
         'SELECT * FROM gifts WHERE user_id = ? ORDER BY created_at DESC',
         [req.user.userId]
       );
-      res.json(gifts);
+      
+      // Transform snake_case to camelCase for frontend
+      const transformedGifts = gifts.map(gift => ({
+        ...gift,
+        recipientId: gift.recipient_id,
+        occasionId: gift.occasion_id,
+        createdAt: gift.created_at,
+        updatedAt: gift.updated_at
+      }));
+      
+      res.json(transformedGifts);
     } catch (error) {
       console.error('Get gifts error:', error);
       res.status(500).json({ message: 'Failed to get gifts' });
@@ -392,6 +462,16 @@ initDatabase().then(() => {
   app.post('/api/gifts', authenticateToken, async (req, res) => {
     try {
       const { name, description, price, currency, status, recipientId, occasionId, notes } = req.body;
+      
+      // Validate required fields
+      if (!name || !name.trim()) {
+        return res.status(400).json({ message: 'Gift name is required' });
+      }
+      
+      if (!recipientId) {
+        return res.status(400).json({ message: 'Recipient is required' });
+      }
+      
       const giftId = uuidv4();
       
       await runQueryInsert(
@@ -404,10 +484,97 @@ initDatabase().then(() => {
         [giftId]
       );
 
-      res.status(201).json(newGift);
+      // Transform snake_case to camelCase for frontend
+      const transformedGift = {
+        ...newGift,
+        recipientId: newGift.recipient_id,
+        occasionId: newGift.occasion_id,
+        createdAt: newGift.created_at,
+        updatedAt: newGift.updated_at
+      };
+
+      res.status(201).json(transformedGift);
     } catch (error) {
       console.error('Create gift error:', error);
       res.status(500).json({ message: 'Failed to create gift' });
+    }
+  });
+
+  app.put('/api/gifts/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, description, price, currency, status, recipientId, occasionId, notes } = req.body;
+      
+      // Validate required fields
+      if (!name || !name.trim()) {
+        return res.status(400).json({ message: 'Gift name is required' });
+      }
+      
+      if (!recipientId) {
+        return res.status(400).json({ message: 'Recipient is required' });
+      }
+      
+      // Check if gift exists and belongs to user
+      const existingGift = await runQuerySingle(
+        'SELECT * FROM gifts WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+      
+      if (!existingGift) {
+        return res.status(404).json({ message: 'Gift not found' });
+      }
+      
+      // Update the gift
+      await runQueryInsert(
+        'UPDATE gifts SET name = ?, description = ?, price = ?, currency = ?, status = ?, recipient_id = ?, occasion_id = ?, notes = ? WHERE id = ? AND user_id = ?',
+        [name, description, price, currency, status, recipientId, occasionId, notes, id, req.user.userId]
+      );
+
+      const updatedGift = await runQuerySingle(
+        'SELECT * FROM gifts WHERE id = ?',
+        [id]
+      );
+
+      // Transform snake_case to camelCase for frontend
+      const transformedGift = {
+        ...updatedGift,
+        recipientId: updatedGift.recipient_id,
+        occasionId: updatedGift.occasion_id,
+        createdAt: updatedGift.created_at,
+        updatedAt: updatedGift.updated_at
+      };
+
+      res.json(transformedGift);
+    } catch (error) {
+      console.error('Update gift error:', error);
+      res.status(500).json({ message: 'Failed to update gift' });
+    }
+  });
+
+  app.delete('/api/gifts/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Check if gift exists and belongs to user
+      const existingGift = await runQuerySingle(
+        'SELECT * FROM gifts WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+      
+      if (!existingGift) {
+        return res.status(404).json({ message: 'Gift not found' });
+      }
+      
+      // Delete the gift
+      await runQueryInsert(
+        'DELETE FROM gifts WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+
+      res.json({ message: 'Gift deleted successfully' });
+    } catch (error) {
+      console.error('Delete gift error:', error);
+      res.status(500).json({ message: 'Failed to delete gift' });
     }
   });
 
@@ -444,6 +611,66 @@ initDatabase().then(() => {
     } catch (error) {
       console.error('Create occasion error:', error);
       res.status(500).json({ message: 'Failed to create occasion' });
+    }
+  });
+
+  app.put('/api/occasions/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, date, type, personId, description, budget } = req.body;
+      
+      // Check if occasion exists and belongs to user
+      const existingOccasion = await runQuerySingle(
+        'SELECT * FROM occasions WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+      
+      if (!existingOccasion) {
+        return res.status(404).json({ message: 'Occasion not found' });
+      }
+      
+      // Update the occasion
+      await runQueryInsert(
+        'UPDATE occasions SET name = ?, date = ?, type = ?, person_id = ?, description = ?, budget = ? WHERE id = ? AND user_id = ?',
+        [name, date, type, personId, description, budget, id, req.user.userId]
+      );
+
+      const updatedOccasion = await runQuerySingle(
+        'SELECT * FROM occasions WHERE id = ?',
+        [id]
+      );
+
+      res.json(updatedOccasion);
+    } catch (error) {
+      console.error('Update occasion error:', error);
+      res.status(500).json({ message: 'Failed to update occasion' });
+    }
+  });
+
+  app.delete('/api/occasions/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Check if occasion exists and belongs to user
+      const existingOccasion = await runQuerySingle(
+        'SELECT * FROM occasions WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+      
+      if (!existingOccasion) {
+        return res.status(404).json({ message: 'Occasion not found' });
+      }
+      
+      // Delete the occasion
+      await runQueryInsert(
+        'DELETE FROM occasions WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+
+      res.json({ message: 'Occasion deleted successfully' });
+    } catch (error) {
+      console.error('Delete occasion error:', error);
+      res.status(500).json({ message: 'Failed to delete occasion' });
     }
   });
 
@@ -513,7 +740,7 @@ initDatabase().then(() => {
         id: family.id,
         name: family.name,
         description: family.description,
-        memberCount: 0, // We'll calculate this
+        members: [], // Empty array for now - we'll add family members functionality later
         createdAt: family.created_at,
         updatedAt: family.created_at
       }));
@@ -544,6 +771,119 @@ initDatabase().then(() => {
     } catch (error) {
       console.error('Create family error:', error);
       res.status(500).json({ message: 'Failed to create family' });
+    }
+  });
+
+  app.put('/api/families/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, description } = req.body;
+      
+      // Check if family exists and belongs to user
+      const existingFamily = await runQuerySingle(
+        'SELECT * FROM families WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+      
+      if (!existingFamily) {
+        return res.status(404).json({ message: 'Family not found' });
+      }
+      
+      // Update the family
+      await runQueryInsert(
+        'UPDATE families SET name = ?, description = ? WHERE id = ? AND user_id = ?',
+        [name, description, id, req.user.userId]
+      );
+
+      const updatedFamily = await runQuerySingle(
+        'SELECT * FROM families WHERE id = ?',
+        [id]
+      );
+
+      res.json(updatedFamily);
+    } catch (error) {
+      console.error('Update family error:', error);
+      res.status(500).json({ message: 'Failed to update family' });
+    }
+  });
+
+  app.delete('/api/families/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Check if family exists and belongs to user
+      const existingFamily = await runQuerySingle(
+        'SELECT * FROM families WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+      
+      if (!existingFamily) {
+        return res.status(404).json({ message: 'Family not found' });
+      }
+      
+      // Delete the family
+      await runQueryInsert(
+        'DELETE FROM families WHERE id = ? AND user_id = ?',
+        [id, req.user.userId]
+      );
+
+      res.json({ message: 'Family deleted successfully' });
+    } catch (error) {
+      console.error('Delete family error:', error);
+      res.status(500).json({ message: 'Failed to delete family' });
+    }
+  });
+
+  // Family member endpoints (mock implementation for now)
+  app.post('/api/families/:familyId/members', authenticateToken, async (req, res) => {
+    try {
+      const { familyId } = req.params;
+      const { email, role } = req.body;
+      
+      // Check if family exists and belongs to user
+      const existingFamily = await runQuerySingle(
+        'SELECT * FROM families WHERE id = ? AND user_id = ?',
+        [familyId, req.user.userId]
+      );
+      
+      if (!existingFamily) {
+        return res.status(404).json({ message: 'Family not found' });
+      }
+      
+      // Mock response - in a real app, you'd create a family member record
+      res.status(201).json({
+        id: uuidv4(),
+        familyId,
+        email,
+        role,
+        status: 'pending',
+        invitedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Invite family member error:', error);
+      res.status(500).json({ message: 'Failed to invite family member' });
+    }
+  });
+
+  app.delete('/api/families/:familyId/members/:memberId', authenticateToken, async (req, res) => {
+    try {
+      const { familyId, memberId } = req.params;
+      
+      // Check if family exists and belongs to user
+      const existingFamily = await runQuerySingle(
+        'SELECT * FROM families WHERE id = ? AND user_id = ?',
+        [familyId, req.user.userId]
+      );
+      
+      if (!existingFamily) {
+        return res.status(404).json({ message: 'Family not found' });
+      }
+      
+      // Mock response - in a real app, you'd delete the family member record
+      res.json({ message: 'Family member removed successfully' });
+    } catch (error) {
+      console.error('Remove family member error:', error);
+      res.status(500).json({ message: 'Failed to remove family member' });
     }
   });
 
@@ -656,4 +996,4 @@ initDatabase().then(() => {
 }).catch(error => {
   console.error('❌ Failed to initialize database:', error);
   process.exit(1);
-}); 
+});
