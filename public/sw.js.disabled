@@ -1,0 +1,76 @@
+// Force unregister this service worker and clear everything
+console.log('🚨 DEVELOPMENT: Force clearing service worker');
+
+self.addEventListener('install', (event) => {
+  console.log('🔧 SW: Force installing and clearing caches');
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      console.log('🗑️ SW: Deleting all caches:', cacheNames);
+      return Promise.all(
+        cacheNames.map((cacheName) => caches.delete(cacheName))
+      );
+    }).then(() => {
+      console.log('✅ SW: All caches deleted');
+      return self.skipWaiting();
+    })
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  console.log('🔧 SW: Activating and unregistering');
+  event.waitUntil(
+    self.registration.unregister().then(() => {
+      console.log('✅ SW: Unregistered successfully');
+      return self.clients.claim();
+    }).then(() => {
+      // Force reload all clients
+      return self.clients.matchAll();
+    }).then((clients) => {
+      clients.forEach((client) => {
+        console.log('🔄 SW: Reloading client');
+        client.navigate(client.url);
+      });
+    })
+  );
+});
+
+// Don't cache anything in development
+self.addEventListener('fetch', (event) => {
+  console.log('🚫 SW: Not caching:', event.request.url);
+  // Let all requests go through normally
+  return;
+  if (event.request.url.includes('/api/') || 
+      event.request.url.includes('localhost') ||
+      event.request.url.includes('stripe.com') ||
+      event.request.url.includes('vercel.app')) {
+    return;
+  }
+
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Return cached version or fetch from network
+        return response || fetch(event.request);
+      })
+      .catch(() => {
+        // If both cache and network fail, return a basic response
+        return new Response('Offline', { status: 503 });
+      })
+  );
+});
+
+// Activate event
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+}); 
