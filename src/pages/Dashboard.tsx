@@ -45,7 +45,15 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { isMobile } = useMobile();
-  const navigate = useNavigate();
+  
+  // Safely get navigate hook with error handling
+  let navigate: ReturnType<typeof useNavigate>;
+  try {
+    navigate = useNavigate();
+  } catch (error) {
+    console.error('Navigation context error:', error);
+    navigate = () => {}; // Fallback no-op function
+  }
 
   useEffect(() => {
     loadDashboardData();
@@ -61,17 +69,24 @@ const Dashboard: React.FC = () => {
         apiService.getBudgets(),
       ]);
 
-      // Extract arrays from responses (handle both direct arrays and objects with data property)
-      const gifts = Array.isArray(giftsResponse) ? giftsResponse : (giftsResponse?.data || []);
-      const people = Array.isArray(peopleResponse) ? peopleResponse : (peopleResponse?.data || []);
-      const occasions = Array.isArray(occasionsResponse) ? occasionsResponse : (occasionsResponse?.data || []);
-      const budgets = Array.isArray(budgetsResponse) ? budgetsResponse : (budgetsResponse?.data || []);
+      // Extract arrays from responses with comprehensive error handling
+      const gifts = Array.isArray(giftsResponse) ? giftsResponse : 
+                   Array.isArray(giftsResponse?.data) ? giftsResponse.data : [];
+      const people = Array.isArray(peopleResponse) ? peopleResponse : 
+                    Array.isArray(peopleResponse?.data) ? peopleResponse.data : [];
+      const occasions = Array.isArray(occasionsResponse) ? occasionsResponse : 
+                       Array.isArray(occasionsResponse?.data) ? occasionsResponse.data : [];
+      const budgets = Array.isArray(budgetsResponse) ? budgetsResponse : 
+                     Array.isArray(budgetsResponse?.data) ? budgetsResponse.data : [];
+      
+      console.log('Dashboard data loaded:', { gifts, people, occasions, budgets });
 
-      const totalBudget = budgets.reduce((sum, budget) => sum + (budget.amount || 0), 0);
-      const spentBudget = budgets.reduce((sum, budget) => sum + (budget.spent || 0), 0);
-      const upcomingGifts = gifts.filter(gift => 
+      // Safely calculate budget totals with fallbacks
+      const totalBudget = Array.isArray(budgets) ? budgets.reduce((sum, budget) => sum + (budget.amount || 0), 0) : 0;
+      const spentBudget = Array.isArray(budgets) ? budgets.reduce((sum, budget) => sum + (budget.spent || 0), 0) : 0;
+      const upcomingGifts = Array.isArray(gifts) ? gifts.filter(gift => 
         gift.occasionId && new Date() > new Date()
-      ).length;
+      ).length : 0;
 
       const recentActivity = [
         { title: 'Added new gift for John', time: '2 hours ago' },
@@ -80,9 +95,9 @@ const Dashboard: React.FC = () => {
       ];
 
       setStats({
-        totalGifts: gifts.length,
-        totalPeople: people.length,
-        totalOccasions: occasions.length,
+        totalGifts: Array.isArray(gifts) ? gifts.length : 0,
+        totalPeople: Array.isArray(people) ? people.length : 0,
+        totalOccasions: Array.isArray(occasions) ? occasions.length : 0,
         totalBudget,
         spentBudget,
         upcomingGifts,
@@ -118,7 +133,7 @@ const Dashboard: React.FC = () => {
     }} />;
   }
 
-  const budgetProgress = (stats.spentBudget / stats.totalBudget) * 100;
+  const budgetProgress = stats.totalBudget > 0 ? (stats.spentBudget / stats.totalBudget) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-background">
