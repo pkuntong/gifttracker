@@ -62,6 +62,8 @@ const Dashboard: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
+      
+      console.log('🔄 Starting dashboard data load...');
       const [giftsResponse, peopleResponse, occasionsResponse, budgetsResponse] = await Promise.all([
         apiService.getGifts(),
         apiService.getPeople(),
@@ -69,24 +71,84 @@ const Dashboard: React.FC = () => {
         apiService.getBudgets(),
       ]);
 
-      // Extract arrays from responses with comprehensive error handling
-      const gifts = Array.isArray(giftsResponse) ? giftsResponse : 
-                   Array.isArray(giftsResponse?.data) ? giftsResponse.data : [];
-      const people = Array.isArray(peopleResponse) ? peopleResponse : 
-                    Array.isArray(peopleResponse?.data) ? peopleResponse.data : [];
-      const occasions = Array.isArray(occasionsResponse) ? occasionsResponse : 
-                       Array.isArray(occasionsResponse?.data) ? occasionsResponse.data : [];
-      const budgets = Array.isArray(budgetsResponse) ? budgetsResponse : 
-                     Array.isArray(budgetsResponse?.data) ? budgetsResponse.data : [];
+      console.log('📦 Raw API responses:', {
+        giftsResponse: typeof giftsResponse,
+        peopleResponse: typeof peopleResponse,
+        occasionsResponse: typeof occasionsResponse,
+        budgetsResponse: typeof budgetsResponse
+      });
+
+      // More robust data extraction with detailed logging
+      let gifts = [];
+      let people = [];
+      let occasions = [];
+      let budgets = [];
+
+      // Extract gifts
+      if (Array.isArray(giftsResponse)) {
+        gifts = giftsResponse;
+      } else if (giftsResponse?.data && Array.isArray(giftsResponse.data)) {
+        gifts = giftsResponse.data;
+      } else {
+        console.warn('⚠️ Gifts data is not an array:', giftsResponse);
+        gifts = [];
+      }
+
+      // Extract people
+      if (Array.isArray(peopleResponse)) {
+        people = peopleResponse;
+      } else if (peopleResponse?.data && Array.isArray(peopleResponse.data)) {
+        people = peopleResponse.data;
+      } else {
+        console.warn('⚠️ People data is not an array:', peopleResponse);
+        people = [];
+      }
+
+      // Extract occasions
+      if (Array.isArray(occasionsResponse)) {
+        occasions = occasionsResponse;
+      } else if (occasionsResponse?.data && Array.isArray(occasionsResponse.data)) {
+        occasions = occasionsResponse.data;
+      } else {
+        console.warn('⚠️ Occasions data is not an array:', occasionsResponse);
+        occasions = [];
+      }
+
+      // Extract budgets
+      if (Array.isArray(budgetsResponse)) {
+        budgets = budgetsResponse;
+      } else if (budgetsResponse?.data && Array.isArray(budgetsResponse.data)) {
+        budgets = budgetsResponse.data;
+      } else {
+        console.warn('⚠️ Budgets data is not an array:', budgetsResponse);
+        budgets = [];
+      }
       
-      console.log('Dashboard data loaded:', { gifts, people, occasions, budgets });
+      console.log('✅ Extracted dashboard data:', { 
+        gifts: `Array(${gifts.length})`, 
+        people: `Array(${people.length})`, 
+        occasions: `Array(${occasions.length})`, 
+        budgets: `Array(${budgets.length})` 
+      });
 
       // Safely calculate budget totals with fallbacks
       const totalBudget = Array.isArray(budgets) ? budgets.reduce((sum, budget) => sum + (budget.amount || 0), 0) : 0;
       const spentBudget = Array.isArray(budgets) ? budgets.reduce((sum, budget) => sum + (budget.spent || 0), 0) : 0;
-      const upcomingGifts = Array.isArray(gifts) ? gifts.filter(gift => 
-        gift.occasionId && new Date() > new Date()
-      ).length : 0;
+      
+      // Extra safety for the filter operation that was causing the error
+      let upcomingGifts = 0;
+      if (Array.isArray(gifts)) {
+        try {
+          upcomingGifts = gifts.filter(gift => 
+            gift.occasionId && new Date() > new Date()
+          ).length;
+        } catch (filterError) {
+          console.error('⚠️ Error filtering gifts:', filterError, 'gifts:', gifts);
+          upcomingGifts = 0;
+        }
+      } else {
+        console.warn('⚠️ Cannot filter gifts - not an array:', typeof gifts, gifts);
+      }
 
       const recentActivity = [
         { title: 'Added new gift for John', time: '2 hours ago' },
@@ -94,15 +156,19 @@ const Dashboard: React.FC = () => {
         { title: 'Created birthday occasion', time: '2 days ago' },
       ];
 
-      setStats({
-        totalGifts: Array.isArray(gifts) ? gifts.length : 0,
-        totalPeople: Array.isArray(people) ? people.length : 0,
-        totalOccasions: Array.isArray(occasions) ? occasions.length : 0,
+      // Final validation before setting stats
+      const finalStats = {
+        totalGifts: gifts.length,
+        totalPeople: people.length,
+        totalOccasions: occasions.length,
         totalBudget,
         spentBudget,
         upcomingGifts,
         recentActivity,
-      });
+      };
+      
+      console.log('📊 Setting dashboard stats:', finalStats);
+      setStats(finalStats);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       toast({
