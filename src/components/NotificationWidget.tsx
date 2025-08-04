@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,11 +74,7 @@ const NotificationWidget: React.FC = () => {
     }
   ];
 
-  useEffect(() => {
-    loadNotifications();
-  }, []);
-
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
     setLoading(true);
     try {
       // Simulate API call
@@ -89,7 +85,11 @@ const NotificationWidget: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadNotifications();
+  }, [loadNotifications]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {

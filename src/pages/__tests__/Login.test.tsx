@@ -252,7 +252,7 @@ describe('Login Page', () => {
       const user = userEvent.setup()
       
       // Create a promise that we can control
-      let resolveLogin: (value: any) => void
+      let resolveLogin: (value: unknown) => void
       const loginPromise = new Promise((resolve) => {
         resolveLogin = resolve
       })
@@ -418,7 +418,7 @@ describe('Login Page', () => {
       const user = userEvent.setup()
       
       // Make login take some time
-      let resolveLogin: (value: any) => void
+      let resolveLogin: (value: unknown) => void
       const loginPromise = new Promise((resolve) => {
         resolveLogin = resolve
       })

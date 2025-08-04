@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -52,11 +52,7 @@ const SocialWidget: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadSocialData();
-  }, []);
-
-  const loadSocialData = async () => {
+  const loadSocialData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -134,7 +130,11 @@ const SocialWidget: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadSocialData();
+  }, [loadSocialData]);
 
   const getActivityIcon = (type: string) => {
     switch (type) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -87,13 +87,7 @@ const GiftPreferencesForm: React.FC<GiftPreferencesFormProps> = ({
     'Macy\'s', 'Nordstrom', 'REI', 'Barnes & Noble', 'GameStop'
   ];
 
-  useEffect(() => {
-    if (isOpen) {
-      loadPreferences();
-    }
-  }, [isOpen, personId]);
-
-  const loadPreferences = async () => {
+  const loadPreferences = useCallback(async () => {
     try {
       const prefs = await apiService.getGiftPreferences(personId);
       if (prefs) {
@@ -112,7 +106,13 @@ const GiftPreferencesForm: React.FC<GiftPreferencesFormProps> = ({
         notes: ''
       });
     }
-  };
+  }, [personId]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadPreferences();
+    }
+  }, [isOpen, loadPreferences]);
 
   const handleSave = async () => {
     try {

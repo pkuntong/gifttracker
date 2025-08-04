@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,13 +33,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (personId || occasionId) {
-      loadRecommendations();
-    }
-  }, [personId, occasionId]);
-
-  const loadRecommendations = async () => {
+  const loadRecommendations = useCallback(async () => {
     try {
       setLoading(true);
       let recommendations: GiftRecommendation[] = [];
@@ -62,7 +56,13 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [personId, occasionId, maxItems, toast]);
+
+  useEffect(() => {
+    if (personId || occasionId) {
+      loadRecommendations();
+    }
+  }, [personId, occasionId, loadRecommendations]);
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'bg-green-100 text-green-800';

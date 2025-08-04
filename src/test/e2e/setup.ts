@@ -3,7 +3,7 @@ import { beforeAll, afterAll } from 'vitest'
 // E2E test setup and utilities
 export class E2ETestHelper {
   private static instance: E2ETestHelper
-  private testData: Map<string, any> = new Map()
+  private testData: Map<string, unknown> = new Map()
 
   private constructor() {}
 
@@ -15,7 +15,7 @@ export class E2ETestHelper {
   }
 
   // Create test user data
-  createTestUser(overrides: Partial<any> = {}) {
+  createTestUser(overrides: Partial<import('@/types').User> = {}) {
     const testUser = {
       id: `test-user-${Date.now()}`,
       email: `test-${Date.now()}@example.com`,
@@ -41,7 +41,7 @@ export class E2ETestHelper {
   }
 
   // Create test person data
-  createTestPerson(userId: string, overrides: Partial<any> = {}) {
+  createTestPerson(userId: string, overrides: Partial<import('@/types').Person> = {}) {
     const testPerson = {
       id: `test-person-${Date.now()}`,
       name: `Test Person ${Date.now()}`,
@@ -62,7 +62,7 @@ export class E2ETestHelper {
   }
 
   // Create test gift data
-  createTestGift(recipientId: string, overrides: Partial<any> = {}) {
+  createTestGift(recipientId: string, overrides: Partial<import('@/types').Gift> = {}) {
     const testGift = {
       id: `test-gift-${Date.now()}`,
       name: `Test Gift ${Date.now()}`,
@@ -83,7 +83,7 @@ export class E2ETestHelper {
   }
 
   // Create test occasion data
-  createTestOccasion(personId: string, overrides: Partial<any> = {}) {
+  createTestOccasion(personId: string, overrides: Partial<import('@/types').Occasion> = {}) {
     const testOccasion = {
       id: `test-occasion-${Date.now()}`,
       name: `Test Occasion ${Date.now()}`,
@@ -132,7 +132,7 @@ export class E2ETestHelper {
   }
 
   // Mock successful API responses for a complete scenario
-  mockCompleteScenario(apiService: any, scenario: any) {
+  mockCompleteScenario(apiService: Record<string, unknown>, scenario: { user: import('@/types').User; person: import('@/types').Person; gift: import('@/types').Gift; occasion: import('@/types').Occasion }) {
     // Auth mocks
     apiService.login.mockResolvedValue({
       user: scenario.user,
@@ -147,12 +147,12 @@ export class E2ETestHelper {
       total: 1 
     })
     apiService.getPerson.mockResolvedValue(scenario.person)
-    apiService.createPerson.mockImplementation(async (data: any) => ({
+    apiService.createPerson.mockImplementation(async (data: Partial<import('@/types').Person>) => ({
       ...scenario.person,
       ...data,
       id: `new-person-${Date.now()}`
     }))
-    apiService.updatePerson.mockImplementation(async (id: string, data: any) => ({
+    apiService.updatePerson.mockImplementation(async (id: string, data: Partial<import('@/types').Person>) => ({
       ...scenario.person,
       ...data,
       id
@@ -165,12 +165,12 @@ export class E2ETestHelper {
       total: 1 
     })
     apiService.getGift.mockResolvedValue(scenario.gift)
-    apiService.createGift.mockImplementation(async (data: any) => ({
+    apiService.createGift.mockImplementation(async (data: Partial<import('@/types').Gift>) => ({
       ...scenario.gift,
       ...data,
       id: `new-gift-${Date.now()}`
     }))
-    apiService.updateGift.mockImplementation(async (id: string, data: any) => ({
+    apiService.updateGift.mockImplementation(async (id: string, data: Partial<import('@/types').Gift>) => ({
       ...scenario.gift,
       ...data,
       id
@@ -183,12 +183,12 @@ export class E2ETestHelper {
       total: 1 
     })
     apiService.getOccasion.mockResolvedValue(scenario.occasion)
-    apiService.createOccasion.mockImplementation(async (data: any) => ({
+    apiService.createOccasion.mockImplementation(async (data: Partial<import('@/types').Occasion>) => ({
       ...scenario.occasion,
       ...data,
       id: `new-occasion-${Date.now()}`
     }))
-    apiService.updateOccasion.mockImplementation(async (id: string, data: any) => ({
+    apiService.updateOccasion.mockImplementation(async (id: string, data: Partial<import('@/types').Occasion>) => ({
       ...scenario.occasion,
       ...data,
       id
@@ -199,7 +199,7 @@ export class E2ETestHelper {
   }
 
   // Mock API error responses
-  mockApiErrors(apiService: any, errorType: 'network' | 'auth' | 'validation' | 'server') {
+  mockApiErrors(apiService: Record<string, unknown>, errorType: 'network' | 'auth' | 'validation' | 'server') {
     const errors = {
       network: new Error('Network error'),
       auth: new Error('Unauthorized'),
@@ -243,7 +243,7 @@ export class E2ETestHelper {
   }
 
   // Setup authenticated environment
-  setupAuthenticatedEnvironment(user: any) {
+  setupAuthenticatedEnvironment(user: import('@/types').User) {
     const mockStorage = this.createMockLocalStorage()
     mockStorage.setItem('user', JSON.stringify(user))
     mockStorage.setItem('authToken', 'test-token')

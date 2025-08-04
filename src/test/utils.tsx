@@ -145,7 +145,7 @@ export const setupApiMocks = () => {
 export const waitForAsyncOperations = () => new Promise(resolve => setTimeout(resolve, 0))
 
 // Helper to create mock promises
-export const createMockPromise = <T>(value: T, shouldReject = false) => {
+export const createMockPromise = <T,>(value: T, shouldReject = false) => {
   return shouldReject ? Promise.reject(value) : Promise.resolve(value)
 }
 

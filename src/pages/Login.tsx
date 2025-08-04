@@ -67,8 +67,8 @@ const Login = () => {
   };
 
   // Enhanced error messaging
-  const getErrorMessage = (err: any): string => {
-    const message = err?.message || 'Login failed';
+  const getErrorMessage = (err: unknown): string => {
+    const message = (err as { message?: string })?.message || 'Login failed';
     
     if (message.toLowerCase().includes('invalid') || message.toLowerCase().includes('incorrect')) {
       return 'Email or password is incorrect. Please check your credentials and try again.';
@@ -98,7 +98,7 @@ const Login = () => {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     setIsRetrying(false);
-    handleSubmit(new Event('submit') as any);
+    handleSubmit(new Event('submit') as React.FormEvent);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

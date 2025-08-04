@@ -7,9 +7,9 @@ import { mockApiService, mockUser, mockPerson, mockGift, mockOccasion } from '@/
 
 // Mock components for testing
 const MockGiftsPage = () => {
-  const [gifts, setGifts] = React.useState<any[]>([])
-  const [people, setPeople] = React.useState<any[]>([])
-  const [occasions, setOccasions] = React.useState<any[]>([])
+  const [gifts, setGifts] = React.useState<import('@/types').Gift[]>([])
+  const [people, setPeople] = React.useState<import('@/types').Person[]>([])
+  const [occasions, setOccasions] = React.useState<import('@/types').Occasion[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -36,7 +36,7 @@ const MockGiftsPage = () => {
     loadData()
   }, [])
 
-  const handleCreateGift = async (giftData: any) => {
+  const handleCreateGift = async (giftData: Partial<import('@/types').Gift>) => {
     try {
       const newGift = await mockApiService.createGift(giftData)
       setGifts(prev => [...prev, newGift])
@@ -47,7 +47,7 @@ const MockGiftsPage = () => {
     }
   }
 
-  const handleUpdateGift = async (id: string, updates: any) => {
+  const handleUpdateGift = async (id: string, updates: Partial<import('@/types').Gift>) => {
     try {
       const updatedGift = await mockApiService.updateGift(id, updates)
       setGifts(prev => prev.map(g => g.id === id ? updatedGift : g))
@@ -94,7 +94,7 @@ const MockGiftsPage = () => {
           description: formData.get('description') as string,
           price: parseFloat(formData.get('price') as string),
           currency: formData.get('currency') as string,
-          status: formData.get('status') as any,
+          status: formData.get('status') as 'planned' | 'purchased' | 'wrapped' | 'given',
           recipientId: formData.get('recipientId') as string,
           occasionId: formData.get('occasionId') as string || undefined,
           notes: formData.get('notes') as string || undefined

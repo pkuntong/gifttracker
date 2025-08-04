@@ -184,7 +184,7 @@ describe('App Component', () => {
 
     it('should show loading state during initial auth check', async () => {
       // Make validateUser return a pending promise to simulate loading
-      let resolvePromise: (value: any) => void
+      let resolvePromise: (value: unknown) => void
       const pendingPromise = new Promise((resolve) => {
         resolvePromise = resolve
       })

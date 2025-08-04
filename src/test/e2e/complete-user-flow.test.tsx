@@ -11,8 +11,8 @@ import { e2eHelper, expectElementToBeVisible, expectElementToHaveText } from './
 
 // Mock all page components for E2E testing
 vi.mock('@/pages/Dashboard', () => ({
-  default: () => {
-    const [data, setData] = React.useState<any>(null)
+  default: function MockDashboard() {
+    const [data, setData] = React.useState<unknown>(null)
     const [loading, setLoading] = React.useState(true)
     
     React.useEffect(() => {
@@ -34,7 +34,7 @@ vi.mock('@/pages/Dashboard', () => ({
               totalGifts: gifts.data?.length || 0,
               totalPeople: people.data?.length || 0,
               totalOccasions: occasions.data?.length || 0,
-              upcomingOccasions: occasions.data?.filter((o: any) => 
+              upcomingOccasions: occasions.data?.filter((o: { date: string }) => 
                 new Date(o.date) > new Date()
               ).length || 0
             }
@@ -68,7 +68,7 @@ vi.mock('@/pages/Dashboard', () => ({
           {data?.gifts.length === 0 ? (
             <p data-testid="no-gifts">No gifts yet</p>
           ) : (
-            data?.gifts.map((gift: any) => (
+            data?.gifts.map((gift: { id: string; name: string; status: string }) => (
               <div key={gift.id} data-testid={`dashboard-gift-${gift.id}`}>
                 {gift.name} - {gift.status}
               </div>

@@ -97,8 +97,8 @@ const Register = () => {
   };
 
   // Enhanced error messaging
-  const getErrorMessage = (err: any): string => {
-    const message = err?.message || 'Registration failed';
+  const getErrorMessage = (err: unknown): string => {
+    const message = (err as { message?: string })?.message || 'Registration failed';
     
     if (message.toLowerCase().includes('email') && message.toLowerCase().includes('exists')) {
       return 'An account with this email already exists. Try signing in instead.';

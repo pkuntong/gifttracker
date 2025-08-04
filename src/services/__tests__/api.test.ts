@@ -33,7 +33,7 @@ const mockPerson = {
 }
 
 // Helper to create mock response
-const createMockResponse = (data: any, status = 200, ok = true) => ({
+const createMockResponse = (data: unknown, status = 200, ok = true) => ({
   ok,
   status,
   json: vi.fn().mockResolvedValue(data),

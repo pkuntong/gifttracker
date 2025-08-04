@@ -79,7 +79,7 @@ export interface RegisterRequest {
   name: string;
 }
 
-export interface RegisterResponse extends LoginResponse {}
+export type RegisterResponse = LoginResponse;
 
 export interface RefreshTokenRequest {
   refresh_token: string;
@@ -415,4 +415,60 @@ export interface ApiHealthReport {
   metrics: PerformanceMetrics;
   uptime: number;
   lastChecked: string;
+}
+
+// Budget Management Types
+export interface Budget {
+  id: string;
+  name: string;
+  amount: number;
+  spent?: number;
+  remaining?: number;
+  category: string;
+  period: 'monthly' | 'yearly' | 'custom';
+  startDate: string;
+  endDate: string;
+  status: 'active' | 'inactive' | 'exceeded';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Expense {
+  id: string;
+  amount: number;
+  description: string;
+  category: string;
+  date: string;
+  budgetId?: string;
+  giftId?: string;
+  personId?: string;
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FinancialInsight {
+  type: 'warning' | 'info' | 'success' | 'tip';
+  title: string;
+  message: string;
+  priority: 'low' | 'medium' | 'high';
+  actionable?: boolean;
+  category: 'budget' | 'spending' | 'savings' | 'trend';
+  value?: number;
+  trend?: 'up' | 'down' | 'stable';
+}
+
+export interface BudgetApiResponse {
+  budgets?: Budget[];
+  data?: Budget[];
+}
+
+export interface ExpenseApiResponse {
+  expenses?: Expense[];
+  data?: Expense[];
+}
+
+export interface FinancialInsightsApiResponse {
+  insights?: FinancialInsight[];
+  data?: FinancialInsight[];
 }

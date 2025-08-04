@@ -270,7 +270,7 @@ export const measureTime = async <T>(
   };
 };
 
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
   delay: number
 ): ((...args: Parameters<T>) => void) => {
@@ -278,11 +278,11 @@ export const debounce = <T extends (...args: any[]) => any>(
   
   return (...args: Parameters<T>) => {
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func.apply(null, args), delay);
+    timeoutId = setTimeout(() => func(...args), delay);
   };
 };
 
-export const throttle = <T extends (...args: any[]) => any>(
+export const throttle = <T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): ((...args: Parameters<T>) => void) => {
@@ -290,7 +290,7 @@ export const throttle = <T extends (...args: any[]) => any>(
   
   return (...args: Parameters<T>) => {
     if (!inThrottle) {
-      func.apply(null, args);
+      func(...args);
       inThrottle = true;
       setTimeout(() => (inThrottle = false), limit);
     }

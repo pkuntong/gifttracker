@@ -23,9 +23,8 @@ export interface CreatePersonRequest {
   familyId?: string;
 }
 
-export interface UpdatePersonRequest extends Partial<CreatePersonRequest> {
-  // Partial update interface for person data
-}
+// Partial update interface for person data
+export type UpdatePersonRequest = Partial<CreatePersonRequest>;
 
 export interface CreateGiftRequest {
   name: string;
@@ -38,9 +37,8 @@ export interface CreateGiftRequest {
   notes?: string;
 }
 
-export interface UpdateGiftRequest extends Partial<CreateGiftRequest> {
-  // Partial update interface for gift data
-}
+// Partial update interface for gift data
+export type UpdateGiftRequest = Partial<CreateGiftRequest>;
 
 export interface CreateOccasionRequest {
   name: string;
@@ -51,9 +49,8 @@ export interface CreateOccasionRequest {
   budget?: number;
 }
 
-export interface UpdateOccasionRequest extends Partial<CreateOccasionRequest> {
-  // Partial update interface for occasion data
-}
+// Partial update interface for occasion data
+export type UpdateOccasionRequest = Partial<CreateOccasionRequest>;
 
 export interface CreateBudgetRequest {
   name: string;
@@ -68,7 +65,7 @@ export interface CreateBudgetRequest {
   endDate?: string;
 }
 
-export interface UpdateBudgetRequest extends Partial<CreateBudgetRequest> {}
+export type UpdateBudgetRequest = Partial<CreateBudgetRequest>;
 
 export interface CreateExpenseRequest {
   amount: number;
@@ -80,14 +77,14 @@ export interface CreateExpenseRequest {
   date: string;
 }
 
-export interface UpdateExpenseRequest extends Partial<CreateExpenseRequest> {}
+export type UpdateExpenseRequest = Partial<CreateExpenseRequest>;
 
 export interface CreateFamilyRequest {
   name: string;
   description?: string;
 }
 
-export interface UpdateFamilyRequest extends Partial<CreateFamilyRequest> {}
+export type UpdateFamilyRequest = Partial<CreateFamilyRequest>;
 
 export interface InviteFamilyMemberRequest {
   email: string;
@@ -710,39 +707,78 @@ export class ApiService {
       throw new Error('Please enter a valid email address');
     }
 
-    const endpoint = '/api/auth/login';
-    const endTimer = performanceMonitor.startRequest(endpoint);
-    
-    try {
-      console.log('🔐 Attempting login for:', email.trim());
+    // Use Supabase authentication if available
+    if (API_CONFIG.SUPABASE_ANON_KEY) {
+      const endpoint = '/api/auth/login';
+      const endTimer = performanceMonitor.startRequest(endpoint);
       
-      const result = await enhancedFetch<{ user: User; session: { access_token: string; refresh_token?: string } }>(
-        `${API_CONFIG.BASE_URL}${endpoint}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ 
-            email: email.trim().toLowerCase(), 
-            password 
-          }),
+      try {
+        console.log('🔐 Attempting Supabase login for:', email.trim());
+        
+        const result = await enhancedFetch<{ user: User; session: { access_token: string; refresh_token?: string } }>(
+          `${API_CONFIG.BASE_URL}${endpoint}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ 
+              email: email.trim().toLowerCase(), 
+              password 
+            }),
+          }
+        );
+        
+        endTimer();
+        
+        if (result.data?.session?.access_token) {
+          tokenManager.setToken(result.data.session.access_token);
+          if (result.data.session.refresh_token) {
+            tokenManager.setRefreshToken(result.data.session.refresh_token);
+          }
         }
-      );
-      
-      endTimer();
-      
-      if (result.data?.session?.access_token) {
-        tokenManager.setToken(result.data.session.access_token);
-        if (result.data.session.refresh_token) {
-          tokenManager.setRefreshToken(result.data.session.refresh_token);
-        }
+        
+        console.log('✅ Supabase login successful');
+        return result.data!;
+      } catch (error) {
+        performanceMonitor.recordError(endpoint);
+        endTimer();
+        console.error('❌ Supabase login failed:', error);
+        throw error;
       }
+    } else {
+      // Fallback to local server authentication
+      const endpoint = '/api/auth/login';
+      const endTimer = performanceMonitor.startRequest(endpoint);
       
-      console.log('✅ Login successful');
-      return result.data!;
-    } catch (error) {
-      performanceMonitor.recordError(endpoint);
-      endTimer();
-      console.error('❌ Login failed:', error);
-      throw error;
+      try {
+        console.log('🔐 Attempting local server login for:', email.trim());
+        
+        const result = await enhancedFetch<{ user: User; session: { access_token: string; refresh_token?: string } }>(
+          `${API_CONFIG.BASE_URL}${endpoint}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ 
+              email: email.trim().toLowerCase(), 
+              password 
+            }),
+          }
+        );
+        
+        endTimer();
+        
+        if (result.data?.session?.access_token) {
+          tokenManager.setToken(result.data.session.access_token);
+          if (result.data.session.refresh_token) {
+            tokenManager.setRefreshToken(result.data.session.refresh_token);
+          }
+        }
+        
+        console.log('✅ Local server login successful');
+        return result.data!;
+      } catch (error) {
+        performanceMonitor.recordError(endpoint);
+        endTimer();
+        console.error('❌ Local server login failed:', error);
+        throw error;
+      }
     }
   }
 

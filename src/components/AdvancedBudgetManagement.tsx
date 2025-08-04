@@ -131,11 +131,11 @@ const AdvancedBudgetManagement: React.FC = () => {
       
       // Handle different response formats
       const budgetsArray = Array.isArray(budgetsData) ? budgetsData : 
-                          ((budgetsData as any)?.budgets || (budgetsData as any)?.data || []);
+                          ((budgetsData as import('@/types/api').BudgetApiResponse)?.budgets || (budgetsData as import('@/types/api').BudgetApiResponse)?.data || []);
       const expensesArray = Array.isArray(expensesData) ? expensesData : 
-                           ((expensesData as any)?.expenses || (expensesData as any)?.data || []);
+                           ((expensesData as import('@/types/api').ExpenseApiResponse)?.expenses || (expensesData as import('@/types/api').ExpenseApiResponse)?.data || []);
       const insightsArray = Array.isArray(insightsData) ? insightsData : 
-                           ((insightsData as any)?.insights || (insightsData as any)?.data || []);
+                           ((insightsData as import('@/types/api').FinancialInsightsApiResponse)?.insights || (insightsData as import('@/types/api').FinancialInsightsApiResponse)?.data || []);
       
       console.log('Processed budgets array:', budgetsArray);
       console.log('Processed expenses array:', expensesArray);

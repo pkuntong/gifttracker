@@ -12,10 +12,10 @@ vi.mock('@/services/api', () => ({
 
 // Mock utils
 vi.mock('@/utils/api-helpers', () => ({
-  isApiError: vi.fn((error: any) => error && typeof error.status === 'number'),
-  getErrorMessage: vi.fn((error: any) => {
+  isApiError: vi.fn((error: unknown) => error && typeof (error as { status?: number }).status === 'number'),
+  getErrorMessage: vi.fn((error: unknown) => {
     if (error instanceof Error) return error.message
-    if (error && error.message) return error.message
+    if (error && (error as { message?: string }).message) return (error as { message: string }).message
     return 'An unexpected error occurred'
   })
 }))

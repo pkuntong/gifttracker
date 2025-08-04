@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,11 +32,7 @@ const TrackingWidget: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadTrackingData();
-  }, []);
-
-  const loadTrackingData = async () => {
+  const loadTrackingData = useCallback(async () => {
     try {
       setLoading(true);
       // Mock tracking data
@@ -73,7 +69,11 @@ const TrackingWidget: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadTrackingData();
+  }, [loadTrackingData]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

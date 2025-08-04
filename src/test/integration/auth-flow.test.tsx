@@ -478,7 +478,7 @@ describe('Authentication Flow Integration Tests', () => {
     it('should handle multiple concurrent login attempts', async () => {
       const user = userEvent.setup()
       
-      let resolveLogin: (value: any) => void
+      let resolveLogin: (value: unknown) => void
       const loginPromise = new Promise((resolve) => {
         resolveLogin = resolve
       })
