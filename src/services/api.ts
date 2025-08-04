@@ -130,6 +130,16 @@ const API_CONFIG = {
   MAX_CONCURRENT_REQUESTS: 5,
 } as const;
 
+// Helper function to build API URLs correctly
+const buildApiUrl = (endpoint: string): string => {
+  const baseUrl = API_CONFIG.BASE_URL;
+  // Remove trailing slash from base URL if present
+  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  // Remove leading slash from endpoint if present
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  return `${cleanBaseUrl}/${cleanEndpoint}`;
+};
+
 // Validate environment variables
 if (!API_CONFIG.SUPABASE_ANON_KEY) {
   console.warn('⚠️ VITE_SUPABASE_ANON_KEY not found in environment variables');
@@ -716,7 +726,7 @@ export class ApiService {
         console.log('🔐 Attempting Supabase login for:', email.trim());
         
         const result = await enhancedFetch<{ user: User; session: { access_token: string; refresh_token?: string } }>(
-          `${API_CONFIG.BASE_URL}${endpoint}`,
+          buildApiUrl(endpoint),
           {
             method: 'POST',
             body: JSON.stringify({ 
@@ -752,7 +762,7 @@ export class ApiService {
         console.log('🔐 Attempting local server login for:', email.trim());
         
         const result = await enhancedFetch<{ user: User; session: { access_token: string; refresh_token?: string } }>(
-          `${API_CONFIG.BASE_URL}${endpoint}`,
+          buildApiUrl(endpoint),
           {
             method: 'POST',
             body: JSON.stringify({ 
@@ -820,7 +830,7 @@ export class ApiService {
       console.log('📝 Attempting registration for:', cleanEmail);
       
       const result = await enhancedFetch<{ user: User; session: { access_token: string; refresh_token?: string } }>(
-        `${API_CONFIG.BASE_URL}${endpoint}`,
+        buildApiUrl(endpoint),
         {
           method: 'POST',
           body: JSON.stringify({ 
