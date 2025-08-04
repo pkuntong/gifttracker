@@ -17,11 +17,7 @@ const initializeApp = () => {
 
   try {
     const root = ReactDOM.createRoot(rootElement)
-    root.render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>,
-    )
+    root.render(<App />)
   } catch (error) {
     console.error('Failed to render app:', error)
     rootElement.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">Loading...</div>'

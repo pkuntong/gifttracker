@@ -2,7 +2,6 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 interface Props {
   children: ReactNode;
@@ -109,13 +108,13 @@ class ErrorBoundary extends Component<Props, State> {
               </div>
               
               <div className="text-center text-sm text-gray-500">
-                <Link to="/contact" className="text-blue-600 hover:underline">
+                <a href="/contact" className="text-blue-600 hover:underline">
                   Report This Issue
-                </Link>
+                </a>
                 {' • '}
-                <Link to="/help" className="text-blue-600 hover:underline">
+                <a href="/help" className="text-blue-600 hover:underline">
                   Get Help
-                </Link>
+                </a>
               </div>
             </CardContent>
           </Card>
