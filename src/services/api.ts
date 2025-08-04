@@ -394,12 +394,15 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
     throw error;
   }
 
+  // Clone the response to avoid consuming the stream multiple times
+  const responseClone = response.clone();
+  
   try {
     const data = await response.json();
     return { data } as ApiResponse<T>;
   } catch {
-    // Handle non-JSON responses
-    const text = await response.text();
+    // Handle non-JSON responses using the cloned response
+    const text = await responseClone.text();
     return { data: text as T } as ApiResponse<T>;
   }
 };
