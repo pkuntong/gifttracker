@@ -254,25 +254,71 @@ const Families = () => {
   };
 
   const getFamilyStats = (family: Family) => {
-    const familyPeople = people.filter(p => p.familyId === family.id);
-    const familyGifts = gifts.filter(g => familyPeople.some(p => p.id === g.recipientId));
-    const familyOccasions = occasions.filter(o => familyPeople.some(p => p.id === o.personId));
-    const familyBudgets = budgets.filter(b => familyPeople.some(p => p.id === b.personId));
+    // Safe filter operations with array validation
+    let familyPeople = [];
+    let familyGifts = [];
+    let familyOccasions = [];
+    let familyBudgets = [];
+
+    try {
+      if (Array.isArray(people)) {
+        familyPeople = people.filter(p => p.familyId === family.id);
+      } else {
+        console.warn('⚠️ People is not an array in getFamilyStats:', people);
+      }
+
+      if (Array.isArray(gifts) && familyPeople.length > 0) {
+        familyGifts = gifts.filter(g => familyPeople.some(p => p.id === g.recipientId));
+      } else if (!Array.isArray(gifts)) {
+        console.warn('⚠️ Gifts is not an array in getFamilyStats:', gifts);
+      }
+
+      if (Array.isArray(occasions) && familyPeople.length > 0) {
+        familyOccasions = occasions.filter(o => familyPeople.some(p => p.id === o.personId));
+      } else if (!Array.isArray(occasions)) {
+        console.warn('⚠️ Occasions is not an array in getFamilyStats:', occasions);
+      }
+
+      if (Array.isArray(budgets) && familyPeople.length > 0) {
+        familyBudgets = budgets.filter(b => familyPeople.some(p => p.id === b.personId));
+      } else if (!Array.isArray(budgets)) {
+        console.warn('⚠️ Budgets is not an array in getFamilyStats:', budgets);
+      }
+    } catch (error) {
+      console.error('⚠️ Error in getFamilyStats:', error);
+    }
+
+    const totalSpent = Array.isArray(familyGifts) 
+      ? familyGifts.reduce((sum, g) => sum + (g.price || 0), 0)
+      : 0;
 
     return {
       people: familyPeople.length,
       gifts: familyGifts.length,
       occasions: familyOccasions.length,
       budgets: familyBudgets.length,
-      totalSpent: familyGifts.reduce((sum, g) => sum + (g.price || 0), 0),
+      totalSpent,
     };
   };
 
-  const filteredFamilies = families.filter((f) => {
-    const matchesSearch = f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         f.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
+  // Safe filtering for families with validation
+  const filteredFamilies = (() => {
+    if (!Array.isArray(families)) {
+      console.warn('⚠️ Families is not an array in filteredFamilies:', families);
+      return [];
+    }
+
+    try {
+      return families.filter((f) => {
+        const matchesSearch = f.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             f.description?.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesSearch;
+      });
+    } catch (error) {
+      console.error('⚠️ Error filtering families:', error, 'families:', families);
+      return [];
+    }
+  })();
 
   return (
     <div className="min-h-screen bg-background">
