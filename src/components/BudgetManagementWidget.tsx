@@ -128,7 +128,16 @@ const BudgetManagementWidget: React.FC = () => {
   };
 
   const getTopInsight = () => {
-    return insights.filter(insight => insight.priority === 'high')[0];
+    if (!Array.isArray(insights)) {
+      console.warn('⚠️ Insights is not an array in BudgetManagementWidget:', insights);
+      return null;
+    }
+    try {
+      return insights.filter(insight => insight.priority === 'high')[0];
+    } catch (error) {
+      console.error('⚠️ Error filtering insights:', error, 'insights:', insights);
+      return null;
+    }
   };
 
   const progress = getBudgetProgress();

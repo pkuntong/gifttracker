@@ -112,8 +112,22 @@ const NotificationWidget: React.FC = () => {
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
-  const pinnedCount = notifications.filter(n => n.isPinned).length;
+  // Safe filter operations with array validation
+  let unreadCount = 0;
+  let pinnedCount = 0;
+
+  if (Array.isArray(notifications)) {
+    try {
+      unreadCount = notifications.filter(n => !n.isRead).length;
+      pinnedCount = notifications.filter(n => n.isPinned).length;
+    } catch (error) {
+      console.error('⚠️ Error filtering notifications:', error, 'notifications:', notifications);
+      unreadCount = 0;
+      pinnedCount = 0;
+    }
+  } else {
+    console.warn('⚠️ Notifications is not an array in NotificationWidget:', notifications);
+  }
 
   return (
     <Card className="h-full">
@@ -142,7 +156,7 @@ const NotificationWidget: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {notifications.slice(0, 3).map((notification) => {
+            {Array.isArray(notifications) ? notifications.slice(0, 3).map((notification) => {
               const TypeIcon = getTypeIcon(notification.type);
               
               return (
@@ -193,9 +207,9 @@ const NotificationWidget: React.FC = () => {
                   </div>
                 </div>
               );
-            })}
+            }) : []}
             
-            {notifications.length > 3 && (
+            {Array.isArray(notifications) && notifications.length > 3 && (
               <div className="text-center pt-2">
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/app/notifications">
