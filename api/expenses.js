@@ -11,8 +11,7 @@ export default function handler(req, res) {
 
   if (req.method === 'GET') {
     // Return mock expense data
-    return res.json({
-      expenses: [
+    return res.json([
         {
           id: '1',
           amount: 89.99,
@@ -46,8 +45,7 @@ export default function handler(req, res) {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }
-      ]
-    });
+    ]);
   }
 
   if (req.method === 'POST') {
