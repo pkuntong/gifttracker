@@ -35,22 +35,24 @@ export default function handler(req, res) {
 
   // Return validation success with user data
   return res.json({
-    valid: true,
-    user: {
-      id: 'user_123',
-      email: 'flashfolks@gmail.com',
-      name: 'Flash Folks',
-      created_at: new Date('2024-01-01').toISOString(),
-      updated_at: new Date().toISOString(),
-      preferences: {
-        currency: 'USD',
-        timezone: 'America/New_York',
-        theme: 'system',
-        notifications: true,
-        language: 'en',
-        subscription: {
-          plan: 'FREE',
-          status: 'active'
+    data: {
+      valid: true,
+      user: {
+        id: 'user_123',
+        email: 'flashfolks@gmail.com',
+        name: 'Flash Folks',
+        created_at: new Date('2024-01-01').toISOString(),
+        updated_at: new Date().toISOString(),
+        preferences: {
+          currency: 'USD',
+          timezone: 'America/New_York',
+          theme: 'system',
+          notifications: true,
+          language: 'en',
+          subscription: {
+            plan: 'FREE',
+            status: 'active'
+          }
         }
       }
     }

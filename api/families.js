@@ -11,7 +11,7 @@ export default function handler(req, res) {
 
   if (req.method === 'GET') {
     // Return mock families data
-    return res.json([
+    return res.json({ data: [
       {
         id: '1',
         name: 'Johnson Family',
@@ -80,7 +80,8 @@ export default function handler(req, res) {
           shareBudgets: true
         }
       }
-    ]);
+      ]
+    });
   }
 
   if (req.method === 'POST') {
@@ -116,7 +117,7 @@ export default function handler(req, res) {
     };
 
     console.log('✅ Family created:', { name, description });
-    return res.status(201).json(newFamily);
+    return res.status(201).json({ data: newFamily });
   }
 
   return res.status(405).json({ message: 'Method not allowed' });

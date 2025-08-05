@@ -11,7 +11,7 @@ export default function handler(req, res) {
 
   if (req.method === 'GET') {
     // Return mock people data
-    return res.json([
+    return res.json({ data: [
       {
         id: '1',
         name: 'Sarah Johnson',
@@ -45,7 +45,8 @@ export default function handler(req, res) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
-    ]);
+      ]
+    });
   }
 
   if (req.method === 'POST') {
@@ -64,7 +65,7 @@ export default function handler(req, res) {
       updatedAt: new Date().toISOString()
     };
 
-    return res.status(201).json(newPerson);
+    return res.status(201).json({ data: newPerson });
   }
 
   return res.status(405).json({ message: 'Method not allowed' });

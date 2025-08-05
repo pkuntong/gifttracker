@@ -11,7 +11,8 @@ export default function handler(req, res) {
 
   if (req.method === 'GET') {
     // Return mock budget data
-    return res.json([
+    return res.json({
+      data: [
         {
           id: '1',
           name: 'Christmas 2024',
@@ -38,7 +39,8 @@ export default function handler(req, res) {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }
-    ]);
+      ]
+    });
   }
 
   if (req.method === 'POST') {
@@ -59,7 +61,7 @@ export default function handler(req, res) {
       updatedAt: new Date().toISOString()
     };
 
-    return res.status(201).json(newBudget);
+    return res.status(201).json({ data: newBudget });
   }
 
   return res.status(405).json({ message: 'Method not allowed' });

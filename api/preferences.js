@@ -12,11 +12,13 @@ export default function handler(req, res) {
   if (req.method === 'GET') {
     // Return current user preferences
     return res.json({
-      currency: 'USD',
-      timezone: 'America/New_York', 
-      theme: 'system',
-      notifications: true,
-      language: 'en'
+      data: {
+        currency: 'USD',
+        timezone: 'America/New_York', 
+        theme: 'system',
+        notifications: true,
+        language: 'en'
+      }
     });
   }
 
@@ -48,8 +50,10 @@ export default function handler(req, res) {
 
     console.log('✅ Preferences updated:', updatedPreferences);
     return res.json({
-      success: true,
-      preferences: updatedPreferences
+      data: {
+        success: true,
+        preferences: updatedPreferences
+      }
     });
   }
 

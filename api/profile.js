@@ -10,22 +10,24 @@ export default function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    // Return mock user profile data
+    // Return mock user profile data in expected format
     return res.json({
-      id: 'user_123',
-      email: 'flashfolks@gmail.com',
-      name: 'Flash Folks',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      preferences: {
-        currency: 'USD',
-        timezone: 'America/New_York',
-        theme: 'system',
-        notifications: true,
-        language: 'en',
-        subscription: {
-          plan: 'FREE',
-          status: 'active'
+      data: {
+        id: 'user_123',
+        email: 'flashfolks@gmail.com',
+        name: 'Flash Folks',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        preferences: {
+          currency: 'USD',
+          timezone: 'America/New_York',
+          theme: 'system',
+          notifications: true,
+          language: 'en',
+          subscription: {
+            plan: 'FREE',
+            status: 'active'
+          }
         }
       }
     });
@@ -68,7 +70,7 @@ export default function handler(req, res) {
     };
 
     console.log('✅ Profile updated:', { name, email });
-    return res.json(updatedProfile);
+    return res.json({ data: updatedProfile });
   }
 
   return res.status(405).json({ message: 'Method not allowed' });
